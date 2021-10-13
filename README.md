@@ -1,7 +1,10 @@
 # `monoctl`
 
-[![pipeline status](https://gitlab.figo.systems/platform/monoskope/monoctl/badges/main/pipeline.svg)](https://gitlab.figo.systems/platform/monoskope/monoctl/-/commits/main)
-[![coverage report](https://gitlab.figo.systems/platform/monoskope/monoctl/badges/main/coverage.svg)](https://gitlab.figo.systems/platform/monoskope/monoctl/-/commits/main)
+[![Build status](https://github.com/finleap-connect/monoctl/actions/workflows/golang.yaml/badge.svg)](https://github.com/finleap-connect/monoctl/actions/workflows/golang.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/finleap-connect/monoctl/badge.svg?branch=main)](https://coveralls.io/github/finleap-connect/monoskope?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/finleap-connect/monoctl)](https://goreportcard.com/report/github.com/finleap-connect/monoskope)
+[![Go Reference](https://pkg.go.dev/badge/github.com/finleap-connect/monoctl.svg)](https://pkg.go.dev/github.com/finleap-connect/monoctl)
+[![GitHub release](https://img.shields.io/github/release/finleap-connect/monoctl.svg)](https://github.com/finleap-connect/monoctl/releases)
 
 ![monoctl logo](logo/monoctl.png)
 
@@ -20,26 +23,4 @@ The creation of the configuration will also trigger an authentication with the G
 
 ### General
 
-* Architecture and more in [GDrive](https://drive.google.com/drive/folders/1QEewDHF0LwSLr6aUVoHvMWrFgaJfJLty)
 * Docs on the almighty [Makefile](docs/Makefile.md)
-
-## Building
-
-### Private Monoskope Repository
-
-The build process needs to access private Git repositories that
-contain modules used by `monoctl`. To enable the go toolchain to
-access the code, the `GOPRIVATE` environment variable needs to be
-set. This happens automatically in the `go-mod` target of the
-Makefile but you need to set the variable before running the go
-module commands separately during development.
-
-```shell
-export GOPRIVATE="gitlab.figo.systems/platform"
-```
-
-Alternatively you can set this permanently using the following command:
-
-```shell
-go env -w GOPRIVATE="gitlab.figo.systems/*" 
-```
