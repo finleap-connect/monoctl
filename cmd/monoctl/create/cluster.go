@@ -26,7 +26,7 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/usecases"
 	auth_util "gitlab.figo.systems/platform/monoskope/monoctl/internal/util/auth"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/k8s"
+	"github.com/finleap-connect/monoskope/pkg/k8s"
 )
 
 func NewCreateClusterCmd() *cobra.Command {

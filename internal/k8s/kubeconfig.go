@@ -19,7 +19,7 @@ import (
 	"os"
 	"path"
 
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/logger"
+	"github.com/finleap-connect/monoskope/pkg/logger"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/homedir"

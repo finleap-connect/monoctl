@@ -22,7 +22,7 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/output"
-	api "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
 	ggrpc "google.golang.org/grpc"
 )

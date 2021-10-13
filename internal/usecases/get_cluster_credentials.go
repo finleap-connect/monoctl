@@ -22,8 +22,8 @@ import (
 
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
 	mgrpc "gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
-	api "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
-	apiGateway "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/gateway"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	apiGateway "github.com/finleap-connect/monoskope/pkg/api/gateway"
 	ggrpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"

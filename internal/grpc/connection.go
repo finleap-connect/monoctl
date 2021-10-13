@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/grpc"
+	"github.com/finleap-connect/monoskope/pkg/grpc"
 	"golang.org/x/oauth2"
 	ggrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/oauth"

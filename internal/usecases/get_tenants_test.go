@@ -27,8 +27,8 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/output"
 	mdom "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/domain"
-	api_commandhandler "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/projections"
+	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

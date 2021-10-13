@@ -22,9 +22,9 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/spinner"
-	esApi "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/eventsourcing"
-	cmd "gitlab.figo.systems/platform/monoskope/monoskope/pkg/domain/commands"
-	commandTypes "gitlab.figo.systems/platform/monoskope/monoskope/pkg/domain/constants/commands"
+	esApi "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
+	cmd "github.com/finleap-connect/monoskope/pkg/domain/commands"
+	commandTypes "github.com/finleap-connect/monoskope/pkg/domain/constants/commands"
 	"golang.org/x/oauth2"
 )
 

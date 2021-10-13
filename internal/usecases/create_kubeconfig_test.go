@@ -27,8 +27,8 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/k8s"
 	mdomain "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/domain"
-	api "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/projections"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 )
 
 var _ = Describe("CreateKubeconfig", func() {

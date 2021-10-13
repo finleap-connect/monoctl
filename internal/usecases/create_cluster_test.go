@@ -27,10 +27,10 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
 	mdom "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/domain"
 	mes "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/eventsourcing"
-	cmdData "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/commanddata"
-	es "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/eventsourcing"
-	cmd "gitlab.figo.systems/platform/monoskope/monoskope/pkg/domain/commands"
-	commandTypes "gitlab.figo.systems/platform/monoskope/monoskope/pkg/domain/constants/commands"
+	cmdData "github.com/finleap-connect/monoskope/pkg/api/domain/commanddata"
+	es "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
+	cmd "github.com/finleap-connect/monoskope/pkg/domain/commands"
+	commandTypes "github.com/finleap-connect/monoskope/pkg/domain/constants/commands"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 

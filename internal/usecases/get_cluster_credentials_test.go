@@ -28,9 +28,9 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
 	mdomain "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/domain"
 	mgw "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/gateway"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/projections"
-	gw "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/gateway"
-	mk8s "gitlab.figo.systems/platform/monoskope/monoskope/pkg/k8s"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	gw "github.com/finleap-connect/monoskope/pkg/api/gateway"
+	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )

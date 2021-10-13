@@ -28,8 +28,8 @@ import (
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/spinner"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/version"
-	api "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/gateway"
-	monoctlAuth "gitlab.figo.systems/platform/monoskope/monoskope/pkg/auth"
+	api "github.com/finleap-connect/monoskope/pkg/api/gateway"
+	monoctlAuth "github.com/finleap-connect/monoskope/pkg/auth"
 	"golang.org/x/sync/errgroup"
 )
 

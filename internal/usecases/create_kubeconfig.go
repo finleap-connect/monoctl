@@ -23,9 +23,9 @@ import (
 	mgrpc "gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/k8s"
 	"gitlab.figo.systems/platform/monoskope/monoctl/internal/spinner"
-	api "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
-	projections "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/projections"
-	mk8s "gitlab.figo.systems/platform/monoskope/monoskope/pkg/k8s"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	projections "github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
 	ggrpc "google.golang.org/grpc"
 	kapi "k8s.io/client-go/tools/clientcmd/api"
 )
