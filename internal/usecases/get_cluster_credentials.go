@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	mgrpc "gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
+	"github.com/finleap-connect/monoctl/internal/config"
+	mgrpc "github.com/finleap-connect/monoctl/internal/grpc"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	apiGateway "github.com/finleap-connect/monoskope/pkg/api/gateway"
 	ggrpc "google.golang.org/grpc"

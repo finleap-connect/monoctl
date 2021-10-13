@@ -19,13 +19,13 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/auth"
-	conf "gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/create"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/delete"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/flags"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/get"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/update"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/auth"
+	conf "github.com/finleap-connect/monoctl/cmd/monoctl/config"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/create"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/delete"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/get"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/update"
 )
 
 func NewRootCmd() *cobra.Command {

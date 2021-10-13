@@ -18,11 +18,11 @@ import (
 	"context"
 
 	"github.com/spf13/cobra"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/flags"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/usecases"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/util"
-	auth_util "gitlab.figo.systems/platform/monoskope/monoctl/internal/util/auth"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/usecases"
+	"github.com/finleap-connect/monoctl/internal/util"
+	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
 )
 
 func NewCreateRoleBindingCmd() *cobra.Command {

@@ -1,4 +1,4 @@
-module gitlab.figo.systems/platform/monoskope/monoctl
+module github.com/finleap-connect/monoctl
 
 go 1.17
 

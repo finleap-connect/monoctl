@@ -1,6 +1,6 @@
 BUILD_PATH ?= $(shell pwd)
 GO_MODULE_MONOSKOPE ?= github.com/finleap-connect/monoskope
-GO_MODULE ?= gitlab.figo.systems/platform/monoskope/monoctl
+GO_MODULE ?= github.com/finleap-connect/monoctl
 
 GO             ?= go
 

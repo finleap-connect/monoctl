@@ -19,9 +19,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/spinner"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/grpc"
+	"github.com/finleap-connect/monoctl/internal/spinner"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	cmdData "github.com/finleap-connect/monoskope/pkg/api/domain/commanddata"
 	esApi "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"

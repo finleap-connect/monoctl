@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoskope/pkg/logger"
 )
 

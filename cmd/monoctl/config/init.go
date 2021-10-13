@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"gitlab.figo.systems/platform/monoskope/monoctl/cmd/monoctl/flags"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
+	"github.com/finleap-connect/monoctl/internal/config"
 )
 
 var (

@@ -20,7 +20,7 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/config"
 )
 
 // rendered output for certificate resource and issuer

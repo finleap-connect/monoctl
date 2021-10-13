@@ -16,7 +16,7 @@ package get
 
 import (
 	"github.com/spf13/cobra"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/output"
+	"github.com/finleap-connect/monoctl/internal/output"
 )
 
 var showDeleted bool

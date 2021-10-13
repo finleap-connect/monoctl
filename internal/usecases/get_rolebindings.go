@@ -19,9 +19,9 @@ import (
 	"io"
 	"time"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/output"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/grpc"
+	"github.com/finleap-connect/monoctl/internal/output"
 	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/types/known/wrapperspb"
