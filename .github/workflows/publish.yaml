@@ -23,7 +23,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       version: ${{ env.VERSION }}
     steps:
@@ -45,7 +45,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Publish draft
         uses: release-drafter/release-drafter@v5
@@ -59,7 +59,7 @@ jobs:
 
   upload-release-artifacts:
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Download monoctl binaries
         uses: actions/download-artifact@v2
