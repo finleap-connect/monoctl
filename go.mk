@@ -1,11 +1,11 @@
 BUILD_PATH ?= $(shell pwd)
-GO_MODULE_MONOSKOPE ?= gitlab.figo.systems/platform/monoskope/monoskope
-GO_MODULE ?= gitlab.figo.systems/platform/monoskope/monoctl
+GO_MODULE_MONOSKOPE ?= github.com/finleap-connect/monoskope
+GO_MODULE ?= github.com/finleap-connect/monoctl
 
 GO             ?= go
 
 GINKGO         ?= $(TOOLS_DIR)/ginkgo
-GINKO_VERSION  ?= v1.14.2
+GINKO_VERSION  ?= v1.16.4
 
 LINTER 	   	   ?= $(TOOLS_DIR)/golangci-lint
 LINTER_VERSION ?= v1.36.0
@@ -31,12 +31,12 @@ ifeq ($(uname_S),Darwin)
 OS = darwin
 endif
 
-.PHONY: go lint mod vet test clean build-monoctl-linux build-monoctl-all push-monoctl protobuf
+.PHONY: go lint mod vet test clean build-monoctl-linux build-monoctl-all protobuf
 
 mod: ## Do go mod tidy, download, verify
-	GOPRIVATE="gitlab.figo.systems/platform" $(GO) mod tidy
-	GOPRIVATE="gitlab.figo.systems/platform" $(GO) mod download
-	GOPRIVATE="gitlab.figo.systems/platform" $(GO) mod verify
+	$(GO) mod tidy
+	$(GO) mod download
+	$(GO) mod verify
 
 vet: ## Do go ver
 	$(GO) vet ./...
@@ -101,17 +101,9 @@ build-monoctl-linux: $(CMD_MONOCTL_LINUX) ## build monoctl for linux
 
 build-monoctl-all: $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_WIN) ## build monoctl for linux, osx and windows
 
-push-monoctl:  ## push monoctl to artifactory
-	@curl -u$(ARTIFACTORY_BINARY_USER):$(ARTIFACTORY_BINARY_PW) -T $(CMD_MONOCTL_LINUX) "https://artifactory.figo.systems/artifactory/binaries/linux/monoctl-$(VERSION)"
-	@curl -u$(ARTIFACTORY_BINARY_USER):$(ARTIFACTORY_BINARY_PW) -T $(CMD_MONOCTL_LINUX) "https://artifactory.figo.systems/artifactory/binaries/linux/monoctl"
-	@curl -u$(ARTIFACTORY_BINARY_USER):$(ARTIFACTORY_BINARY_PW) -T $(CMD_MONOCTL_OSX) "https://artifactory.figo.systems/artifactory/binaries/osx/monoctl-$(VERSION)"
-	@curl -u$(ARTIFACTORY_BINARY_USER):$(ARTIFACTORY_BINARY_PW) -T $(CMD_MONOCTL_OSX) "https://artifactory.figo.systems/artifactory/binaries/osx/monoctl"
-	@curl -u$(ARTIFACTORY_BINARY_USER):$(ARTIFACTORY_BINARY_PW) -T $(CMD_MONOCTL_WIN) "https://artifactory.figo.systems/artifactory/binaries/win/monoctl-$(VERSION)"
-	@curl -u$(ARTIFACTORY_BINARY_USER):$(ARTIFACTORY_BINARY_PW) -T $(CMD_MONOCTL_WIN) "https://artifactory.figo.systems/artifactory/binaries/win/monoctl"
-
 rebuild-mocks: ## rebuild go mocks
-	$(MOCKGEN) -package eventsourcing -destination test/mock/eventsourcing/command_handler_client.go gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/eventsourcing CommandHandlerClient
-	$(MOCKGEN) -package domain -destination test/mock/domain/cluster_client.go gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain ClusterClient,Cluster_GetAllClient
-	$(MOCKGEN) -package domain -destination test/mock/domain/tenant_client.go gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain TenantClient,Tenant_GetAllClient
-	$(MOCKGEN) -package domain -destination test/mock/domain/certificate_client.go gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain CertificateClient
-	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/gateway ClusterAuthClient
+	$(MOCKGEN) -package eventsourcing -destination test/mock/eventsourcing/command_handler_client.go github.com/finleap-connect/monoskope/pkg/api/eventsourcing CommandHandlerClient
+	$(MOCKGEN) -package domain -destination test/mock/domain/cluster_client.go github.com/finleap-connect/monoskope/pkg/api/domain ClusterClient,Cluster_GetAllClient
+	$(MOCKGEN) -package domain -destination test/mock/domain/tenant_client.go github.com/finleap-connect/monoskope/pkg/api/domain TenantClient,Tenant_GetAllClient
+	$(MOCKGEN) -package domain -destination test/mock/domain/certificate_client.go github.com/finleap-connect/monoskope/pkg/api/domain CertificateClient
+	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go github.com/finleap-connect/monoskope/pkg/api/gateway ClusterAuthClient

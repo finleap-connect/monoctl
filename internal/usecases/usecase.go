@@ -18,8 +18,8 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/logger"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoskope/pkg/logger"
 )
 
 // UseCase is the interface an UseCase must implement to be executable

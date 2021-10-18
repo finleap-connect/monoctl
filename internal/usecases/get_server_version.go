@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"io"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
-	api_common "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/common"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/grpc"
+	api_common "github.com/finleap-connect/monoskope/pkg/api/domain/common"
 	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

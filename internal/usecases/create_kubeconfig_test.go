@@ -24,11 +24,11 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/k8s"
-	mdomain "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/domain"
-	api "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/projections"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/k8s"
+	mdomain "github.com/finleap-connect/monoctl/test/mock/domain"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 )
 
 var _ = Describe("CreateKubeconfig", func() {

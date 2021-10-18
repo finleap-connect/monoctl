@@ -23,12 +23,12 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/output"
-	mdom "gitlab.figo.systems/platform/monoskope/monoctl/test/mock/domain"
-	api_commandhandler "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain/projections"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/grpc"
+	"github.com/finleap-connect/monoctl/internal/output"
+	mdom "github.com/finleap-connect/monoctl/test/mock/domain"
+	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

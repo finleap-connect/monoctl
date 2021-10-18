@@ -19,10 +19,10 @@ import (
 	"io"
 	"time"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/grpc"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/output"
-	api_commandhandler "gitlab.figo.systems/platform/monoskope/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/grpc"
+	"github.com/finleap-connect/monoctl/internal/output"
+	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
 	ggrpc "google.golang.org/grpc"
 )
 

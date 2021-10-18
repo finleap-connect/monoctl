@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/util"
-	"gitlab.figo.systems/platform/monoskope/monoskope/pkg/logger"
+	"github.com/finleap-connect/monoctl/internal/util"
+	"github.com/finleap-connect/monoskope/pkg/logger"
 	"gopkg.in/yaml.v2"
 )
 

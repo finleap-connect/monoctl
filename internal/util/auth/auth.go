@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/config"
-	"gitlab.figo.systems/platform/monoskope/monoctl/internal/usecases"
+	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/usecases"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
