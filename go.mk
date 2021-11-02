@@ -51,7 +51,7 @@ run: ## run monoctl, use `ARGS="get user"` to pass arguments
 
 test: ## run all tests
 	@find . -name '*.coverprofile' -exec rm {} \;
-	ACK_GINKGO_DEPRECATIONS=1.16.4 $(GINKGO) -r -v -cover *
+	$(GINKGO) -r -v -cover *
 	@echo "mode: set" > ./monoctl.coverprofile
 	@find ./internal -name "*.coverprofile" -exec cat {} \; | grep -v mode: | sort -r >> ./monoctl.coverprofile   
 	@find ./internal -name '*.coverprofile' -exec rm {} \;
