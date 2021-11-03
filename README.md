@@ -1,8 +1,8 @@
 # `monoctl`
 
 [![Build status](https://github.com/finleap-connect/monoctl/actions/workflows/golang.yaml/badge.svg)](https://github.com/finleap-connect/monoctl/actions/workflows/golang.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/finleap-connect/monoctl/badge.svg?branch=main)](https://coveralls.io/github/finleap-connect/monoskope?branch=main)
-[![Go Report Card](https://goreportcard.com/badge/github.com/finleap-connect/monoctl)](https://goreportcard.com/report/github.com/finleap-connect/monoskope)
+[![Coverage Status](https://coveralls.io/repos/github/finleap-connect/monoctl/badge.svg?branch=main)](https://coveralls.io/github/finleap-connect/monoctl?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/finleap-connect/monoctl)](https://goreportcard.com/report/github.com/finleap-connect/monoctl)
 [![Go Reference](https://pkg.go.dev/badge/github.com/finleap-connect/monoctl.svg)](https://pkg.go.dev/github.com/finleap-connect/monoctl)
 [![GitHub release](https://img.shields.io/github/release/finleap-connect/monoctl.svg)](https://github.com/finleap-connect/monoctl/releases)
 
