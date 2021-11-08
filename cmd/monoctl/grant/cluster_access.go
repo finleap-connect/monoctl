@@ -34,7 +34,7 @@ func NewClusterAccessCmd() *cobra.Command {
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewUpdateTenantUseCase(configManager.GetConfig(), args[0], args[1]).Run(ctx)
+				return usecases.NewGrantClusterAccessUseCase(configManager.GetConfig(), args[0], args[1]).Run(ctx)
 			})
 		},
 	}
