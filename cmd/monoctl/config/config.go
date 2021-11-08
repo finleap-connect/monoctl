@@ -19,16 +19,14 @@ import (
 )
 
 func NewConfigCmd() *cobra.Command {
-	authCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                   "config",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
 		Short:                 "View and modify monoctl config files",
 		Long:                  `View and modify monoctl config files`,
 	}
-
-	authCmd.AddCommand(NewInitCmd())
-	authCmd.AddCommand(NewViewCmd())
-
-	return authCmd
+	cmd.AddCommand(NewInitCmd())
+	cmd.AddCommand(NewViewCmd())
+	return cmd
 }

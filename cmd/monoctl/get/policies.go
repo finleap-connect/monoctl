@@ -17,15 +17,15 @@ package get
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewGetPoliciesCmd() *cobra.Command {
-	getCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "policies",
 		Short: "Get policies.",
 		Long:  `Get policies.`,
@@ -37,5 +37,5 @@ func NewGetPoliciesCmd() *cobra.Command {
 			})
 		},
 	}
-	return getCmd
+	return cmd
 }

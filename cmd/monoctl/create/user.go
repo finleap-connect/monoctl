@@ -18,17 +18,17 @@ import (
 	"context"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewCreateUserCmd() *cobra.Command {
 	var username string
 
-	createUserCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "user <EMAIL>",
 		Short: "Create user.",
 		Long:  `Creates a user.`,
@@ -44,9 +44,9 @@ func NewCreateUserCmd() *cobra.Command {
 		},
 	}
 
-	flags := createUserCmd.Flags()
+	flags := cmd.Flags()
 
 	flags.StringVarP(&username, "username", "u", "", "Name of the user. By default the local part of the email address is used.")
 
-	return createUserCmd
+	return cmd
 }

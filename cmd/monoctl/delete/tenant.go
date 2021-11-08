@@ -17,15 +17,15 @@ package delete
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewDeleteTenantCmd() *cobra.Command {
-	command := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "tenant <NAME>",
 		Short: "Delete tenant.",
 		Long:  `Deletes a tenant.`,
@@ -37,5 +37,5 @@ func NewDeleteTenantCmd() *cobra.Command {
 			})
 		},
 	}
-	return command
+	return cmd
 }

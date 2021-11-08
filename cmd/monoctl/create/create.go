@@ -19,7 +19,7 @@ import (
 )
 
 func NewCreateCmd() *cobra.Command {
-	createCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                   "create",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
@@ -27,11 +27,11 @@ func NewCreateCmd() *cobra.Command {
 		Long:                  `Create anything within Monoskope`,
 	}
 
-	createCmd.AddCommand(NewCreateRoleBindingCmd())
-	createCmd.AddCommand(NewCreateUserCmd())
-	createCmd.AddCommand(NewCreateClusterCmd())
-	createCmd.AddCommand(NewCreateTenantCmd())
-	createCmd.AddCommand(NewCreateKubeConfigCmd())
+	cmd.AddCommand(NewCreateRoleBindingCmd())
+	cmd.AddCommand(NewCreateUserCmd())
+	cmd.AddCommand(NewCreateClusterCmd())
+	cmd.AddCommand(NewCreateTenantCmd())
+	cmd.AddCommand(NewCreateKubeConfigCmd())
 
-	return createCmd
+	return cmd
 }

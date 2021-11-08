@@ -18,15 +18,15 @@ import (
 	"context"
 	"errors"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewGetClusterCredentials() *cobra.Command {
-	getCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "cluster-credentials [CLUSTER] [ROLE]",
 		Short: "Get cluster credentials.",
 		Long:  `Get credentials for a specific cluster known to the m8 control plane.`,
@@ -48,5 +48,5 @@ func NewGetClusterCredentials() *cobra.Command {
 			})
 		},
 	}
-	return getCmd
+	return cmd
 }

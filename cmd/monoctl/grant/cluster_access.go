@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package get
+package grant
 
 import (
 	"context"
@@ -24,18 +24,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGetTenantUsersCmd() *cobra.Command {
+func NewClusterAccessCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "tenant-users [NAME]",
-		Aliases: []string{"tenant-user"},
-		Short:   "Get users of a tentant.",
-		Long:    `Get all users of a tenant.`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "cluster-access <TENANT_NAME> <CLUSTER_NAME>",
+		Short: "Grant a tenant access to a cluster.",
+		Long:  `The command can be used to grant some tenant access to a certain cluster.`,
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewGetTenantUsersUseCase(configManager.GetConfig(), args[0], getOutputOptions()).Run(ctx)
+				return usecases.NewUpdateTenantUseCase(configManager.GetConfig(), args[0], args[1]).Run(ctx)
 			})
 		},
 	}

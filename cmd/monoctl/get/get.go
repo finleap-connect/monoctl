@@ -15,8 +15,8 @@
 package get
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/internal/output"
+	"github.com/spf13/cobra"
 )
 
 var showDeleted bool
@@ -32,7 +32,7 @@ func getOutputOptions() *output.OutputOptions {
 }
 
 func NewGetCmd() *cobra.Command {
-	getCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                   "get",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
@@ -40,20 +40,20 @@ func NewGetCmd() *cobra.Command {
 		Long:                  `Get information about entities in Monoskope`,
 	}
 
-	getCmd.AddCommand(NewGetRolesCmd())
-	getCmd.AddCommand(NewGetScopesCmd())
-	getCmd.AddCommand(NewGetPoliciesCmd())
-	getCmd.AddCommand(NewGetUsersCmd())
-	getCmd.AddCommand(NewGetClustersCmd())
-	getCmd.AddCommand(NewGetTenantsCmd())
-	getCmd.AddCommand(NewGetRoleBindingsCmd())
-	getCmd.AddCommand(NewGetTenantUsersCmd())
-	getCmd.AddCommand(NewGetClusterCredentials())
+	cmd.AddCommand(NewGetRolesCmd())
+	cmd.AddCommand(NewGetScopesCmd())
+	cmd.AddCommand(NewGetPoliciesCmd())
+	cmd.AddCommand(NewGetUsersCmd())
+	cmd.AddCommand(NewGetClustersCmd())
+	cmd.AddCommand(NewGetTenantsCmd())
+	cmd.AddCommand(NewGetRoleBindingsCmd())
+	cmd.AddCommand(NewGetTenantUsersCmd())
+	cmd.AddCommand(NewGetClusterCredentials())
 
-	flags := getCmd.PersistentFlags()
+	flags := cmd.PersistentFlags()
 	flags.BoolVarP(&showDeleted, "deleted", "d", false, "Show deleted resources.")
 	flags.StringVar(&sortBy, "sort-by", "", "Column to sort result by. Uses the first column by default.")
 	flags.BoolVar(&sortDescending, "descending", false, "Sort result in descending order.")
 
-	return getCmd
+	return cmd
 }

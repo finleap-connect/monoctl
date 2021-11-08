@@ -18,14 +18,15 @@ import (
 	"flag"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/auth"
 	conf "github.com/finleap-connect/monoctl/cmd/monoctl/config"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/create"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/delete"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/get"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/grant"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/update"
+	"github.com/spf13/cobra"
 )
 
 func NewRootCmd() *cobra.Command {
@@ -53,6 +54,7 @@ users and their roles in a Kubernetes multi-cluster environment.`,
 	rootCmd.AddCommand(create.NewCreateCmd())
 	rootCmd.AddCommand(update.NewUpdateCmd())
 	rootCmd.AddCommand(delete.NewDeleteCmd())
+	rootCmd.AddCommand(grant.NewGrantCmd())
 
 	return rootCmd
 }

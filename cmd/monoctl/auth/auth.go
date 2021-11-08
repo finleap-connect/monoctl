@@ -19,15 +19,13 @@ import (
 )
 
 func NewAuthCmd() *cobra.Command {
-	authCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                   "auth",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
 		Short:                 "Handle authorization",
 		Long:                  `Authenticate with Monoskope instance, check status and more.`,
 	}
-
-	authCmd.AddCommand(NewAuthStatusCmd())
-
-	return authCmd
+	cmd.AddCommand(NewAuthStatusCmd())
+	return cmd
 }
