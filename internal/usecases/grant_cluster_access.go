@@ -64,7 +64,6 @@ func (u *grantClusterAccessUseCase) init(ctx context.Context) error {
 	u.clusterClient = api.NewClusterClient(u.conn)
 	u.tenantClient = api.NewTenantClient(conn)
 	u.cmdHandlerClient = esApi.NewCommandHandlerClient(u.conn)
-
 	u.setInitialized()
 
 	return nil
@@ -91,7 +90,7 @@ func (u *grantClusterAccessUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(uuid.MustParse(tenant.Id), commandTypes.CreateTenantClusterBinding)
+	command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateTenantClusterBinding)
 	if _, err := cmd.AddCommandData(command, &cmdData.CreateTenantClusterBindingCommandData{
 		TenantId:  tenant.Id,
 		ClusterId: cluster.Id,
