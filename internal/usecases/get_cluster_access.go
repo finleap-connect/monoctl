@@ -94,7 +94,7 @@ func (u *getClusterAccess) byTenant(ctx context.Context) error {
 			return err
 		}
 
-		// Get cluster by name
+		// Get cluster by id
 		cluster, err := u.clusterClient.GetById(ctx, wrapperspb.String(access.ClusterId))
 		if err != nil {
 			return err
@@ -153,8 +153,8 @@ func (u *getClusterAccess) byCluster(ctx context.Context) error {
 			return err
 		}
 
-		// Get tenant by name
-		tenant, err := u.tenantClient.GetById(ctx, wrapperspb.String(access.ClusterId))
+		// Get tenant by id
+		tenant, err := u.tenantClient.GetById(ctx, wrapperspb.String(access.TenantId))
 		if err != nil {
 			return err
 		}
