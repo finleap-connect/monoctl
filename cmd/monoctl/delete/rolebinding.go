@@ -17,15 +17,15 @@ package delete
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewDeleteUserRoleBindingCmd() *cobra.Command {
-	command := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "rolebinding <ID>",
 		Short: "Delete rolebinding.",
 		Long:  `Deletes a rolebinding.`,
@@ -38,5 +38,5 @@ func NewDeleteUserRoleBindingCmd() *cobra.Command {
 			})
 		},
 	}
-	return command
+	return cmd
 }

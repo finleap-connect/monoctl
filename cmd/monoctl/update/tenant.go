@@ -17,15 +17,15 @@ package update
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewUpdateTenantCmd() *cobra.Command {
-	updateRoleBindingCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "tenant <NAME> <NEW_NAME>",
 		Short: "Update tenant.",
 		Long:  `Updates a tenant.`,
@@ -39,5 +39,5 @@ func NewUpdateTenantCmd() *cobra.Command {
 		},
 	}
 
-	return updateRoleBindingCmd
+	return cmd
 }

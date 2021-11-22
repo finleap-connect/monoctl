@@ -12,25 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package delete
+package revoke
 
 import (
 	"github.com/spf13/cobra"
 )
 
-func NewDeleteCmd() *cobra.Command {
+func NewGrantCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "delete",
+		Use:                   "revoke",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
-		Short:                 "Delete anything within Monoskope",
-		Long:                  `Delete anything within Monoskope`,
+		Short:                 "Revoke something on someone",
+		Long:                  `Revoke something on someone`,
 	}
 
-	cmd.AddCommand(NewDeleteTenantCmd())
-	cmd.AddCommand(NewDeleteUserRoleBindingCmd())
-	cmd.AddCommand(NewDeleteClusterCmd())
-	cmd.AddCommand(NewDeleteUserCmd())
+	cmd.AddCommand(NewClusterAccessCmd())
 
 	return cmd
 }

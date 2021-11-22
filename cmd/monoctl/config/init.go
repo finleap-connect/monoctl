@@ -18,9 +18,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 )
 
 func NewInitCmd() *cobra.Command {
-	initCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Init monoctl config",
 		Long:  `Init monoctl and create a new monoskope configuration.`,
@@ -50,14 +50,14 @@ func NewInitCmd() *cobra.Command {
 		},
 	}
 
-	flags := initCmd.Flags()
+	flags := cmd.Flags()
 	flags.StringVarP(&serverURL, "server-url", "u", "", "URL of the monoskope instance")
 	flags.BoolVarP(&force, "force", "f", false, "Force overwrite configuration.")
 
-	err := initCmd.MarkFlagRequired("server-url")
+	err := cmd.MarkFlagRequired("server-url")
 	if err != nil {
 		panic(err)
 	}
 
-	return initCmd
+	return cmd
 }

@@ -12,25 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package delete
+package grant
 
 import (
 	"github.com/spf13/cobra"
 )
 
-func NewDeleteCmd() *cobra.Command {
+func NewGrantCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "delete",
+		Use:                   "grant",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
-		Short:                 "Delete anything within Monoskope",
-		Long:                  `Delete anything within Monoskope`,
+		Short:                 "Grant something on someone",
+		Long:                  `Grant something on someone`,
 	}
 
-	cmd.AddCommand(NewDeleteTenantCmd())
-	cmd.AddCommand(NewDeleteUserRoleBindingCmd())
-	cmd.AddCommand(NewDeleteClusterCmd())
-	cmd.AddCommand(NewDeleteUserCmd())
+	cmd.AddCommand(NewClusterAccessCmd())
 
 	return cmd
 }

@@ -17,13 +17,13 @@ package config
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func NewViewCmd() *cobra.Command {
-	initCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "view",
 		Short: "View monoctl config",
 		Long:  `View monoctl configuration.`,
@@ -46,5 +46,5 @@ func NewViewCmd() *cobra.Command {
 		},
 	}
 
-	return initCmd
+	return cmd
 }

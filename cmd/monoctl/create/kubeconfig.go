@@ -17,15 +17,15 @@ package create
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewCreateKubeConfigCmd() *cobra.Command {
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "kubeconfig",
 		Short: "Updates the users kubeconfig file with endpoint information.",
 		Long:  `Updates the users kubeconfig file with endpoint information to point kubectl at any cluster available to the monskope user`,
@@ -37,5 +37,5 @@ func NewCreateKubeConfigCmd() *cobra.Command {
 		},
 	}
 
-	return c
+	return cmd
 }

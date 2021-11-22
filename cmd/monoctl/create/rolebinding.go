@@ -17,12 +17,12 @@ package create
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	"github.com/finleap-connect/monoctl/internal/util"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/spf13/cobra"
 )
 
 func NewCreateRoleBindingCmd() *cobra.Command {
@@ -30,7 +30,7 @@ func NewCreateRoleBindingCmd() *cobra.Command {
 	var scope string
 	var resource string
 
-	createRoleBindingCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "rolebinding <EMAIL>",
 		Short: "Create rolebinding.",
 		Long:  `Creates a rolebinding for the given user.`,
@@ -43,13 +43,13 @@ func NewCreateRoleBindingCmd() *cobra.Command {
 		},
 	}
 
-	flags := createRoleBindingCmd.Flags()
+	flags := cmd.Flags()
 	flags.StringVarP(&role, "role", "r", "", "Role of the rolebinding.")
 	flags.StringVarP(&scope, "scope", "s", "", "Scope of the rolebinding.")
 	flags.StringVarP(&resource, "resource", "e", "", "Resource of the rolebinding.")
 
-	util.PanicOnError(createRoleBindingCmd.MarkFlagRequired("role"))
-	util.PanicOnError(createRoleBindingCmd.MarkFlagRequired("scope"))
+	util.PanicOnError(cmd.MarkFlagRequired("role"))
+	util.PanicOnError(cmd.MarkFlagRequired("scope"))
 
-	return createRoleBindingCmd
+	return cmd
 }

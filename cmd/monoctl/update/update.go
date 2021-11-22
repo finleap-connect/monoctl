@@ -19,7 +19,7 @@ import (
 )
 
 func NewUpdateCmd() *cobra.Command {
-	command := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                   "update",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
@@ -27,7 +27,8 @@ func NewUpdateCmd() *cobra.Command {
 		Long:                  `Update anything within Monoskope`,
 	}
 
-	command.AddCommand(NewUpdateTenantCmd())
-	command.AddCommand(NewUpdateClusterCmd())
-	return command
+	cmd.AddCommand(NewUpdateTenantCmd())
+	cmd.AddCommand(NewUpdateClusterCmd())
+
+	return cmd
 }
