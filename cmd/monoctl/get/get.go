@@ -50,6 +50,7 @@ func NewGetCmd() *cobra.Command {
 	cmd.AddCommand(NewGetTenantUsersCmd())
 	cmd.AddCommand(NewGetClusterCredentials())
 	cmd.AddCommand(NewGetClusterAccess())
+	cmd.AddCommand(NewGetAuditLogCmd())
 
 	flags := cmd.PersistentFlags()
 	flags.BoolVarP(&showDeleted, "deleted", "d", false, "Show deleted resources.")
