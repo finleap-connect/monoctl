@@ -58,7 +58,7 @@ test-ci: ## run all tests in CICD
 	@$(GINKGO) -r -cover --failFast -requireSuite -covermode count -outputdir=$(BUILD_PATH) -coverprofile=monoctl.coverprofile 
 
 coverage: ## print coverage from coverprofiles
-	@go tool cover -func monoskope.coverprofile
+	@go tool cover -func monoctl.coverprofile
 
 ginkgo-get $(GINKGO):
 	$(shell $(GOGET) github.com/onsi/ginkgo/ginkgo@$(GINKO_VERSION))
