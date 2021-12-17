@@ -3,6 +3,7 @@ GO_MODULE_MONOSKOPE ?= github.com/finleap-connect/monoskope
 GO_MODULE ?= github.com/finleap-connect/monoctl
 
 GO             ?= go
+GOGET          ?= $(HACK_DIR)/goget-wrapper
 
 GINKGO         ?= $(TOOLS_DIR)/ginkgo
 GINKO_VERSION  ?= v1.16.4
@@ -41,29 +42,26 @@ mod: ## Do go mod tidy, download, verify
 vet: ## Do go ver
 	$(GO) vet ./...
 
-lint: ## Do golangci-lint
-	$(LINTER) run -v --no-config --deadline=5m
-
 go: mod vet lint test ## Do go mod / vet / lint /test
 
 run: ## run monoctl, use `ARGS="get user"` to pass arguments
 	$(GO) run -ldflags "$(LDFLAGS)" cmd/monoctl/*.go $(ARGS)
 
 test: ## run all tests
-	@find . -name '*.coverprofile' -exec rm {} \;
-	$(GINKGO) -r -v -cover *
-	@echo "mode: set" > ./monoctl.coverprofile
-	@find ./internal -name "*.coverprofile" -exec cat {} \; | grep -v mode: | sort -r >> ./monoctl.coverprofile   
-	@find ./internal -name '*.coverprofile' -exec rm {} \;
+# https://onsi.github.io/ginkgo/#running-tests
+	find . -name '*.coverprofile' -exec rm {} \;
+	@$(GINKGO) -r -v -cover --failFast -requireSuite -covermode count -outputdir=$(BUILD_PATH) -coverprofile=monoctl.coverprofile 
 
-coverage: ## show test coverage
-	@find . -name '*.coverprofile' -exec go tool cover -func {} \;
+test-ci: ## run all tests in CICD
+# https://onsi.github.io/ginkgo/#running-tests
+	find . -name '*.coverprofile' -exec rm {} \;
+	@$(GINKGO) -r -cover --failFast -requireSuite -covermode count -outputdir=$(BUILD_PATH) -coverprofile=monoctl.coverprofile 
 
-loc: ## show loc statistics
-	@gocloc .
+coverage: ## print coverage from coverprofiles
+	@go tool cover -func monoskope.coverprofile
 
-ginkgo-get: ## download ginkgo
-	$(shell $(TOOLS_DIR)/goget-wrapper github.com/onsi/ginkgo/ginkgo@$(GINKO_VERSION))
+ginkgo-get $(GINKGO):
+	$(shell $(GOGET) github.com/onsi/ginkgo/ginkgo@$(GINKO_VERSION))
 
 golangci-lint-get $(LINTER):
 	$(shell $(HACK_DIR)/golangci-lint.sh -b $(TOOLS_DIR) $(LINTER_VERSION))
@@ -71,7 +69,7 @@ golangci-lint-get $(LINTER):
 gomock-get: ## download gomock
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/golang/mock/mockgen@$(GOMOCK_VERSION))
 
-go-lint: $(LINTER) ## go lint
+lint: $(LINTER) ## go lint
 	$(LINTER) run -v --no-config --deadline=5m
 
 tools: golangci-lint-get ginkgo-get gomock-get  ## Target to install all required tools into TOOLS_DIR
