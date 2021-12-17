@@ -8,7 +8,7 @@ GINKGO         ?= $(TOOLS_DIR)/ginkgo
 GINKO_VERSION  ?= v1.16.4
 
 LINTER 	   	   ?= $(TOOLS_DIR)/golangci-lint
-LINTER_VERSION ?= v1.36.0
+LINTER_VERSION ?= v1.39.0
 
 MOCKGEN         ?= $(TOOLS_DIR)/mockgen
 GOMOCK_VERSION  ?= v1.5.0
@@ -65,17 +65,14 @@ loc: ## show loc statistics
 ginkgo-get: ## download ginkgo
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/onsi/ginkgo/ginkgo@$(GINKO_VERSION))
 
-golangci-lint-get: ## download golangci-lint
-	$(shell curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_DIR) $(LINTER_VERSION))
+golangci-lint-get $(LINTER):
+	$(shell $(HACK_DIR)/golangci-lint.sh -b $(TOOLS_DIR) $(LINTER_VERSION))
 
 gomock-get: ## download gomock
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/golang/mock/mockgen@$(GOMOCK_VERSION))
 
-ginkgo-clean: ## cleanup ginkgo
-	rm -Rf $(TOOLS_DIR)/ginkgo
-
-golangci-lint-clean: ## cleanup golangci-lint
-	rm -Rf $(TOOLS_DIR)/golangci-lint
+go-lint: $(LINTER) ## go lint
+	$(LINTER) run -v --no-config --deadline=5m
 
 tools: golangci-lint-get ginkgo-get gomock-get  ## Target to install all required tools into TOOLS_DIR
 
