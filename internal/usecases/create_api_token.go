@@ -68,6 +68,9 @@ func (u *createAPITokenUsecase) init(ctx context.Context) error {
 
 func (u *createAPITokenUsecase) run(ctx context.Context) error {
 	var authScopes []apiGateway.AuthorizationScope
+	for _, scope := range u.scopes {
+		authScopes = append(authScopes, apiGateway.AuthorizationScope(apiGateway.AuthorizationScope_value[scope]))
+	}
 
 	request := &apiGateway.APITokenRequest{
 		AuthorizationScopes: authScopes,
