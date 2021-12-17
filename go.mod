@@ -6,7 +6,7 @@ require (
 	github.com/briandowns/spinner v1.17.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/finleap-connect/monoskope v0.1.6-rc11
-	github.com/golang/mock v1.5.0
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.1.2
 	github.com/kubism/testutil v0.1.0-alpha.2
 	github.com/olekukonko/tablewriter v0.0.5
