@@ -6,7 +6,7 @@ require (
 	github.com/briandowns/spinner v1.16.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/finleap-connect/monoskope v0.1.6-rc11
-	github.com/golang/mock v1.5.0
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.1.2
 	github.com/kubism/testutil v0.1.0-alpha.2
 	github.com/olekukonko/tablewriter v0.0.5
@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/zalando/go-keyring v0.1.1
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/grpc v1.33.1
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
