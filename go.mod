@@ -3,21 +3,21 @@ module github.com/finleap-connect/monoctl
 go 1.17
 
 require (
-	github.com/briandowns/spinner v1.16.0
+	github.com/briandowns/spinner v1.17.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/finleap-connect/monoskope v0.1.6-rc11
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.1.2
 	github.com/kubism/testutil v0.1.0-alpha.2
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.17.0
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/spf13/cobra v1.1.3
 	github.com/zalando/go-keyring v0.1.1
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/grpc v1.33.1
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/apimachinery v0.21.1
@@ -62,7 +62,6 @@ require (
 	github.com/prometheus/common v0.32.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.7.0 // indirect
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
