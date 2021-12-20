@@ -77,7 +77,7 @@ func (u *createAPITokenUsecase) run(ctx context.Context) error {
 		Validity:            durationpb.New(u.validity),
 	}
 
-	if _, err := uuid.Parse(u.userId); err != nil {
+	if _, err := uuid.Parse(u.userId); err == nil {
 		request.User = &apiGateway.APITokenRequest_UserId{
 			UserId: u.userId,
 		}

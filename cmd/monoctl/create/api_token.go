@@ -55,7 +55,7 @@ func NewCreateAPITokenCmd() *cobra.Command {
 		avialbleScopes[apiGateway.AuthorizationScope_value[value]] = value
 	}
 	scopesUsage := "Specify the scopes for which the token should be valid.\nAvailable scopes: " + strings.Join(avialbleScopes, ", ")
-	flags.StringArrayP("scopes", "s", scopes, scopesUsage)
+	flags.StringSliceVarP(&scopes, "scopes", "s", scopes, scopesUsage)
 	util.PanicOnError(cmd.MarkFlagRequired("scopes"))
 
 	flags.DurationP("validity", "v", validity, "Specify the validity period of the token.")
