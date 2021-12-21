@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/spinner"
@@ -28,6 +27,7 @@ import (
 	cmd "github.com/finleap-connect/monoskope/pkg/domain/commands"
 	commandTypes "github.com/finleap-connect/monoskope/pkg/domain/constants/commands"
 	"github.com/finleap-connect/monoskope/pkg/domain/constants/scopes"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -107,7 +107,7 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 			UserId:   user.Id,
 			Role:     u.role,
 			Scope:    u.scope,
-			Resource: resourceId.String(),
+			Resource: wrapperspb.String(resourceId.String()),
 		},
 	); err != nil {
 		return err
