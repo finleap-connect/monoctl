@@ -20,15 +20,15 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/k8s"
 	mdomain "github.com/finleap-connect/monoctl/test/mock/domain"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("CreateKubeconfig", func() {
@@ -55,6 +55,7 @@ var _ = Describe("CreateKubeconfig", func() {
 		expectedKubeContextName     = "test-cluster-default"
 		expectedAuthInfoName        = "test-cluster-jane-doe-default"
 		expectedNamespaceName       = "jane-doe"
+		expectedServer              = "m8.example.com"
 	)
 
 	It("should run", func() {
@@ -64,7 +65,7 @@ var _ = Describe("CreateKubeconfig", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token:    "this-is-a-token",
 			Username: "jane.doe",

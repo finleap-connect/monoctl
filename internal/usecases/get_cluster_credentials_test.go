@@ -19,18 +19,18 @@ import (
 	_ "embed"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	testutil_fs "github.com/kubism/testutil/pkg/fs"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/zalando/go-keyring"
 	"github.com/finleap-connect/monoctl/internal/config"
 	mdomain "github.com/finleap-connect/monoctl/test/mock/domain"
 	mgw "github.com/finleap-connect/monoctl/test/mock/gateway"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	gw "github.com/finleap-connect/monoskope/pkg/api/gateway"
 	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	testutil_fs "github.com/kubism/testutil/pkg/fs"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/zalando/go-keyring"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -57,13 +57,13 @@ var _ = Describe("CreateKubeconfig", func() {
 		expectedClusterCACertBundle = []byte("This should be a certificate")
 		expectedExpiry              = time.Now().UTC().Add(1 * time.Hour)
 		expectedClusterToken        = "some-auth-token"
+		fakeConfigData              = `server: https://1.1.1.1`
 	)
 
 	It("should run", func() {
 		var err error
 
 		keyring.MockInit()
-		fakeConfigData := `server: https://1.1.1.1`
 
 		tempFile, err := testutil_fs.NewTempFile([]byte(fakeConfigData))
 		Expect(err).NotTo(HaveOccurred())

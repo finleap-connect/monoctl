@@ -51,13 +51,13 @@ var _ = Describe("internal/usecases/create_api_token", func() {
 		expectedToken    = "some-auth-token"
 		expectedScopes   = []string{gw.AuthorizationScope_API.String()}
 		expectedValidity = time.Hour * 1
+		fakeConfigData   = `server: https://1.1.1.1`
 	)
 
 	It("should run", func() {
 		var err error
 
 		keyring.MockInit()
-		fakeConfigData := `server: https://1.1.1.1`
 
 		tempFile, err := testutil_fs.NewTempFile([]byte(fakeConfigData))
 		Expect(err).NotTo(HaveOccurred())

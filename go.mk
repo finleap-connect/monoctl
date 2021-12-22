@@ -70,7 +70,7 @@ gomock-get: ## download gomock
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/golang/mock/mockgen@$(GOMOCK_VERSION))
 
 lint: $(LINTER) ## go lint
-	$(LINTER) run -v --no-config --deadline=5m
+	$(LINTER) run -v -E goconst -E misspell
 
 tools: golangci-lint-get ginkgo-get gomock-get  ## Target to install all required tools into TOOLS_DIR
 
