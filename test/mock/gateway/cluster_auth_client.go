@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	gateway "github.com/finleap-connect/monoskope/pkg/api/gateway"
+	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 )
 

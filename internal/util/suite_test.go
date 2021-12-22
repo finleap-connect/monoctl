@@ -12,27 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package create
+package util
 
 import (
-	"github.com/spf13/cobra"
+	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func NewCreateCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:                   "create",
-		SilenceUsage:          true,
-		DisableFlagsInUseLine: true,
-		Short:                 "Create anything within Monoskope",
-		Long:                  `Create anything within Monoskope`,
-	}
-
-	cmd.AddCommand(NewCreateRoleBindingCmd())
-	cmd.AddCommand(NewCreateUserCmd())
-	cmd.AddCommand(NewCreateClusterCmd())
-	cmd.AddCommand(NewCreateTenantCmd())
-	cmd.AddCommand(NewCreateKubeConfigCmd())
-	cmd.AddCommand(NewCreateAPITokenCmd())
-
-	return cmd
+func TestUsecases(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Util Suite")
 }

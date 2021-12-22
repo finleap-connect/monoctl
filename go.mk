@@ -3,12 +3,13 @@ GO_MODULE_MONOSKOPE ?= github.com/finleap-connect/monoskope
 GO_MODULE ?= github.com/finleap-connect/monoctl
 
 GO             ?= go
+GOGET          ?= $(HACK_DIR)/goget-wrapper
 
 GINKGO         ?= $(TOOLS_DIR)/ginkgo
 GINKO_VERSION  ?= v1.16.4
 
 LINTER 	   	   ?= $(TOOLS_DIR)/golangci-lint
-LINTER_VERSION ?= v1.36.0
+LINTER_VERSION ?= v1.39.0
 
 MOCKGEN         ?= $(TOOLS_DIR)/mockgen
 GOMOCK_VERSION  ?= v1.5.0
@@ -41,41 +42,35 @@ mod: ## Do go mod tidy, download, verify
 vet: ## Do go ver
 	$(GO) vet ./...
 
-lint: ## Do golangci-lint
-	$(LINTER) run -v --no-config --deadline=5m
-
 go: mod vet lint test ## Do go mod / vet / lint /test
 
 run: ## run monoctl, use `ARGS="get user"` to pass arguments
 	$(GO) run -ldflags "$(LDFLAGS)" cmd/monoctl/*.go $(ARGS)
 
 test: ## run all tests
-	@find . -name '*.coverprofile' -exec rm {} \;
-	$(GINKGO) -r -v -cover *
-	@echo "mode: set" > ./monoctl.coverprofile
-	@find ./internal -name "*.coverprofile" -exec cat {} \; | grep -v mode: | sort -r >> ./monoctl.coverprofile   
-	@find ./internal -name '*.coverprofile' -exec rm {} \;
+# https://onsi.github.io/ginkgo/#running-tests
+	find . -name '*.coverprofile' -exec rm {} \;
+	@$(GINKGO) -r -v -cover --failFast -requireSuite -covermode count -outputdir=$(BUILD_PATH) -coverprofile=monoctl.coverprofile 
 
-coverage: ## show test coverage
-	@find . -name '*.coverprofile' -exec go tool cover -func {} \;
+test-ci: ## run all tests in CICD
+# https://onsi.github.io/ginkgo/#running-tests
+	find . -name '*.coverprofile' -exec rm {} \;
+	@$(GINKGO) -r -cover --failFast -requireSuite -covermode count -outputdir=$(BUILD_PATH) -coverprofile=monoctl.coverprofile 
 
-loc: ## show loc statistics
-	@gocloc .
+coverage: ## print coverage from coverprofiles
+	@go tool cover -func monoctl.coverprofile
 
-ginkgo-get: ## download ginkgo
-	$(shell $(TOOLS_DIR)/goget-wrapper github.com/onsi/ginkgo/ginkgo@$(GINKO_VERSION))
+ginkgo-get $(GINKGO):
+	$(shell $(GOGET) github.com/onsi/ginkgo/ginkgo@$(GINKO_VERSION))
 
-golangci-lint-get: ## download golangci-lint
-	$(shell curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(TOOLS_DIR) $(LINTER_VERSION))
+golangci-lint-get $(LINTER):
+	$(shell $(HACK_DIR)/golangci-lint.sh -b $(TOOLS_DIR) $(LINTER_VERSION))
 
 gomock-get: ## download gomock
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/golang/mock/mockgen@$(GOMOCK_VERSION))
 
-ginkgo-clean: ## cleanup ginkgo
-	rm -Rf $(TOOLS_DIR)/ginkgo
-
-golangci-lint-clean: ## cleanup golangci-lint
-	rm -Rf $(TOOLS_DIR)/golangci-lint
+lint: $(LINTER) ## go lint
+	$(LINTER) run -v --no-config --deadline=5m
 
 tools: golangci-lint-get ginkgo-get gomock-get  ## Target to install all required tools into TOOLS_DIR
 
@@ -107,3 +102,4 @@ rebuild-mocks: ## rebuild go mocks
 	$(MOCKGEN) -package domain -destination test/mock/domain/tenant_client.go github.com/finleap-connect/monoskope/pkg/api/domain TenantClient,Tenant_GetAllClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/certificate_client.go github.com/finleap-connect/monoskope/pkg/api/domain CertificateClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go github.com/finleap-connect/monoskope/pkg/api/gateway ClusterAuthClient
+	$(MOCKGEN) -package domain -destination test/mock/gateway/api_token_client.go github.com/finleap-connect/monoskope/pkg/api/gateway APITokenClient
