@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	mgrpc "github.com/finleap-connect/monoctl/internal/grpc"
@@ -64,7 +65,7 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 }
 
 func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole mk8s.K8sRole) (clusterName, contextName, nsName, authInfoName string, err error) {
-	nsName, err = mk8s.GetNamespaceName(u.config.AuthInformation.Username)
+	nsName, err = mk8s.GetNamespaceName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
 	if err != nil {
 		return
 	}
@@ -107,6 +108,7 @@ func (u *createKubeConfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster 
 	}
 
 	cluster.CertificateAuthorityData = m8Cluster.CaCertBundle
+	cluster.CertificateAuthority = "" // clear other authority data which clashes
 	cluster.Server = m8Cluster.ApiServerAddress
 
 	u.log.Info("Cluster created/updated.", "cluster", clusterName)
