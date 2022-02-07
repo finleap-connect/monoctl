@@ -58,7 +58,7 @@ func NewCreateAPITokenCmd() *cobra.Command {
 	flags.StringSliceVarP(&scopes, "scopes", "s", scopes, scopesUsage)
 	util.PanicOnError(cmd.MarkFlagRequired("scopes"))
 
-	flags.DurationP("validity", "v", validity, "Specify the validity period of the token.")
+	flags.DurationVarP(&validity, "validity", "v", validity, "Specify the validity period of the token.")
 
 	return cmd
 }
