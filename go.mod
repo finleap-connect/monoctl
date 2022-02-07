@@ -3,7 +3,7 @@ module github.com/finleap-connect/monoctl
 go 1.17
 
 require (
-	github.com/briandowns/spinner v1.18.0
+	github.com/briandowns/spinner v1.18.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/finleap-connect/monoskope v0.3.0
 	github.com/golang/mock v1.6.0
