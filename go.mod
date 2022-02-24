@@ -14,7 +14,7 @@ require (
 	github.com/onsi/gomega v1.17.0
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/spf13/cobra v1.3.0
-	github.com/zalando/go-keyring v0.1.1
+	github.com/zalando/go-keyring v0.2.0
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/grpc v1.44.0
@@ -27,6 +27,7 @@ require (
 
 require (
 	cloud.google.com/go v0.99.0 // indirect
+	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/danieljoos/wincred v1.1.0 // indirect
@@ -37,7 +38,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/go-logr/zapr v0.2.0 // indirect
-	github.com/godbus/dbus/v5 v5.0.4 // indirect
+	github.com/godbus/dbus/v5 v5.0.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
