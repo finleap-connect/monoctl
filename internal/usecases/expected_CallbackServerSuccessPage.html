@@ -18,6 +18,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<meta http-equiv="refresh" content="5;url=https://monoskope.io" />
 	<title>Monoskope Authentication</title>
 	<style>
 		body {
@@ -45,25 +46,11 @@
 		<h1>Monoskope Authentication</h1>
 		<p>
 			You have been successfully authenticated with the control plane at <code>m8.example.com:443</code>.
-			The window will be closed in <span id="timeout">5</span> seconds.
+			The window will be redirected to the project website after <span id="timeout">5</span> seconds.
 		</p>
 	</div>
 	<div class="footer">
 		<p>Rendered by <code>monoctl</code> version <code>0.0.1-local (commit 1a2b3c)</code></p>
 	</div>
-	<script>
-		timeout = 5
-		function setTimer() {
-			setTimeout(function() {
-				timeout--
-				document.getElementById('timeout').innerHTML=timeout;
-				if (timeout < 1) {
-					window.close()
-				}
-				setTimer()
-			}, 1000);
-		}
-		setTimer()
-	  </script>
 </body>
 </html>
