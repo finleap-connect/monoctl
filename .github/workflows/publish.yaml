@@ -32,7 +32,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: set VERSION
         run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       - name: build
