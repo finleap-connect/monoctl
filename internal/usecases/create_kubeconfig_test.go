@@ -20,15 +20,15 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/k8s"
 	mdomain "github.com/finleap-connect/monoctl/test/mock/domain"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("CreateKubeconfig", func() {
@@ -70,10 +70,10 @@ var _ = Describe("CreateKubeconfig", func() {
 			Username: "jane.doe",
 		}
 
-		mockClusterClient := mdomain.NewMockClusterClient(mockCtrl)
+		mockClusterClient := mdomain.NewMockClusterAccessClient(mockCtrl)
 
 		uc := NewCreateKubeConfigUseCase(conf).(*createKubeConfigUseCase)
-		uc.clusterServiceClient = mockClusterClient
+		uc.clusterAccessClient = mockClusterClient
 		uc.kubeConfig = k8s.NewKubeConfig()
 		uc.kubeConfig.SetPath(tmpfile.Name())
 		uc.setInitialized()
@@ -88,7 +88,7 @@ var _ = Describe("CreateKubeconfig", func() {
 		}, nil)
 		getAllClient.EXPECT().Recv().Return(nil, io.EOF)
 
-		mockClusterClient.EXPECT().GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false}).Return(getAllClient, nil)
+		mockClusterClient.EXPECT().GetClusterAccessByUserId(ctx, &api.GetAllRequest{IncludeDeleted: false}).Return(getAllClient, nil)
 		err = uc.Run(ctx)
 		Expect(err).ToNot(HaveOccurred())
 

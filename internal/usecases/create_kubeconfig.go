@@ -28,14 +28,16 @@ import (
 	projections "github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
 	ggrpc "google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	kapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 type createKubeConfigUseCase struct {
 	useCaseBase
-	conn                 *ggrpc.ClientConn
-	clusterServiceClient api.ClusterClient
-	kubeConfig           *k8s.KubeConfig
+	conn                *ggrpc.ClientConn
+	clusterAccessClient api.ClusterAccessClient
+	userClient          api.UserClient
+	kubeConfig          *k8s.KubeConfig
 }
 
 func NewCreateKubeConfigUseCase(config *config.Config) UseCase {
@@ -56,7 +58,8 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 	}
 
 	u.conn = conn
-	u.clusterServiceClient = api.NewClusterClient(u.conn)
+	u.clusterAccessClient = api.NewClusterAccessClient(u.conn)
+	u.userClient = api.NewUserClient(u.conn)
 
 	u.kubeConfig = k8s.NewKubeConfig()
 	u.setInitialized()
@@ -143,15 +146,21 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 		return err
 	}
 
+	// Get user information of the current user
+	user, err := u.userClient.GetByEmail(ctx, wrapperspb.String(u.config.AuthInformation.Username))
+	if err != nil {
+		return err
+	}
+
 	// Get cluster information from control plane
-	m8Clusters, err := u.clusterServiceClient.GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false})
+	clusterAccesses, err := u.clusterAccessClient.GetClusterAccessByUserId(ctx, wrapperspb.String(user.Id))
 	if err != nil {
 		return err
 	}
 
 	for {
 		// Read next
-		m8Cluster, err := m8Clusters.Recv()
+		clusterAccess, err := clusterAccesses.Recv()
 		// End of stream
 		if err == io.EOF {
 			break
@@ -162,13 +171,13 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 
 		for _, clusterRole := range mk8s.AvailableRoles {
 			// Get naming
-			clusterName, contextName, nsName, authInfoName, err := u.getNaming(m8Cluster.Name, clusterRole)
+			clusterName, contextName, nsName, authInfoName, err := u.getNaming(clusterAccess.Name, clusterRole)
 			if err != nil {
 				return err
 			}
 
 			// Set cluster on kubeconfig
-			u.setCluster(kubeConfig, m8Cluster, clusterName)
+			u.setCluster(kubeConfig, clusterAccess, clusterName)
 
 			// Set context on kubeconfig
 			u.setContext(kubeConfig, clusterName, contextName, nsName, authInfoName)
