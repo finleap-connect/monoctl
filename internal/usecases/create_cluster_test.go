@@ -19,10 +19,6 @@ import (
 
 	_ "embed"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	mdom "github.com/finleap-connect/monoctl/test/mock/domain"
@@ -31,6 +27,10 @@ import (
 	es "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
 	cmd "github.com/finleap-connect/monoskope/pkg/domain/commands"
 	commandTypes "github.com/finleap-connect/monoskope/pkg/domain/constants/commands"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -58,13 +58,14 @@ var _ = Describe("CreateCluster", func() {
 		expectedClusterCACertBundle = []byte("This should be a certificate")
 		expectedUUID                = uuid.New()
 		expectedJwt                 = "this-is-a-jwt.it-contains-chars-illegal-for-base64"
+		expectedServer              = "m8.example.com"
 	)
 
 	It("should construct a gRPC call", func() {
 		var err error
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token: "this-is-a-token",
 		}
@@ -113,7 +114,7 @@ var _ = Describe("CreateCluster", func() {
 	It("should retrieve the jwt", func() {
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token: "this-is-a-token",
 		}
@@ -139,7 +140,7 @@ var _ = Describe("CreateCluster", func() {
 	It("should render the certificate template correctly", func() {
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token: "this-is-a-token",
 		}

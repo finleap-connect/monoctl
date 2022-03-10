@@ -26,7 +26,7 @@ import (
 var (
 	ErrEmptyServer        = errors.New("has no server defined")
 	ErrNoConfigExists     = errors.New("no valid monoconfig found")
-	ErrAlreadyInitialized = errors.New("a configuartion already exists")
+	ErrAlreadyInitialized = errors.New("a configuration already exists")
 )
 
 const (
