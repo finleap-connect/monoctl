@@ -25,7 +25,7 @@ import (
 	"io"
 )
 
-// getTenantsUseCase provides the internal use-case of getting the permission model.
+// getAuditLogUseCase provides the internal use-case of getting the permission model.
 type getAuditLogUseCase struct {
 	useCaseBase
 	conn          *ggrpc.ClientConn
@@ -45,7 +45,9 @@ func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOp
 	useCase.tableFactory = output.NewTableFactory().
 		SetHeader(header).
 		SetSortColumn(outputOptions.SortOptions.SortByColumn).
-		SetSortOrder(outputOptions.SortOptions.Order)
+		SetSortOrder(outputOptions.SortOptions.Order).
+		SetExportFormat(outputOptions.ExportOptions.Format).
+		SetExportFile(outputOptions.ExportOptions.File)
 
 	return useCase
 }
@@ -62,8 +64,12 @@ func (u *getAuditLogUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	u.tableFactory.ToTable().Render()
+	tbl, err := u.tableFactory.ToTable()
+	if err != nil {
+		return err
+	}
 
+	tbl.Render()
 	return nil
 }
 

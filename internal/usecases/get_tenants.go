@@ -52,7 +52,9 @@ func NewGetTenantsUseCase(config *config.Config, outputOptions *output.OutputOpt
 		SetColumnFormatter("AGE", output.DefaultAgeColumnFormatter()).
 		SetColumnFormatter("DELETED", output.DefaultAgeColumnFormatter()).
 		SetSortColumn(outputOptions.SortOptions.SortByColumn).
-		SetSortOrder(outputOptions.SortOptions.Order)
+		SetSortOrder(outputOptions.SortOptions.Order).
+		SetExportFormat(outputOptions.ExportOptions.Format).
+		SetExportFile(outputOptions.ExportOptions.File)
 
 	return useCase
 }
@@ -69,8 +71,12 @@ func (u *getTenantsUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	u.tableFactory.ToTable().Render()
+	tbl, err := u.tableFactory.ToTable()
+	if err != nil {
+		return err
+	}
 
+	tbl.Render()
 	return nil
 }
 

@@ -19,16 +19,16 @@ import (
 	"io"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
 	mdom "github.com/finleap-connect/monoctl/test/mock/domain"
 	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -110,9 +110,9 @@ var _ = Describe("GetCluster", func() {
 		err = gcUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
-		tbl := gcUc.tableFactory.ToTable()
-		Expect(tbl.NumLines()).To(Equal(2))
+		tbl, err := gcUc.tableFactory.ToTable()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(tbl.NumLines()).To(Equal(2))
 
 		tbl.Render()
 

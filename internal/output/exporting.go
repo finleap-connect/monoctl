@@ -14,8 +14,13 @@
 
 package output
 
-type OutputOptions struct {
-	SortOptions SortOptions
-	ExportOptions ExportOptions
-	ShowDeleted bool
+type ExportFormat int
+
+const (
+	CSV = iota
+)
+
+type ExportOptions struct {
+	Format	ExportFormat
+	File	string
 }

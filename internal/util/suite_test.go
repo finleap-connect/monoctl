@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package output
+package util
 
-type OutputOptions struct {
-	SortOptions SortOptions
-	ExportOptions ExportOptions
-	ShowDeleted bool
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+func TestUtil(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Util Test Suite")
 }

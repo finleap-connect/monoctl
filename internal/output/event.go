@@ -219,11 +219,11 @@ func appendUpdate(field string, update string, old string, strBuilder *strings.B
 func toPortoFromEventData(eventData []byte) (proto.Message, bool) {
 	porto := &anypb.Any{}
 	if err := protojson.Unmarshal(eventData, porto); err != nil {
-		return nil, true
+		return nil, false
 	}
 	ed, err := porto.UnmarshalNew()
 	if err != nil {
-		return nil, true
+		return nil, false
 	}
-	return ed, false
+	return ed, true
 }

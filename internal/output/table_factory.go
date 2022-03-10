@@ -17,6 +17,7 @@ package output
 import (
 	"errors"
 	"fmt"
+	"github.com/finleap-connect/monoctl/internal/util"
 	"os"
 	"reflect"
 	"sort"
@@ -33,6 +34,8 @@ type TableFactory struct {
 	sortOrder        SortOrder
 	sortIndex        uint
 	sortColumn       string
+	exportFormat     ExportFormat
+	exportFile       string
 	header           []string
 	data             [][]interface{}
 	columnFormatters map[string]func(interface{}) string
@@ -43,6 +46,8 @@ func NewTableFactory() *TableFactory {
 	tf := new(TableFactory)
 	tf.sortIndex = 0
 	tf.sortOrder = Ascending
+	tf.exportFormat = CSV
+	tf.exportFile = ""
 	tf.columnFormatters = make(map[string]func(interface{}) string)
 	return tf
 }
@@ -77,6 +82,18 @@ func (tf *TableFactory) SetSortColumn(column string) *TableFactory {
 	return tf
 }
 
+// SetExportFormat sets the file format in which the data will be written. CSV is set by default
+func (tf *TableFactory) SetExportFormat(exportFormat ExportFormat) *TableFactory {
+	tf.exportFormat = exportFormat
+	return tf
+}
+
+// SetExportFile sets the file to which the data will be written
+func (tf *TableFactory) SetExportFile(exportFile string) *TableFactory {
+	tf.exportFile = exportFile
+	return tf
+}
+
 // SetHeader sets the header row of the table
 func (tf *TableFactory) SetHeader(header []string) *TableFactory {
 	tf.header = header
@@ -97,7 +114,14 @@ func (tf *TableFactory) SetColumnFormatter(column string, columnFormatter func(i
 }
 
 // ToTable creates a tablewriter.Table instance with sorted data and default rendering settings
-func (tf *TableFactory) ToTable() *tablewriter.Table {
+func (tf *TableFactory) ToTable() (*tablewriter.Table, error) {
+	if tf.exportFile != "" {
+		return tf.newCsvTable()
+	}
+	return tf.newStdoutTable()
+}
+
+func (tf *TableFactory) newStdoutTable() (*tablewriter.Table, error) {
 	tbl := tablewriter.NewWriter(os.Stdout)
 	tbl.SetAutoWrapText(false)
 	tbl.SetAutoFormatHeaders(true)
@@ -112,7 +136,27 @@ func (tf *TableFactory) ToTable() *tablewriter.Table {
 	tbl.SetNoWhiteSpace(true)
 	tbl.SetHeader(tf.header)
 	tbl.AppendBulk(tf.formatData())
-	return tbl
+	return tbl, nil
+}
+
+func (tf *TableFactory) newCsvTable() (*tablewriter.Table, error) {
+	file, err := util.NewFileSafe(tf.exportFile)
+	if err != nil {
+		return nil, errors.New("failed to export. Please ensure file doesn't exits or try another path")
+	}
+
+	tbl := tablewriter.NewWriter(file)
+	tbl.SetAutoWrapText(false)
+	tbl.SetAutoFormatHeaders(true)
+	tbl.SetAlignment(tablewriter.ALIGN_LEFT)
+	tbl.SetHeaderLine(false)
+	tbl.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	tbl.SetAutoMergeCells(true)
+	tbl.SetColumnSeparator(",")
+	tbl.SetBorder(false)
+	tbl.SetHeader(tf.header)
+	tbl.AppendBulk(tf.formatData())
+	return tbl, nil
 }
 
 // Len implements sort.Sorter interface

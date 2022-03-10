@@ -43,8 +43,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// TODO: remove focus
-var _ = FDescribe("Get Audit Log", func() {
+// TODO: remove focus test
+var _ = Describe("Get Audit Log", func() {
 	var (
 		mockCtrl               *gomock.Controller
 		excepectedCreatorEmail = "admin@monoskope.io"
@@ -131,9 +131,9 @@ var _ = FDescribe("Get Audit Log", func() {
 		err = galUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
-		tbl := galUc.tableFactory.ToTable()
-		Expect(tbl.NumLines()).To(Equal(len(testData)))
+		tbl, err := galUc.tableFactory.ToTable()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(tbl.NumLines()).To(Equal(len(testData)))
 
 		tbl.Render()
 	})

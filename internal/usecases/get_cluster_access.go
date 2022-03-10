@@ -115,16 +115,21 @@ func (u *getClusterAccess) byTenant(ctx context.Context) error {
 		header = append(header, "DELETED")
 	}
 
-	output.NewTableFactory().
+	tbl, err := output.NewTableFactory().
 		SetHeader(header).
 		SetColumnFormatter("AGE", output.DefaultAgeColumnFormatter()).
 		SetColumnFormatter("DELETED", output.DefaultAgeColumnFormatter()).
 		SetSortColumn(u.outputOptions.SortOptions.SortByColumn).
 		SetSortOrder(u.outputOptions.SortOptions.Order).
+		SetExportFormat(u.outputOptions.ExportOptions.Format).
+		SetExportFile(u.outputOptions.ExportOptions.File).
 		SetData(data).
-		ToTable().
-		Render()
+		ToTable()
+	if err != nil {
+		return err
+	}
 
+	tbl.Render()
 	return nil
 }
 
@@ -174,16 +179,21 @@ func (u *getClusterAccess) byCluster(ctx context.Context) error {
 		header = append(header, "DELETED")
 	}
 
-	output.NewTableFactory().
+	tbl, err := output.NewTableFactory().
 		SetHeader(header).
 		SetColumnFormatter("AGE", output.DefaultAgeColumnFormatter()).
 		SetColumnFormatter("DELETED", output.DefaultAgeColumnFormatter()).
 		SetSortColumn(u.outputOptions.SortOptions.SortByColumn).
 		SetSortOrder(u.outputOptions.SortOptions.Order).
+		SetExportFormat(u.outputOptions.ExportOptions.Format).
+		SetExportFile(u.outputOptions.ExportOptions.File).
 		SetData(data).
-		ToTable().
-		Render()
+		ToTable()
+	if err != nil {
+		return err
+	}
 
+	tbl.Render()
 	return nil
 }
 

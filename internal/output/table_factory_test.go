@@ -16,6 +16,9 @@ package output
 
 import (
 	"fmt"
+	"github.com/olekukonko/tablewriter"
+	"io/ioutil"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -37,7 +40,10 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		Expect(tableData[0][0]).To(Equal("a"))
 		Expect(tableData[1][0]).To(Equal("h"))
 		Expect(tableData[2][0]).To(Equal("z"))
-		tf.ToTable().Render()
+		tbl, err := tf.ToTable()
+		Expect(err).ToNot(HaveOccurred())
+
+		tbl.Render()
 	})
 
 	It("can create table with default sorting descending", func() {
@@ -46,7 +52,10 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		Expect(tableData[0][0]).To(Equal("z"))
 		Expect(tableData[1][0]).To(Equal("h"))
 		Expect(tableData[2][0]).To(Equal("a"))
-		tf.ToTable().Render()
+		tbl, err := tf.ToTable()
+		Expect(err).ToNot(HaveOccurred())
+
+		tbl.Render()
 	})
 
 	It("can create table with sorting a specific column ascending", func() {
@@ -56,7 +65,10 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		Expect(tableData[0][1]).To(Equal("1"))
 		Expect(tableData[1][1]).To(Equal("8"))
 		Expect(tableData[2][1]).To(Equal("26"))
-		tf.ToTable().Render()
+		tbl, err := tf.ToTable()
+		Expect(err).ToNot(HaveOccurred())
+
+		tbl.Render()
 	})
 
 	It("can create table with sorting a specific column descending", func() {
@@ -66,7 +78,10 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		Expect(tableData[0][1]).To(Equal("26"))
 		Expect(tableData[1][1]).To(Equal("8"))
 		Expect(tableData[2][1]).To(Equal("1"))
-		tf.ToTable().Render()
+		tbl, err := tf.ToTable()
+		Expect(err).ToNot(HaveOccurred())
+
+		tbl.Render()
 	})
 
 	It("can create table with a special formatter", func() {
@@ -77,6 +92,43 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		Expect(tableData[0][1]).To(Equal("26"))
 		Expect(tableData[1][1]).To(Equal("08"))
 		Expect(tableData[2][1]).To(Equal("01"))
-		tf.ToTable().Render()
+		tbl, err := tf.ToTable()
+		Expect(err).ToNot(HaveOccurred())
+
+		tbl.Render()
+	})
+
+	// TODO: remove focus
+	It("can export table to file", func() {
+		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
+		Expect(err).NotTo(HaveOccurred())
+		print(tmpFile.Name())
+		//defer os.Remove(tmpFile.Name())
+
+		err = os.Remove(tmpFile.Name())
+		Expect(err).NotTo(HaveOccurred())
+
+		tf.SetExportFile(tmpFile.Name())
+		_ = tf.formatData()
+		tbl, err := tf.ToTable()
+		Expect(err).ToNot(HaveOccurred())
+		tbl.Render()
+
+		tbl, err = tablewriter.NewCSV(os.Stdout, tmpFile.Name(), true)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(tbl.NumLines()).To(Equal(3))
+	})
+
+	// TODO: remove focus
+	It("can't export table if file exists", func() {
+		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
+		Expect(err).NotTo(HaveOccurred())
+		defer os.Remove(tmpFile.Name())
+
+		tf.SetExportFile(tmpFile.Name())
+		_ = tf.formatData()
+		_, err = tf.ToTable()
+		Expect(err).To(HaveOccurred())
 	})
 })
