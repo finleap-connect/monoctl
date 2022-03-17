@@ -23,7 +23,7 @@ import (
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
-	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	authutil "github.com/finleap-connect/monoctl/internal/util/auth"
 	"github.com/spf13/cobra"
 )
 
@@ -62,16 +62,16 @@ func NewGetAuditLogCmd() *cobra.Command {
 
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
-			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
+			return authutil.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
 				return usecases.NewGetAuditLogUseCase(configManager.GetConfig(), getOutputOptions(), minTime, maxTime).Run(ctx)
 			})
 		},
 	}
 
-	flags := cmd.Flags()
-	flags.StringVarP(&from, "from", "f", firstOfMonth.Format(layout),
+	cmdFlags := cmd.Flags()
+	cmdFlags.StringVarP(&from, "from", "f", firstOfMonth.Format(layout),
 		fmt.Sprintf("Specifys the starting point of the date range. If not specified the first day of the current month is used. Accepted layout: %s", now.Format(layout)))
-	flags.StringVarP(&to, "to", "t", lastOfMonth.Format(layout),
+	cmdFlags.StringVarP(&to, "to", "t", lastOfMonth.Format(layout),
 		fmt.Sprintf("Specifys the ending point of the date range. If not specified the last day of the current month is used. Accepted layout: %s", now.Format(layout)))
 
 	return cmd

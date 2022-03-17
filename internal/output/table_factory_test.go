@@ -98,7 +98,6 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		tbl.Render()
 	})
 
-	// TODO: remove focus
 	It("can export table to file", func() {
 		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
 		Expect(err).NotTo(HaveOccurred())
@@ -120,7 +119,6 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		Expect(tbl.NumLines()).To(Equal(3))
 	})
 
-	// TODO: remove focus
 	It("can't export table if file exists", func() {
 		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
 		Expect(err).NotTo(HaveOccurred())

@@ -61,7 +61,8 @@ func NewGetCmd() *cobra.Command {
 	flags.BoolVarP(&showDeleted, "deleted", "d", false, "Show deleted resources.")
 	flags.StringVar(&sortBy, "sort-by", "", "Column to sort result by. Uses the first column by default.")
 	flags.BoolVar(&sortDescending, "descending", false, "Sort result in descending order.")
-	flags.StringVar(&exportFile, "export", "m8-output.csv", "exports the output to a file in CSV format. If no file is specified m8-output.csv will be written in the current directory if it doesn't exists")
+	flags.StringVar(&exportFile, "export", "", "exports the output to a file in CSV format. If no file is specified m8-output.csv will be written in the current directory if it doesn't exists")
+	flags.Lookup("export").NoOptDefVal = "m8-output.csv"
 
 	return cmd
 }

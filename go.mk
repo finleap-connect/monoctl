@@ -102,11 +102,9 @@ build-monoctl-linux: $(CMD_MONOCTL_LINUX) ## build monoctl for linux
 build-monoctl-all: $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_WIN) ## build monoctl for linux, osx and windows
 
 rebuild-mocks: ## rebuild go mocks
-	$(MOCKGEN) -package eventsourcing -destination test/mock/eventsourcing/event_store_client.go github.com/finleap-connect/monoskope/pkg/api/eventsourcing EventStoreClient,EventStore_RetrieveClient
 	$(MOCKGEN) -package eventsourcing -destination test/mock/eventsourcing/command_handler_client.go github.com/finleap-connect/monoskope/pkg/api/eventsourcing CommandHandlerClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/cluster_client.go github.com/finleap-connect/monoskope/pkg/api/domain ClusterClient,Cluster_GetAllClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/tenant_client.go github.com/finleap-connect/monoskope/pkg/api/domain TenantClient,Tenant_GetAllClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/certificate_client.go github.com/finleap-connect/monoskope/pkg/api/domain CertificateClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go github.com/finleap-connect/monoskope/pkg/api/gateway ClusterAuthClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/audit_log_client.go github.com/finleap-connect/monoskope/pkg/api/domain AuditLogClient,AuditLog_GetByDateRangeClient
-
