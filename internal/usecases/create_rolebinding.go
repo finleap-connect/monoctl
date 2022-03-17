@@ -107,7 +107,7 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 			UserId:   user.Id,
 			Role:     u.role,
 			Scope:    u.scope,
-			Resource: &wrapperspb.StringValue{Value: resourceId.String()},
+			Resource: wrapperspb.String(resourceId.String()),
 		},
 	); err != nil {
 		return err

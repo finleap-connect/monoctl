@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestUtil(t *testing.T) {
+func TestUsecases(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Util Test Suite")
+	RunSpecs(t, "Util Suite")
 }

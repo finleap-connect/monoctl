@@ -32,7 +32,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: set VERSION
         run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       - name: build
@@ -66,7 +66,7 @@ jobs:
         with:
           name: monoctl-binaries
       - name: Upload Release Artifacts
-        uses: alexellis/upload-assets@0.2.2
+        uses: alexellis/upload-assets@0.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

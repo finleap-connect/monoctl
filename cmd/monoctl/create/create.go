@@ -32,6 +32,7 @@ func NewCreateCmd() *cobra.Command {
 	cmd.AddCommand(NewCreateClusterCmd())
 	cmd.AddCommand(NewCreateTenantCmd())
 	cmd.AddCommand(NewCreateKubeConfigCmd())
+	cmd.AddCommand(NewCreateAPITokenCmd())
 
 	return cmd
 }

@@ -23,13 +23,13 @@ import (
 
 	_ "embed"
 
-	"github.com/pkg/browser"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/spinner"
 	"github.com/finleap-connect/monoctl/internal/version"
 	api "github.com/finleap-connect/monoskope/pkg/api/gateway"
 	monoctlAuth "github.com/finleap-connect/monoskope/pkg/auth"
+	"github.com/pkg/browser"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -82,8 +82,9 @@ func (u *authUseCase) runAuthenticationFlow(ctx context.Context) error {
 	}
 	defer callbackServer.Close()
 
-	authState := &api.AuthState{CallbackUrl: callbackServer.RedirectURI}
-	authInfo, err := gatewayClient.GetAuthInformation(ctx, authState)
+	upstreamResponse, err := gatewayClient.RequestUpstreamAuthentication(ctx, &api.UpstreamAuthenticationRequest{
+		CallbackUrl: callbackServer.RedirectURI,
+	})
 	if err != nil {
 		return err
 	}
@@ -113,7 +114,7 @@ func (u *authUseCase) runAuthenticationFlow(ctx context.Context) error {
 	})
 	eg.Go(func() error {
 		var innerErr error
-		authCode, innerErr = callbackServer.ReceiveCodeViaLocalServer(ctx, authInfo.AuthCodeUrl, authInfo.State)
+		authCode, innerErr = callbackServer.ReceiveCodeViaLocalServer(ctx, upstreamResponse.UpstreamIdpRedirect, upstreamResponse.State)
 		return innerErr
 	})
 	if err := eg.Wait(); err != nil {
@@ -121,7 +122,7 @@ func (u *authUseCase) runAuthenticationFlow(ctx context.Context) error {
 		return err
 	}
 
-	authResponse, err := gatewayClient.ExchangeAuthCode(ctx, &api.AuthCode{Code: authCode, State: authInfo.State, CallbackUrl: callbackServer.RedirectURI})
+	authResponse, err := gatewayClient.RequestAuthentication(ctx, &api.AuthenticationRequest{Code: authCode, State: upstreamResponse.State})
 	if err != nil {
 		return err
 	}

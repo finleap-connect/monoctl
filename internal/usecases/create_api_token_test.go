@@ -20,11 +20,8 @@ import (
 	"time"
 
 	"github.com/finleap-connect/monoctl/internal/config"
-	mdomain "github.com/finleap-connect/monoctl/test/mock/domain"
 	mgw "github.com/finleap-connect/monoctl/test/mock/gateway"
-	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	gw "github.com/finleap-connect/monoskope/pkg/api/gateway"
-	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	testutil_fs "github.com/kubism/testutil/pkg/fs"
@@ -32,10 +29,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/zalando/go-keyring"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-var _ = Describe("CreateKubeconfig", func() {
+var _ = Describe("internal/usecases/create_api_token", func() {
 	var (
 		mockCtrl *gomock.Controller
 	)
@@ -49,15 +45,13 @@ var _ = Describe("CreateKubeconfig", func() {
 	})
 
 	var (
-		ctx                         = context.Background()
-		expectedId                  = uuid.New()
-		expectedDisplayName         = "Test Cluster"
-		expectedName                = "test-cluster"
-		expectedApiServerAddress    = "test.cluster.monokope.io"
-		expectedClusterCACertBundle = []byte("This should be a certificate")
-		expectedExpiry              = time.Now().UTC().Add(1 * time.Hour)
-		expectedClusterToken        = "some-auth-token"
-		fakeConfigData              = `server: https://1.1.1.1`
+		ctx              = context.Background()
+		expectedUserId   = uuid.New()
+		expectedExpiry   = time.Now().UTC().Add(1 * time.Hour)
+		expectedToken    = "some-auth-token"
+		expectedScopes   = []string{gw.AuthorizationScope_API.String()}
+		expectedValidity = time.Hour * 1
+		fakeConfigData   = `server: https://1.1.1.1`
 	)
 
 	It("should run", func() {
@@ -77,27 +71,13 @@ var _ = Describe("CreateKubeconfig", func() {
 			Expiry:   expectedExpiry,
 		}
 
-		mockClusterClient := mdomain.NewMockClusterClient(mockCtrl)
-		mockClusterAuthClient := mgw.NewMockClusterAuthClient(mockCtrl)
-
-		uc := NewGetClusterCredentialsUseCase(confManager, expectedDisplayName, string(mk8s.DefaultRole)).(*getClusterCredentialsUseCase)
-		uc.clusterServiceClient = mockClusterClient
-		uc.clusterAuthClient = mockClusterAuthClient
+		apiTokenClient := mgw.NewMockAPITokenClient(mockCtrl)
+		uc := NewCreateAPITokenUsecase(confManager, expectedUserId.String(), expectedScopes, expectedValidity).(*createAPITokenUsecase)
+		uc.apiTokenClient = apiTokenClient
 		uc.setInitialized()
 
-		mockClusterClient.EXPECT().GetByName(ctx, wrapperspb.String(expectedDisplayName)).Return(&projections.Cluster{
-			Id:               expectedId.String(),
-			DisplayName:      expectedDisplayName,
-			Name:             expectedName,
-			ApiServerAddress: expectedApiServerAddress,
-			CaCertBundle:     expectedClusterCACertBundle,
-		}, nil)
-
-		mockClusterAuthClient.EXPECT().GetAuthToken(ctx, &gw.ClusterAuthTokenRequest{
-			ClusterId: expectedId.String(),
-			Role:      string(mk8s.DefaultRole),
-		}).Return(&gw.ClusterAuthTokenResponse{
-			AccessToken: expectedClusterToken,
+		apiTokenClient.EXPECT().RequestAPIToken(ctx, gomock.Any()).Return(&gw.APITokenResponse{
+			AccessToken: expectedToken,
 			Expiry:      timestamppb.New(expectedExpiry),
 		}, nil)
 
