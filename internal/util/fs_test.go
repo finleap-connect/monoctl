@@ -59,7 +59,7 @@ var _ = Describe("util.fs", func() {
 		file, err = NewFileSafe(tempFile.Name())
 		Expect(err).ToNot(HaveOccurred())
 
-		exists, err = FileExists(tempFile.Name())
+		exists, err = FileExists(file.Name())
 		Expect(err).NotTo(HaveOccurred())
 		Expect(exists).To(BeTrue())
 	})

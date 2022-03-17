@@ -16,7 +16,6 @@ package get
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -36,7 +35,7 @@ func NewGetAuditLogCmd() *cobra.Command {
 		now = time.Now()
 		firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 		lastOfMonth = firstOfMonth.AddDate(0, 1, -1)
-		dateInputErr = func(input string) error { return errors.New(fmt.Sprintf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(layout)))}
+		dateInputErr = func(input string) error { return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(layout))}
 	)
 
 	cmd := &cobra.Command{

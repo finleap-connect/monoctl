@@ -38,6 +38,7 @@ var _ = Describe("GetAuditLog", func() {
 		mockCtrl *gomock.Controller
 		minTime  = time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC)
 		maxTime  = time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC)
+		expectedServer = "m8.example.com"
 	)
 
 	BeforeEach(func() {
@@ -70,7 +71,7 @@ var _ = Describe("GetAuditLog", func() {
 		ctx := context.Background()
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{Token: "this-is-a-token"}
 
 		galUc := NewGetAuditLogUseCase(conf, &output.OutputOptions{}, minTime, maxTime).(*getAuditLogUseCase)
