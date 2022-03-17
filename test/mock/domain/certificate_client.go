@@ -8,9 +8,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	domain "github.com/finleap-connect/monoskope/pkg/api/domain"
 	projections "github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 )
 

@@ -8,9 +8,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	eventsourcing "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
 	commands "github.com/finleap-connect/monoskope/pkg/api/eventsourcing/commands"
+	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 )
 
