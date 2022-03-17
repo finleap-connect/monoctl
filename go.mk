@@ -102,5 +102,5 @@ rebuild-mocks: ## rebuild go mocks
 	$(MOCKGEN) -package domain -destination test/mock/domain/tenant_client.go github.com/finleap-connect/monoskope/pkg/api/domain TenantClient,Tenant_GetAllClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/certificate_client.go github.com/finleap-connect/monoskope/pkg/api/domain CertificateClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go github.com/finleap-connect/monoskope/pkg/api/gateway ClusterAuthClient
-  $(MOCKGEN) -package domain -destination test/mock/gateway/api_token_client.go github.com/finleap-connect/monoskope/pkg/api/gateway APITokenClient
+	$(MOCKGEN) -package domain -destination test/mock/gateway/api_token_client.go github.com/finleap-connect/monoskope/pkg/api/gateway APITokenClient
 	$(MOCKGEN) -package domain -destination test/mock/domain/audit_log_client.go github.com/finleap-connect/monoskope/pkg/api/domain AuditLogClient,AuditLog_GetByDateRangeClient
