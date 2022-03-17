@@ -16,6 +16,9 @@ package get
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"time"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -25,19 +28,51 @@ import (
 )
 
 func NewGetAuditLogCmd() *cobra.Command {
+	var (
+		from string
+		to string
+
+		layout = "02.01.2006" // don't change. This corresponds to DD.MM.YYYY
+		now = time.Now()
+		firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		lastOfMonth = firstOfMonth.AddDate(0, 1, -1)
+		dateInputErr = func(input string) error { return errors.New(fmt.Sprintf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(layout)))}
+	)
+
 	cmd := &cobra.Command{
 		Use:     "audit-log",
 		Aliases: []string{"audit"},
 		Short:   "Get audit log",
 		Long:    `Get audit log based on a date range. If no date range is specified the audit log of the current month will be returned.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			minTime, err := time.Parse(layout, from)
+			if err != nil {
+				if len(from) != 0 { // if not specified first day of current month is used
+					return dateInputErr(from)
+				}
+				minTime = firstOfMonth
+			}
+			maxTime, err := time.Parse(layout, to)
+			if err != nil {
+				if len(to) != 0 { // if not specified last day of the current month is used
+					return dateInputErr(to)
+				}
+				maxTime = lastOfMonth
+			}
+
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewGetAuditLogUseCase(configManager.GetConfig(), getOutputOptions()).Run(ctx)
+				return usecases.NewGetAuditLogUseCase(configManager.GetConfig(), getOutputOptions(), minTime, maxTime).Run(ctx)
 			})
 		},
 	}
+
+	flags := cmd.Flags()
+	flags.StringVarP(&from, "from", "f", firstOfMonth.Format(layout),
+		fmt.Sprintf("Specifys the starting point of the date range. If not specified the first day of the current month is used. Accepted layout: %s", now.Format(layout)))
+	flags.StringVarP(&to, "to", "t", lastOfMonth.Format(layout),
+		fmt.Sprintf("Specifys the ending point of the date range. If not specified the last day of the current month is used. Accepted layout: %s", now.Format(layout)))
 
 	return cmd
 }

@@ -17,27 +17,33 @@ package usecases
 import (
 	"context"
 	"github.com/finleap-connect/monoctl/internal/config"
-	"github.com/finleap-connect/monoctl/internal/grpc"
+	m8Grpc "github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
-	api "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
-	ggrpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
+	"time"
 )
 
 // getAuditLogUseCase provides the internal use-case of getting the permission model.
 type getAuditLogUseCase struct {
 	useCaseBase
-	conn          *ggrpc.ClientConn
-	client        api.EventStoreClient
+	conn          *grpc.ClientConn
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
+	auditLogClient api.AuditLogClient
+	minTime time.Time
+	maxTime time.Time
 }
 
-func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOptions) UseCase {
+func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOptions, minTime, maxTime time.Time) UseCase {
 	useCase := &getAuditLogUseCase{
 		useCaseBase:   NewUseCaseBase("get-audit-log", config),
 		outputOptions: outputOptions,
+		minTime:       minTime,
+		maxTime:       maxTime,
 	}
 
 	header := []string{"WHEN", "ISSUER", "ISSUER ID", "EVENT", "DETAILS"}
@@ -74,27 +80,28 @@ func (u *getAuditLogUseCase) Run(ctx context.Context) error {
 }
 
 func (u *getAuditLogUseCase) setUp(ctx context.Context) error {
-	conn, err := grpc.CreateGrpcConnectionAuthenticated(ctx, u.config.Server, &oauth2.Token{AccessToken: u.config.AuthInformation.Token})
+	conn, err := m8Grpc.CreateGrpcConnectionAuthenticated(ctx, u.config.Server, &oauth2.Token{AccessToken: u.config.AuthInformation.Token})
 	if err != nil {
 		return err
 	}
 	u.conn = conn
-	u.client = api.NewEventStoreClient(conn)
+	u.auditLogClient = api.NewAuditLogClient(conn)
 
 	return nil
 }
 
-func (u *getAuditLogUseCase) doRun(ctx context.Context) error {
-	eventStream, err := u.client.Retrieve(ctx, &api.EventFilter{})
+func (u *getAuditLogUseCase) byDateRange(ctx context.Context) error {
+	eventStream, err := u.auditLogClient.GetByDateRange(ctx, &api.GetAuditLogByDateRangeRequest{
+		MinTimestamp: timestamppb.New(u.minTime),
+		MaxTimestamp: timestamppb.New(u.maxTime),
+	})
 	if err != nil {
 		return err
 	}
 
 	var data [][]interface{}
 	for {
-		// Read next
 		event, err := eventStream.Recv()
-		// End of stream
 		if err == io.EOF {
 			break
 		}
@@ -102,17 +109,20 @@ func (u *getAuditLogUseCase) doRun(ctx context.Context) error {
 			return err
 		}
 
-		hre := output.NewHumanReadableEvent(ctx, u.conn, event)
-		dataline := []interface{}{
-			hre.When,
-			hre.Issuer,
-			hre.IssuerId,
-			hre.EventType,
-			hre.Details,
+		dataLine := []interface{}{
+			event.When,
+			event.Issuer,
+			event.IssuerId,
+			event.EventType,
+			event.Details,
 		}
-		data = append(data, dataline)
+		data = append(data, dataLine)
 	}
 	u.tableFactory.SetData(data)
 
 	return nil
+}
+
+func (u *getAuditLogUseCase) doRun(ctx context.Context) error {
+	return u.byDateRange(ctx)
 }

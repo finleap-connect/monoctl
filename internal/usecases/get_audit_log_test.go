@@ -16,45 +16,28 @@ package usecases
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"github.com/finleap-connect/monoskope/pkg/api/domain/eventdata"
-	"github.com/finleap-connect/monoskope/pkg/domain/constants/aggregates"
+	mal "github.com/finleap-connect/monoctl/test/mock/domain"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/audit"
 	"github.com/finleap-connect/monoskope/pkg/domain/constants/events"
-	"github.com/finleap-connect/monoskope/pkg/domain/constants/roles"
-	"github.com/finleap-connect/monoskope/pkg/domain/constants/scopes"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
-	"io/ioutil"
-	"os"
 	"time"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
-	mes "github.com/finleap-connect/monoctl/test/mock/eventsourcing"
-	"github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
-	esApi "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
-	es "github.com/finleap-connect/monoskope/pkg/eventsourcing"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-// TODO: remove focus test
-var _ = Describe("Get Audit Log", func() {
+var _ = Describe("GetAuditLog", func() {
 	var (
-		mockCtrl               *gomock.Controller
-		excepectedCreatorEmail = "admin@monoskope.io"
-		excepectedCreatorID    = uuid.New().String()
-		excepectedCreatedEmail = "user@monoskope.io"
-		expectedCreatedID      = uuid.New().String()
-		data = es.ToEventDataFromProto(&eventdata.UserCreated{
-			Name: "user.monoskope",
-			Email: excepectedCreatedEmail,
-		})
+		mockCtrl *gomock.Controller
+		minTime  = time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC)
+		maxTime  = time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC)
 	)
 
 	BeforeEach(func() {
@@ -65,70 +48,49 @@ var _ = Describe("Get Audit Log", func() {
 		mockCtrl.Finish()
 	})
 
-	var testData = []*eventsourcing.Event{
+	var testData = []*audit.HumanReadableEvent{
 		{
-			Type:             events.UserCreated.String(),
-			Timestamp:        timestamppb.New(time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC)),
-			AggregateId:      expectedCreatedID,
-			AggregateType:    aggregates.User.String(),
-			AggregateVersion: &wrapperspb.UInt64Value{Value: 1},
-			Data: data,
-			Metadata: map[string]string{
-				"x-auth-email": excepectedCreatorEmail,
-				"x-auth-id": excepectedCreatorID,
-			},
+			When:      minTime.Format(time.RFC822),
+			Issuer:    "admin@monoskope.io",
+			IssuerId: uuid.New().String(),
+			EventType: events.UserCreated.String(),
+			Details:   "UserCreated details",
 		},
 		{
-			Type:             events.UserRoleBindingCreated.String(),
-			Timestamp:        timestamppb.New(time.Date(2021, time.December, 10, 23, 18, 13, 14, time.UTC)),
-			AggregateId:      uuid.New().String(),
-			AggregateType:    aggregates.UserRoleBinding.String(),
-			AggregateVersion: &wrapperspb.UInt64Value{Value: 1},
-			Data: es.ToEventDataFromProto(&eventdata.UserRoleAdded{
-				Role: roles.Admin.String(),
-				Scope: scopes.System.String(),
-				UserId: expectedCreatedID,
-			}),
-			Metadata: map[string]string{
-				"x-auth-email": "system@monoskope.local",
-				"x-auth-id": uuid.New().String(),
-			},
+			When:      maxTime.Format(time.RFC822),
+			Issuer:    "user@monoskope.io",
+			IssuerId: uuid.New().String(),
+			EventType: events.TenantCreated.String(),
+			Details:   "TenantCreated details",
 		},
 	}
 
-	// TODO: delete this
-	testData = readFromFile()
-
-	It("should construct gRPC call to retrieve tenant data (included deleted)", func() {
-		var err error
+	It("should construct gRPC call to retrieve audit log events", func() {
+		By("using a date range")
+		ctx := context.Background()
 
 		conf := config.NewConfig()
 		conf.Server = "m8.example.com"
-		conf.AuthInformation = &config.AuthInformation{
-			Token: "this-is-a-token",
-		}
+		conf.AuthInformation = &config.AuthInformation{Token: "this-is-a-token"}
 
-		galUc := NewGetAuditLogUseCase(conf, &output.OutputOptions{}).(*getAuditLogUseCase)
-		ctx := context.Background()
-
-		// set up dummy connection
+		galUc := NewGetAuditLogUseCase(conf, &output.OutputOptions{}, minTime, maxTime).(*getAuditLogUseCase)
 		galUc.conn = grpc.CreateDummyGrpcConnection()
 
-		// use mocked eventStoreClient
-		mockClient := mes.NewMockEventStoreClient(mockCtrl)
-
-		retrieveClient := mes.NewMockEventStore_RetrieveClient(mockCtrl)
+		getByDateRangeClient := mal.NewMockAuditLog_GetByDateRangeClient(mockCtrl)
 		for _, event := range testData {
-			retrieveClient.EXPECT().Recv().Return(event, nil)
+			getByDateRangeClient.EXPECT().Recv().Return(event, nil)
 		}
-		retrieveClient.EXPECT().Recv().Return(nil, io.EOF)
+		getByDateRangeClient.EXPECT().Recv().Return(nil, io.EOF)
 
-		mockClient.EXPECT().Retrieve(ctx, &esApi.EventFilter{}).Return(retrieveClient, nil)
+		mockClient := mal.NewMockAuditLogClient(mockCtrl)
+		mockClient.EXPECT().GetByDateRange(ctx, &api.GetAuditLogByDateRangeRequest{
+			MinTimestamp: timestamppb.New(minTime),
+			MaxTimestamp: timestamppb.New(maxTime),
+		}).Return(getByDateRangeClient, nil)
 
-		galUc.client = mockClient
+		galUc.auditLogClient = mockClient
 
-		// SUT
-		err = galUc.doRun(ctx)
+		err := galUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
 		tbl, err := galUc.tableFactory.ToTable()
@@ -138,43 +100,3 @@ var _ = Describe("Get Audit Log", func() {
 		tbl.Render()
 	})
 })
-
-// TODO: delete this
-func readFromFile() []*eventsourcing.Event {
-	jsonFile, err := os.Open("/Users/hanialshikh/Desktop/FCloud/m8/monoskope/event_store_dump.json")
-	if err != nil {
-		return nil
-	}
-	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	var events_ []map[string]interface{}
-	err = json.Unmarshal(byteValue, &events_)
-	if err != nil {
-		return nil
-	}
-
-	var testData []*eventsourcing.Event
-	for _, e := range events_ {
-
-		metadata := make(map[string]string)
-		for k, v := range e["metadata"].(map[string]interface{}) {
-			metadata[k] = v.(string)
-		}
-
-		var data []byte
-		if d, ok := e["data"].(string); ok {
-			data, _ = base64.StdEncoding.DecodeString(d)
-		}
-
-		testData = append(testData, &eventsourcing.Event{
-			Type: e["type"].(string),
-			AggregateId: e["aggregateId"].(string),
-			AggregateType: e["aggregateType"].(string),
-			Data: data,
-			Metadata: metadata,
-		})
-	}
-
-	return testData
-}
