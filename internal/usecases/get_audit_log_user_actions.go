@@ -22,28 +22,25 @@ import (
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
-	"time"
 )
 
-// getAuditLogUseCase provides the internal use-case of getting the audit log.
-type getAuditLogUseCase struct {
+// getAuditLogUserActionsUseCase provides the internal use-case of getting the audit log of user actions.
+type getAuditLogUserActionsUseCase struct {
 	useCaseBase
 	conn          *grpc.ClientConn
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
 	auditLogClient api.AuditLogClient
-	minTime time.Time
-	maxTime time.Time
+	email string
 }
 
-func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOptions, minTime, maxTime time.Time) UseCase {
-	useCase := &getAuditLogUseCase{
-		useCaseBase:   NewUseCaseBase("get-audit-log", config),
+func NewGetAuditLogUserActionsUseCase(config *config.Config, outputOptions *output.OutputOptions, email string) UseCase {
+	useCase := &getAuditLogUserActionsUseCase{
+		useCaseBase:   NewUseCaseBase("get-audit-log-user-actions", config),
 		outputOptions: outputOptions,
-		minTime:       minTime,
-		maxTime:       maxTime,
+		email:       email,
 	}
 
 	header := []string{"WHEN", "ISSUER", "ISSUER ID", "EVENT", "DETAILS"}
@@ -58,7 +55,7 @@ func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOp
 	return useCase
 }
 
-func (u *getAuditLogUseCase) Run(ctx context.Context) error {
+func (u *getAuditLogUserActionsUseCase) Run(ctx context.Context) error {
 	err := u.setUp(ctx)
 	if err != nil {
 		return err
@@ -79,7 +76,7 @@ func (u *getAuditLogUseCase) Run(ctx context.Context) error {
 	return nil
 }
 
-func (u *getAuditLogUseCase) setUp(ctx context.Context) error {
+func (u *getAuditLogUserActionsUseCase) setUp(ctx context.Context) error {
 	conn, err := m8Grpc.CreateGrpcConnectionAuthenticated(ctx, u.config.Server, &oauth2.Token{AccessToken: u.config.AuthInformation.Token})
 	if err != nil {
 		return err
@@ -90,11 +87,8 @@ func (u *getAuditLogUseCase) setUp(ctx context.Context) error {
 	return nil
 }
 
-func (u *getAuditLogUseCase) byDateRange(ctx context.Context) error {
-	eventStream, err := u.auditLogClient.GetByDateRange(ctx, &api.GetAuditLogByDateRangeRequest{
-		MinTimestamp: timestamppb.New(u.minTime),
-		MaxTimestamp: timestamppb.New(u.maxTime),
-	})
+func (u *getAuditLogUserActionsUseCase) doRun(ctx context.Context) error {
+	eventStream, err := u.auditLogClient.GetUserActions(ctx, wrapperspb.String(u.email))
 	if err != nil {
 		return err
 	}
@@ -121,8 +115,4 @@ func (u *getAuditLogUseCase) byDateRange(ctx context.Context) error {
 	u.tableFactory.SetData(data)
 
 	return nil
-}
-
-func (u *getAuditLogUseCase) doRun(ctx context.Context) error {
-	return u.byDateRange(ctx)
 }

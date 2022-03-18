@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/briandowns/spinner v1.18.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/finleap-connect/monoskope v0.3.5-rc0
+	github.com/finleap-connect/monoskope v0.3.5-dev0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/kubism/testutil v0.1.0-alpha.2

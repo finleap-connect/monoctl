@@ -275,8 +275,8 @@ github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5Kwzbycv
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
-github.com/finleap-connect/monoskope v0.3.5-rc0 h1:ZpgAoLoWK1pOEDnEpUVLtw12Tr8kWQM5E4PG1MO9cNQ=
-github.com/finleap-connect/monoskope v0.3.5-rc0/go.mod h1:5c8J0KVoW95AQM0OfVWYYsoq/2V08g/yC7CHuIerkcg=
+github.com/finleap-connect/monoskope v0.3.5-dev0 h1:aK3BCglFBot1arW3NbeTpKENU1++yINW2X7QGZfmNmQ=
+github.com/finleap-connect/monoskope v0.3.5-dev0/go.mod h1:IKo1USLP+h86rmG330Q/nWq+T3DWS3qT3zy7ljdFhxA=
 github.com/form3tech-oss/jwt-go v3.2.2+incompatible/go.mod h1:pbq4aXjuKjdthFRnoDwaVPLA+WlJuPGy+QneDUgJi2k=
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
