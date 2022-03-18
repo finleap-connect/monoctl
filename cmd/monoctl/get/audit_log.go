@@ -67,6 +67,8 @@ func NewGetAuditLogCmd() *cobra.Command {
 		},
 	}
 
+	cmd.AddCommand(NewGetAuditLogUserActionsCmd())
+
 	cmdFlags := cmd.Flags()
 	cmdFlags.StringVarP(&from, "from", "f", firstOfMonth.Format(dateLayoutISO8601),
 		fmt.Sprintf("Specifys the starting point of the date range. If not specified the first day of the current month is used. Accepted layout: %s", now.Format(dateLayoutISO8601)))
