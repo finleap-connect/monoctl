@@ -33,7 +33,7 @@ func NewGetAuditLogCmd() *cobra.Command {
 
 		layout = "02.01.2006" // don't change. This corresponds to DD.MM.YYYY
 		now = time.Now()
-		firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
 		lastOfMonth = firstOfMonth.AddDate(0, 1, -1)
 		dateInputErr = func(input string) error { return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(layout))}
 	)
@@ -42,7 +42,7 @@ func NewGetAuditLogCmd() *cobra.Command {
 		Use:     "audit-log",
 		Aliases: []string{"audit"},
 		Short:   "Get audit log",
-		Long:    `Get audit log based on a date range. If no date range is specified the audit log of the current month will be returned.`,
+		Long:    `Get audit log based on a date range. If no date range is specified the audit log of the current month will be returned. Please note that both input and output time is in UTC and should be considered when e.g. specifying the date range`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			minTime, err := time.Parse(layout, from)
 			if err != nil {
