@@ -111,9 +111,9 @@ var _ = Describe("GetCluster", func() {
 		err = gcUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
-		tbl := gcUc.tableFactory.ToTable()
-		Expect(tbl.NumLines()).To(Equal(2))
+		tbl, err := gcUc.tableFactory.ToTable()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(tbl.NumLines()).To(Equal(2))
 
 		tbl.Render()
 

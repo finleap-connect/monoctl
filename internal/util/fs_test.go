@@ -18,6 +18,8 @@ import (
 	testutil_fs "github.com/kubism/testutil/pkg/fs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
+	"os"
 )
 
 var _ = Describe("util.fs", func() {
@@ -37,5 +39,28 @@ var _ = Describe("util.fs", func() {
 	})
 	It("can determine homedir", func() {
 		Expect(HomeDir()).NotTo(BeEmpty())
+	})
+	It("can create a file only if doesn't exist", func() {
+		tempFile, err := ioutil.TempFile(os.TempDir(), "m8-")
+		Expect(err).NotTo(HaveOccurred())
+		defer os.Remove(tempFile.Name())
+
+		exists, err := FileExists(tempFile.Name())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(BeTrue())
+
+		file, err := NewFileSafe(tempFile.Name())
+		Expect(err).To(HaveOccurred())
+		Expect(file).To(BeNil())
+
+		err = os.Remove(tempFile.Name())
+		Expect(err).ToNot(HaveOccurred())
+
+		file, err = NewFileSafe(tempFile.Name())
+		Expect(err).ToNot(HaveOccurred())
+
+		exists, err = FileExists(file.Name())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(BeTrue())
 	})
 })

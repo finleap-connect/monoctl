@@ -19,16 +19,16 @@ import (
 	"io"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
 	mdom "github.com/finleap-connect/monoctl/test/mock/domain"
 	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -100,12 +100,11 @@ var _ = Describe("GetTenants", func() {
 		err = gtUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
-		tbl := gtUc.tableFactory.ToTable()
-		Expect(tbl.NumLines()).To(Equal(2))
+		tbl, err := gtUc.tableFactory.ToTable()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(tbl.NumLines()).To(Equal(2))
 
 		tbl.Render()
-
 	})
 	It("should construct gRPC call to retrieve tenant data (included deleted)", func() {
 		var err error
@@ -143,9 +142,9 @@ var _ = Describe("GetTenants", func() {
 		err = gtUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
-		tbl := gtUc.tableFactory.ToTable()
-		Expect(tbl.NumLines()).To(Equal(2))
+		tbl, err := gtUc.tableFactory.ToTable()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(tbl.NumLines()).To(Equal(2))
 
 		tbl.Render()
 	})
