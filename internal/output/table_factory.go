@@ -116,7 +116,10 @@ func (tf *TableFactory) SetColumnFormatter(column string, columnFormatter func(i
 // ToTable creates a tablewriter.Table instance with sorted data and default rendering settings
 func (tf *TableFactory) ToTable() (*tablewriter.Table, error) {
 	if tf.exportFile != "" {
-		return tf.newCsvTable()
+		switch tf.exportFormat {
+		case CSV: return tf.newCsvTable()
+		default: return nil, errors.New("export format is not supported")
+		}
 	}
 	return tf.newStdoutTable()
 }
