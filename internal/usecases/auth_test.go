@@ -55,7 +55,7 @@ var _ = Describe("render auth page", func() {
 
 		confManager := config.NewLoaderFromConfig(conf)
 
-		aUc := NewAuthUsecase(confManager, false).(*authUseCase)
+		aUc := NewAuthUsecase(confManager, false, false).(*authUseCase)
 
 		version := "0.0.1-local"
 		commit := "1a2b3c"

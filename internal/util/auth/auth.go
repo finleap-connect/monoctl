@@ -25,18 +25,26 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func RetryOnAuthFailSilently(ctx context.Context, configManager *config.ClientConfigManager, f func(ctx context.Context) error) error {
+	return retryOnAuthFail(ctx, configManager, true, f)
+}
+
 func RetryOnAuthFail(ctx context.Context, configManager *config.ClientConfigManager, f func(ctx context.Context) error) error {
+	return retryOnAuthFail(ctx, configManager, false, f)
+}
+
+func retryOnAuthFail(ctx context.Context, configManager *config.ClientConfigManager, silent bool, f func(ctx context.Context) error) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*2) // special timeout for login flow with consent can take longer
 	defer cancel()
 
-	if err := LoadConfigAndAuth(ctx, configManager, false); err != nil {
+	if err := LoadConfigAndAuth(ctx, configManager, false, silent); err != nil {
 		return fmt.Errorf("init failed: %w", err)
 	}
 
 	if err := f(ctx); err != nil {
 		status, ok := status.FromError(err)
 		if ok && status.Code() == codes.Unauthenticated {
-			if err := LoadConfigAndAuth(ctx, configManager, true); err != nil {
+			if err := LoadConfigAndAuth(ctx, configManager, true, silent); err != nil {
 				return fmt.Errorf("init failed: %w", err)
 			}
 			return f(ctx)
@@ -46,9 +54,9 @@ func RetryOnAuthFail(ctx context.Context, configManager *config.ClientConfigMana
 	return nil
 }
 
-func LoadConfigAndAuth(ctx context.Context, configManager *config.ClientConfigManager, force bool) error {
+func LoadConfigAndAuth(ctx context.Context, configManager *config.ClientConfigManager, force, silent bool) error {
 	if err := configManager.LoadConfig(); err != nil {
 		return fmt.Errorf("failed loading monoconfig: %w", err)
 	}
-	return usecases.NewAuthUsecase(configManager, force).Run(ctx)
+	return usecases.NewAuthUsecase(configManager, force, silent).Run(ctx)
 }
