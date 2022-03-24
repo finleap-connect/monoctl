@@ -13,7 +13,6 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
-	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // MockAuditLogClient is a mock of AuditLogClient interface.
@@ -60,7 +59,7 @@ func (mr *MockAuditLogClientMockRecorder) GetByDateRange(arg0, arg1 interface{},
 }
 
 // GetUserActions mocks base method.
-func (m *MockAuditLogClient) GetUserActions(arg0 context.Context, arg1 *wrapperspb.StringValue, arg2 ...grpc.CallOption) (domain.AuditLog_GetUserActionsClient, error) {
+func (m *MockAuditLogClient) GetUserActions(arg0 context.Context, arg1 *domain.GetUserActionsRequest, arg2 ...grpc.CallOption) (domain.AuditLog_GetUserActionsClient, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {

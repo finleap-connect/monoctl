@@ -36,8 +36,10 @@ import (
 var _ = Describe("GetAuditLog", func() {
 	var (
 		mockCtrl *gomock.Controller
-		minTime  = time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC)
-		maxTime  = time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC)
+		auditLogOptions = &output.AuditLogOptions{
+			MinTime: time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC),
+			MaxTime: time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC),
+		}
 		expectedServer = "m8.example.com"
 	)
 
@@ -51,14 +53,14 @@ var _ = Describe("GetAuditLog", func() {
 
 	var testData = []*audit.HumanReadableEvent{
 		{
-			When:      minTime.Format(time.RFC822),
+			When:      auditLogOptions.MinTime.Format(time.RFC822),
 			Issuer:    "admin@monoskope.io",
 			IssuerId: uuid.New().String(),
 			EventType: events.UserCreated.String(),
 			Details:   "UserCreated details",
 		},
 		{
-			When:      maxTime.Format(time.RFC822),
+			When:      auditLogOptions.MinTime.Format(time.RFC822),
 			Issuer:    "user@monoskope.io",
 			IssuerId: uuid.New().String(),
 			EventType: events.TenantCreated.String(),
@@ -74,7 +76,7 @@ var _ = Describe("GetAuditLog", func() {
 		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{Token: "this-is-a-token"}
 
-		galUc := NewGetAuditLogUseCase(conf, &output.OutputOptions{}, minTime, maxTime).(*getAuditLogUseCase)
+		galUc := NewGetAuditLogUseCase(conf, &output.OutputOptions{}, auditLogOptions).(*getAuditLogUseCase)
 		galUc.conn = grpc.CreateDummyGrpcConnection()
 
 		getByDateRangeClient := mal.NewMockAuditLog_GetByDateRangeClient(mockCtrl)
@@ -85,8 +87,8 @@ var _ = Describe("GetAuditLog", func() {
 
 		mockClient := mal.NewMockAuditLogClient(mockCtrl)
 		mockClient.EXPECT().GetByDateRange(ctx, &api.GetAuditLogByDateRangeRequest{
-			MinTimestamp: timestamppb.New(minTime),
-			MaxTimestamp: timestamppb.New(maxTime),
+			MinTimestamp: timestamppb.New(auditLogOptions.MinTime),
+			MaxTimestamp: timestamppb.New(auditLogOptions.MaxTime),
 		}).Return(getByDateRangeClient, nil)
 
 		galUc.auditLogClient = mockClient

@@ -22,6 +22,7 @@ import (
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
 )
@@ -33,14 +34,16 @@ type getAuditLogUserActionsUseCase struct {
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
 	auditLogClient api.AuditLogClient
+	auditLogOptions *output.AuditLogOptions
 	email string
 }
 
-func NewGetAuditLogUserActionsUseCase(config *config.Config, outputOptions *output.OutputOptions, email string) UseCase {
+func NewGetAuditLogUserActionsUseCase(config *config.Config, outputOptions *output.OutputOptions, auditLogOptions *output.AuditLogOptions, email string) UseCase {
 	useCase := &getAuditLogUserActionsUseCase{
-		useCaseBase:   NewUseCaseBase("get-audit-log-user-actions", config),
+		useCaseBase: NewUseCaseBase("get-audit-log-user-actions", config),
 		outputOptions: outputOptions,
-		email:       email,
+		auditLogOptions: auditLogOptions,
+		email: email,
 	}
 
 	header := []string{"WHEN", "ISSUER", "ISSUER ID", "EVENT", "DETAILS"}
@@ -88,7 +91,13 @@ func (u *getAuditLogUserActionsUseCase) setUp(ctx context.Context) error {
 }
 
 func (u *getAuditLogUserActionsUseCase) doRun(ctx context.Context) error {
-	eventStream, err := u.auditLogClient.GetUserActions(ctx, wrapperspb.String(u.email))
+	eventStream, err := u.auditLogClient.GetUserActions(ctx, &api.GetUserActionsRequest{
+		Email: wrapperspb.String(u.email),
+		DateRange: &api.GetAuditLogByDateRangeRequest{
+			MinTimestamp: timestamppb.New(u.auditLogOptions.MinTime),
+			MaxTimestamp: timestamppb.New(u.auditLogOptions.MaxTime),
+		},
+	})
 	if err != nil {
 		return err
 	}

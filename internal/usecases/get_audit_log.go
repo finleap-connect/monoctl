@@ -24,7 +24,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
-	"time"
 )
 
 // getAuditLogUseCase provides the internal use-case of getting the audit log.
@@ -34,16 +33,14 @@ type getAuditLogUseCase struct {
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
 	auditLogClient api.AuditLogClient
-	minTime time.Time
-	maxTime time.Time
+	auditLogOptions *output.AuditLogOptions
 }
 
-func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOptions, minTime, maxTime time.Time) UseCase {
+func NewGetAuditLogUseCase(config *config.Config, outputOptions *output.OutputOptions, auditLogOptions *output.AuditLogOptions) UseCase {
 	useCase := &getAuditLogUseCase{
 		useCaseBase:   NewUseCaseBase("get-audit-log", config),
 		outputOptions: outputOptions,
-		minTime:       minTime,
-		maxTime:       maxTime,
+		auditLogOptions: auditLogOptions,
 	}
 
 	header := []string{"WHEN", "ISSUER", "ISSUER ID", "EVENT", "DETAILS"}
@@ -92,8 +89,8 @@ func (u *getAuditLogUseCase) setUp(ctx context.Context) error {
 
 func (u *getAuditLogUseCase) byDateRange(ctx context.Context) error {
 	eventStream, err := u.auditLogClient.GetByDateRange(ctx, &api.GetAuditLogByDateRangeRequest{
-		MinTimestamp: timestamppb.New(u.minTime),
-		MaxTimestamp: timestamppb.New(u.maxTime),
+		MinTimestamp: timestamppb.New(u.auditLogOptions.MinTime),
+		MaxTimestamp: timestamppb.New(u.auditLogOptions.MaxTime),
 	})
 	if err != nil {
 		return err
