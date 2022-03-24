@@ -43,7 +43,7 @@ func NewGetClusterCredentials() *cobra.Command {
 			}
 
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
-			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
+			return auth_util.RetryOnAuthFailSilently(cmd.Context(), configManager, func(ctx context.Context) error {
 				return usecases.NewGetClusterCredentialsUseCase(configManager, clusterName, clusterRole).Run(ctx)
 			})
 		},
