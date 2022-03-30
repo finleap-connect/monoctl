@@ -26,6 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ env.VERSION }}
+
+    strategy:
+      matrix:
+        os: [ "linux", "osx", "win" ]
+  
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
@@ -36,7 +41,7 @@ jobs:
       - name: set VERSION
         run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       - name: build
-        run: VERSION=$VERSION make build-monoctl-all
+        run: VERSION=$VERSION make build-monoctl-${{ matrix.os }}
       - uses: actions/upload-artifact@v2
         with:
           name: monoctl-binaries
