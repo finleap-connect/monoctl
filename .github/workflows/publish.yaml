@@ -19,11 +19,11 @@ on:
     tags: [ 'v*' ]
 
 env:
-  GO_VERSION: 1.17.x
+  GO_VERSION: 1.18.x
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ env.VERSION }}
     steps:
@@ -45,7 +45,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Publish draft
         uses: release-drafter/release-drafter@v5
@@ -59,7 +59,7 @@ jobs:
 
   upload-release-artifacts:
     needs: release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Download monoctl binaries
         uses: actions/download-artifact@v2
