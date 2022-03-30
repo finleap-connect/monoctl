@@ -32,7 +32,7 @@ var (
 	from string
 	to string
 
-	now = time.Now()
+	now = time.Now().UTC()
 	firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
 	lastOfMonth = firstOfMonth.AddDate(0, 1, -1)
 	dateInputErr = func(input string) error { return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(dateLayoutISO8601))}
