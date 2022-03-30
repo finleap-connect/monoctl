@@ -22,6 +22,7 @@ import (
 	"github.com/finleap-connect/monoskope/pkg/domain/constants/events"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
 	"time"
 
@@ -33,14 +34,15 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("GetAuditLog", func() {
+var _ = Describe("GetAuditLog_UserActions", func() {
 	var (
 		mockCtrl *gomock.Controller
-		auditLogOptions = &output.AuditLogOptions{
-			MinTime: time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC),
-			MaxTime: time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC),
-		}
 		expectedServer = "m8.example.com"
+		expectedIssuer = "admin@monoskope.io"
+		auditLogOptions = &output.AuditLogOptions{
+			MinTime: time.Now(),
+			MaxTime: time.Now(),
+		}
 	)
 
 	BeforeEach(func() {
@@ -53,43 +55,45 @@ var _ = Describe("GetAuditLog", func() {
 
 	var testData = []*audit.HumanReadableEvent{
 		{
-			When:      auditLogOptions.MinTime.Format(time.RFC822),
-			Issuer:    "admin@monoskope.io",
+			When: auditLogOptions.MinTime.Format(time.RFC822),
+			Issuer: expectedIssuer,
 			IssuerId: uuid.New().String(),
 			EventType: events.UserCreated.String(),
-			Details:   "UserCreated details",
+			Details: "UserCreated details",
 		},
 		{
-			When:      auditLogOptions.MinTime.Format(time.RFC822),
-			Issuer:    "user@monoskope.io",
+			When: auditLogOptions.MaxTime.Format(time.RFC822),
+			Issuer: expectedIssuer,
 			IssuerId: uuid.New().String(),
 			EventType: events.TenantCreated.String(),
-			Details:   "TenantCreated details",
+			Details: "TenantCreated details",
 		},
 	}
 
-	It("should construct gRPC call to retrieve audit log events", func() {
-		By("using a date range")
+	It("should construct gRPC call to retrieve audit log events caused by a user actions", func() {
 		ctx := context.Background()
 
 		conf := config.NewConfig()
 		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{Token: "this-is-a-token"}
 
-		galUc := NewGetAuditLogUseCase(conf, &output.OutputOptions{}, auditLogOptions).(*getAuditLogUseCase)
+		galUc := NewGetAuditLogUserActionsUseCase(conf, &output.OutputOptions{}, auditLogOptions, expectedIssuer).(*getAuditLogUserActionsUseCase)
 		galUc.conn = grpc.CreateDummyGrpcConnection()
 
-		getByDateRangeClient := mal.NewMockAuditLog_GetByDateRangeClient(mockCtrl)
+		getUserActionsClient := mal.NewMockAuditLog_GetUserActionsClient(mockCtrl)
 		for _, event := range testData {
-			getByDateRangeClient.EXPECT().Recv().Return(event, nil)
+			getUserActionsClient.EXPECT().Recv().Return(event, nil)
 		}
-		getByDateRangeClient.EXPECT().Recv().Return(nil, io.EOF)
+		getUserActionsClient.EXPECT().Recv().Return(nil, io.EOF)
 
 		mockClient := mal.NewMockAuditLogClient(mockCtrl)
-		mockClient.EXPECT().GetByDateRange(ctx, &api.GetAuditLogByDateRangeRequest{
-			MinTimestamp: timestamppb.New(auditLogOptions.MinTime),
-			MaxTimestamp: timestamppb.New(auditLogOptions.MaxTime),
-		}).Return(getByDateRangeClient, nil)
+		mockClient.EXPECT().GetUserActions(ctx, &api.GetUserActionsRequest{
+			Email: wrapperspb.String(expectedIssuer),
+			DateRange: &api.GetAuditLogByDateRangeRequest{
+				MinTimestamp: timestamppb.New(auditLogOptions.MinTime),
+				MaxTimestamp: timestamppb.New(auditLogOptions.MaxTime),
+			},
+		}).Return(getUserActionsClient, nil)
 
 		galUc.auditLogClient = mockClient
 

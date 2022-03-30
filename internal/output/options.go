@@ -14,8 +14,15 @@
 
 package output
 
+import "time"
+
 type OutputOptions struct {
 	SortOptions SortOptions
 	ExportOptions ExportOptions
 	ShowDeleted bool
+}
+
+type AuditLogOptions struct {
+	MinTime time.Time
+	MaxTime time.Time
 }
