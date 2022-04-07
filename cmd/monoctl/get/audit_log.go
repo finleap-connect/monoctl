@@ -67,6 +67,7 @@ func NewGetAuditLogCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(NewGetAuditLogUserActionsCmd())
+	cmd.AddCommand(NewGetAuditLogUsersOverviewCmd())
 
 	persistentFlags := cmd.PersistentFlags()
 	persistentFlags.StringVarP(&from, "from", "f", firstOfMonth.Format(dateLayoutISO8601),
