@@ -79,7 +79,7 @@ func (mr *MockAuditLogClientMockRecorder) GetUserActions(arg0, arg1 interface{},
 }
 
 // GetUsersOverview mocks base method.
-func (m *MockAuditLogClient) GetUsersOverview(arg0 context.Context, arg1 *domain.GetAllRequest, arg2 ...grpc.CallOption) (domain.AuditLog_GetUsersOverviewClient, error) {
+func (m *MockAuditLogClient) GetUsersOverview(arg0 context.Context, arg1 *domain.GetUsersOverviewRequest, arg2 ...grpc.CallOption) (domain.AuditLog_GetUsersOverviewClient, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {

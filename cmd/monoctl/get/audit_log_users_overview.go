@@ -16,23 +16,30 @@ package get
 
 import (
 	"context"
+	"fmt"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
 	"github.com/spf13/cobra"
+	"time"
 )
 
 func NewGetAuditLogUsersOverviewCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "users-overview",
-		Short:   "Get audit log overview of all users.",
-		Long:    `Get audit log overview of all users, tenants/clusters they belong to, and their roles within the system or tenant/cluster.`,
+		Use:     "users-overview [TIMESTAMP]",
+		Short:   "Get audit log overview of all users at a timestamp.",
+		Long:    fmt.Sprintf(`Get audit log overview of all users at a timestamp, tenants/clusters they belong to, and their roles within the system or tenant/cluster. Accepted layout: %s`, now.Format(time.RFC3339)),
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			timestamp, err := time.Parse(time.RFC3339, args[0])
+			if err != nil {
+				return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct timestamp layout. Example: %s", args[0], now.Format(time.RFC3339))
+			}
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewGetAuditLogUsersOverviewUseCase(configManager.GetConfig(), getOutputOptions()).Run(ctx)
+				return usecases.NewGetAuditLogUsersOverviewUseCase(configManager.GetConfig(), getOutputOptions(), timestamp).Run(ctx)
 			})
 		},
 	}
