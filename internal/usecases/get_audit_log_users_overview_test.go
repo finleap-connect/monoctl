@@ -25,13 +25,16 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
+	"time"
 )
 
 var _ = Describe("GetAuditLog_UsersOverview", func() {
 	var (
 		mockCtrl *gomock.Controller
 		expectedServer = "m8.example.com"
+		timestamp = time.Now()
 	)
 
 	BeforeEach(func() {
@@ -68,7 +71,7 @@ var _ = Describe("GetAuditLog_UsersOverview", func() {
 		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{Token: "this-is-a-token"}
 
-		galUc := NewGetAuditLogUsersOverviewUseCase(conf, &output.OutputOptions{ShowDeleted: true}).(*getAuditLogUsersOverviewUseCase)
+		galUc := NewGetAuditLogUsersOverviewUseCase(conf, &output.OutputOptions{}, timestamp).(*getAuditLogUsersOverviewUseCase)
 		galUc.conn = grpc.CreateDummyGrpcConnection()
 
 		getUsersOverviewClient := mal.NewMockAuditLog_GetUsersOverviewClient(mockCtrl)
@@ -78,7 +81,7 @@ var _ = Describe("GetAuditLog_UsersOverview", func() {
 		getUsersOverviewClient.EXPECT().Recv().Return(nil, io.EOF)
 
 		mockClient := mal.NewMockAuditLogClient(mockCtrl)
-		mockClient.EXPECT().GetUsersOverview(ctx, &api.GetAllRequest{IncludeDeleted: true}).
+		mockClient.EXPECT().GetUsersOverview(ctx, &api.GetUsersOverviewRequest{Timestamp: timestamppb.New(timestamp)}).
 			Return(getUsersOverviewClient, nil)
 
 		galUc.auditLogClient = mockClient

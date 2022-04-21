@@ -22,7 +22,9 @@ import (
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
+	"time"
 )
 
 // getAuditLogUsersOverviewUseCase provides the internal use-case of getting the audit overview of all users.
@@ -32,12 +34,14 @@ type getAuditLogUsersOverviewUseCase struct {
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
 	auditLogClient api.AuditLogClient
+	timestamp      time.Time
 }
 
-func NewGetAuditLogUsersOverviewUseCase(config *config.Config, outputOptions *output.OutputOptions) UseCase {
+func NewGetAuditLogUsersOverviewUseCase(config *config.Config, outputOptions *output.OutputOptions, timestamp time.Time) UseCase {
 	useCase := &getAuditLogUsersOverviewUseCase{
 		useCaseBase: NewUseCaseBase("get-audit-log-users-overview", config),
 		outputOptions: outputOptions,
+		timestamp: timestamp,
 	}
 
 	header := []string{"NAME", "EMAIL", "ROLES", "TENANTS", "CLUSTERS", "DETAILS"}
@@ -85,7 +89,7 @@ func (u *getAuditLogUsersOverviewUseCase) setUp(ctx context.Context) error {
 }
 
 func (u *getAuditLogUsersOverviewUseCase) doRun(ctx context.Context) error {
-	overviewStream, err := u.auditLogClient.GetUsersOverview(ctx, &api.GetAllRequest{IncludeDeleted: u.outputOptions.ShowDeleted})
+	overviewStream, err := u.auditLogClient.GetUsersOverview(ctx, &api.GetUsersOverviewRequest{Timestamp: timestamppb.New(u.timestamp)})
 	if err != nil {
 		return err
 	}
