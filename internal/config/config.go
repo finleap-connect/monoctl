@@ -128,7 +128,7 @@ func (a *AuthInformation) IsValid() bool {
 	return a.HasToken() && !a.IsTokenExpired()
 }
 
-// IsValid checks that Token is not empty and is not expired
+// IsValidExact checks that Token is not empty and is not expired
 func (a *AuthInformation) IsValidExact() bool {
 	return a.HasToken() && !a.IsTokenExpiredExact()
 }

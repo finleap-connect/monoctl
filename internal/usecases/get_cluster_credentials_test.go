@@ -17,6 +17,8 @@ package usecases
 import (
 	"context"
 	_ "embed"
+	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"io"
 	"time"
 
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -35,7 +37,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-var _ = Describe("CreateKubeconfig", func() {
+var _ = Describe("GetClusterCredentials", func() {
 	var (
 		mockCtrl *gomock.Controller
 	)
@@ -49,16 +51,32 @@ var _ = Describe("CreateKubeconfig", func() {
 	})
 
 	var (
-		ctx                         = context.Background()
-		expectedId                  = uuid.New()
-		expectedDisplayName         = "Test Cluster"
-		expectedName                = "test-cluster"
-		expectedApiServerAddress    = "test.cluster.monokope.io"
-		expectedClusterCACertBundle = []byte("This should be a certificate")
-		expectedExpiry              = time.Now().UTC().Add(1 * time.Hour)
-		expectedClusterToken        = "some-auth-token"
-		fakeConfigData              = `server: https://1.1.1.1`
+		ctx                  = context.Background()
+		expectedExpiry       = time.Now().UTC().Add(1 * time.Hour)
+		expectedClusterToken = "some-auth-token"
+		fakeConfigData       = `server: https://1.1.1.1`
+		expectedRole         = string(mk8s.DefaultRole)
+		expectedAdminRole    = string(mk8s.AdminRole)
 	)
+
+	getClusters := func() []*projections.Cluster {
+		return []*projections.Cluster{
+			{
+				Id:               uuid.New().String(),
+				DisplayName:      "First Cluster",
+				Name:             "first-cluster",
+				ApiServerAddress: "first.cluster.monokope.io",
+				CaCertBundle:     []byte("This should be a certificate"),
+			},
+			{
+				Id:               uuid.New().String(),
+				DisplayName:      "Second Cluster",
+				Name:             "second-cluster",
+				ApiServerAddress: "second.cluster.monokope.io",
+				CaCertBundle:     []byte("This should be a certificate"),
+			},
+		}
+	}
 
 	It("should run", func() {
 		var err error
@@ -80,22 +98,73 @@ var _ = Describe("CreateKubeconfig", func() {
 		mockClusterClient := mdomain.NewMockClusterClient(mockCtrl)
 		mockClusterAuthClient := mgw.NewMockClusterAuthClient(mockCtrl)
 
-		uc := NewGetClusterCredentialsUseCase(confManager, expectedDisplayName, string(mk8s.DefaultRole)).(*getClusterCredentialsUseCase)
+		expectedClusters := getClusters()
+
+		uc := NewGetClusterCredentialsUseCase(confManager, expectedClusters[0].Name, expectedRole).(*getClusterCredentialsUseCase)
 		uc.clusterServiceClient = mockClusterClient
 		uc.clusterAuthClient = mockClusterAuthClient
 		uc.setInitialized()
 
-		mockClusterClient.EXPECT().GetByName(ctx, wrapperspb.String(expectedDisplayName)).Return(&projections.Cluster{
-			Id:               expectedId.String(),
-			DisplayName:      expectedDisplayName,
-			Name:             expectedName,
-			ApiServerAddress: expectedApiServerAddress,
-			CaCertBundle:     expectedClusterCACertBundle,
-		}, nil)
+		mockClusterClient.EXPECT().GetByName(ctx, wrapperspb.String(expectedClusters[0].Name)).Return(expectedClusters[0], nil)
+
+		getAllClient := mdomain.NewMockCluster_GetAllClient(mockCtrl)
+		for _, expectedCluster := range expectedClusters {
+			getAllClient.EXPECT().Recv().Return(expectedCluster, nil)
+		}
+		getAllClient.EXPECT().Recv().Return(nil, io.EOF)
+		mockClusterClient.EXPECT().GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false}).Return(getAllClient, nil)
+
+		for _, expectedCluster := range expectedClusters {
+			mockClusterAuthClient.EXPECT().GetAuthToken(ctx, &gw.ClusterAuthTokenRequest{
+				ClusterId: expectedCluster.Id,
+				Role:      expectedRole,
+			}).Return(&gw.ClusterAuthTokenResponse{
+				AccessToken: expectedClusterToken,
+				Expiry:      timestamppb.New(expectedExpiry),
+			}, nil)
+		}
+
+		err = uc.Run(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		c := confManager.GetConfig()
+		for _, expectedCluster := range expectedClusters {
+			Expect(c.GetClusterAuthInformation(expectedCluster.Name, c.AuthInformation.Username, expectedRole)).ToNot(BeNil())
+		}
+	})
+
+	It("should get all clusters credentials for default role only", func() {
+		var err error
+
+		keyring.MockInit()
+
+		tempFile, err := testutil_fs.NewTempFile([]byte(fakeConfigData))
+		Expect(err).NotTo(HaveOccurred())
+		defer tempFile.Close()
+
+		confManager := config.NewLoaderFromExplicitFile(tempFile.Path)
+		Expect(confManager.LoadConfig()).NotTo(HaveOccurred())
+
+		confManager.GetConfig().AuthInformation = &config.AuthInformation{
+			Username: "test-user",
+			Expiry:   expectedExpiry,
+		}
+
+		mockClusterClient := mdomain.NewMockClusterClient(mockCtrl)
+		mockClusterAuthClient := mgw.NewMockClusterAuthClient(mockCtrl)
+
+		expectedClusters := getClusters()
+		expectedClusterAdmin := expectedClusters[0]
+
+		uc := NewGetClusterCredentialsUseCase(confManager, expectedClusterAdmin.Name, expectedAdminRole).(*getClusterCredentialsUseCase)
+		uc.clusterServiceClient = mockClusterClient
+		uc.clusterAuthClient = mockClusterAuthClient
+		uc.setInitialized()
+
+		mockClusterClient.EXPECT().GetByName(ctx, wrapperspb.String(expectedClusterAdmin.Name)).Return(expectedClusterAdmin, nil)
 
 		mockClusterAuthClient.EXPECT().GetAuthToken(ctx, &gw.ClusterAuthTokenRequest{
-			ClusterId: expectedId.String(),
-			Role:      string(mk8s.DefaultRole),
+			ClusterId: expectedClusterAdmin.Id,
+			Role:      expectedAdminRole,
 		}).Return(&gw.ClusterAuthTokenResponse{
 			AccessToken: expectedClusterToken,
 			Expiry:      timestamppb.New(expectedExpiry),
@@ -103,6 +172,14 @@ var _ = Describe("CreateKubeconfig", func() {
 
 		err = uc.Run(ctx)
 		Expect(err).ToNot(HaveOccurred())
+		c := confManager.GetConfig()
+		for _, expectedCluster := range expectedClusters {
+			authInfo := c.GetClusterAuthInformation(expectedCluster.Name, c.AuthInformation.Username, expectedAdminRole)
+			if expectedClusterAdmin == expectedCluster {
+				Expect(authInfo).ToNot(BeNil())
+			} else {
+				Expect(authInfo).To(BeNil())
+			}
+		}
 	})
-
 })
