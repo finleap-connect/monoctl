@@ -18,16 +18,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
-
 	"github.com/finleap-connect/monoctl/internal/config"
 	mgrpc "github.com/finleap-connect/monoctl/internal/grpc"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	apiGateway "github.com/finleap-connect/monoskope/pkg/api/gateway"
+	"github.com/finleap-connect/monoskope/pkg/k8s"
 	ggrpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+	"io"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kclientauth "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
+	"sync"
 )
 
 type getClusterCredentialsUseCase struct {
@@ -70,33 +72,25 @@ func (u *getClusterCredentialsUseCase) init(ctx context.Context) error {
 }
 
 func (u *getClusterCredentialsUseCase) run(ctx context.Context) error {
-	var token string
-	var expiry time.Time
-
 	clusterAuthInfo := u.config.GetClusterAuthInformation(u.clusterName, u.config.AuthInformation.Username, u.clusterRole)
-	if clusterAuthInfo != nil && clusterAuthInfo.IsValidExact() {
-		token = clusterAuthInfo.Token
-		expiry = clusterAuthInfo.Expiry
-	} else {
-		// Query cluster
+	if clusterAuthInfo == nil || !clusterAuthInfo.IsValidExact() {
+		// Cache cluster credentials
 		m8cluster, err := u.clusterServiceClient.GetByName(ctx, wrapperspb.String(u.clusterName))
 		if err != nil {
 			return err
 		}
-
-		// Get token from gateway
-		response, err := u.clusterAuthClient.GetAuthToken(ctx, &apiGateway.ClusterAuthTokenRequest{
-			ClusterId: m8cluster.Id,
-			Role:      u.clusterRole,
-		})
+		_, err = u.requestClusterAuthInformation(ctx, m8cluster)
 		if err != nil {
 			return err
 		}
-		token = response.GetAccessToken()
-		expiry = response.Expiry.AsTime()
+		clusterAuthInfo = u.config.GetClusterAuthInformation(u.clusterName, u.config.AuthInformation.Username, u.clusterRole)
 
-		// Cache credentials
-		u.config.SetClusterAuthInformation(u.clusterName, u.config.AuthInformation.Username, u.clusterRole, token, expiry)
+		// Cache all/other clusters credentials
+		if u.clusterRole == string(k8s.DefaultRole) {
+			u.getAllClustersAuthInformation(ctx)
+		}
+
+		// Save credentials
 		err = u.configManager.SaveConfig()
 		if err != nil {
 			return err
@@ -110,9 +104,9 @@ func (u *getClusterCredentialsUseCase) run(ctx context.Context) error {
 			APIVersion: "client.authentication.k8s.io/v1beta1",
 		},
 		Status: &kclientauth.ExecCredentialStatus{
-			Token: token,
+			Token: clusterAuthInfo.Token,
 			ExpirationTimestamp: &v1.Time{
-				Time: expiry,
+				Time: clusterAuthInfo.Expiry,
 			},
 		},
 	}
@@ -127,6 +121,49 @@ func (u *getClusterCredentialsUseCase) run(ctx context.Context) error {
 	fmt.Println(string(bytes))
 
 	return nil
+}
+
+// getAllClustersAuthInformation gets a token per cluster to mimik cross cluster login (for now)
+func (u *getClusterCredentialsUseCase) getAllClustersAuthInformation(ctx context.Context) {
+	wg := &sync.WaitGroup{}
+	m8Clusters, _ := u.clusterServiceClient.GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false})
+	for {
+		m8Cluster, err := m8Clusters.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			continue
+		}
+
+		clusterAuthInfo := u.config.GetClusterAuthInformation(m8Cluster.Name, u.config.AuthInformation.Username, u.clusterRole)
+		if clusterAuthInfo != nil && clusterAuthInfo.IsValidExact() {
+			continue
+		}
+
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			_, _ = u.requestClusterAuthInformation(ctx, m8Cluster)
+		}()
+	}
+	wg.Wait()
+}
+
+func (u *getClusterCredentialsUseCase) requestClusterAuthInformation(ctx context.Context, m8cluster *projections.Cluster) (response *apiGateway.ClusterAuthTokenResponse, err error) {
+	// Get token from gateway
+	response, err = u.clusterAuthClient.GetAuthToken(ctx, &apiGateway.ClusterAuthTokenRequest{
+		ClusterId: m8cluster.Id,
+		Role:      u.clusterRole,
+	})
+	if err != nil {
+		return
+	}
+
+	// Cache credentials
+	u.config.SetClusterAuthInformation(m8cluster.Name, u.config.AuthInformation.Username, u.clusterRole, response.AccessToken, response.Expiry.AsTime())
+
+	return
 }
 
 func (u *getClusterCredentialsUseCase) Run(ctx context.Context) error {
