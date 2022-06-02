@@ -56,7 +56,7 @@ jobs:
           GINKGO=ginkgo make test-ci
           make coverage
       - name: Convert coverage to lcov
-        uses: jandelgado/gcov2lcov-action@v1.0.8
+        uses: jandelgado/gcov2lcov-action@v1.0.9
         with:
           infile: monoctl.coverprofile
       - name: Coveralls GitHub Action
