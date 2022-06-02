@@ -31,7 +31,7 @@ func getOutputOptions() *output.OutputOptions {
 	}
 	exportOpt := output.ExportOptions{
 		Format: output.CSV,
-		File: exportFile,
+		File:   exportFile,
 	}
 	return &output.OutputOptions{ShowDeleted: showDeleted, SortOptions: sortOpt, ExportOptions: exportOpt}
 }
@@ -47,7 +47,6 @@ func NewGetCmd() *cobra.Command {
 
 	cmd.AddCommand(NewGetRolesCmd())
 	cmd.AddCommand(NewGetScopesCmd())
-	cmd.AddCommand(NewGetPoliciesCmd())
 	cmd.AddCommand(NewGetUsersCmd())
 	cmd.AddCommand(NewGetClustersCmd())
 	cmd.AddCommand(NewGetTenantsCmd())
