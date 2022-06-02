@@ -30,12 +30,12 @@ import (
 const dateLayoutISO8601 = "2006-01-02" // don't change. This corresponds to YYYY-MM-DD
 var (
 	from string
-	to string
+	to   string
 
-	now = time.Now().UTC()
+	now          = time.Now().UTC()
 	firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
-	lastOfMonth = firstOfMonth.AddDate(0, 1, -1)
-	dateInputErr = func(input string) error { return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(dateLayoutISO8601))}
+	lastOfMonth  = firstOfMonth.AddDate(0, 1, -1)
+	dateInputErr = func(input string) error { return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(dateLayoutISO8601)) }
 )
 
 func getAuditLogOptions() (*output.AuditLogOptions, error) {
@@ -66,6 +66,7 @@ func NewGetAuditLogCmd() *cobra.Command {
 		},
 	}
 
+	cmd.AddCommand(NewGetAuditLogByUserCmd())
 	cmd.AddCommand(NewGetAuditLogUserActionsCmd())
 	cmd.AddCommand(NewGetAuditLogUsersOverviewCmd())
 
