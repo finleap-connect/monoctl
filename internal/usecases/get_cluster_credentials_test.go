@@ -127,9 +127,11 @@ var _ = Describe("GetClusterCredentials", func() {
 		err = uc.Run(ctx)
 		Expect(err).ToNot(HaveOccurred())
 		c := confManager.GetConfig()
-		for _, expectedCluster := range expectedClusters {
-			Expect(c.GetClusterAuthInformation(expectedCluster.Name, c.AuthInformation.Username, expectedRole)).ToNot(BeNil())
-		}
+		Eventually(func(g Gomega) {
+			for _, expectedCluster := range expectedClusters {
+				g.Expect(c.GetClusterAuthInformation(expectedCluster.Name, c.AuthInformation.Username, expectedRole)).ToNot(BeNil())
+			}
+		}).Should(Succeed())
 	})
 
 	It("should get all clusters credentials for default role only", func() {
