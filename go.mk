@@ -20,6 +20,7 @@ BUILDFLAGS 	   += -installsuffix cgo --tags release
 PROTOC     	   ?= protoc
 
 CMD_MONOCTL_LINUX = $(BUILD_PATH)/monoctl-linux-amd64
+CMD_MONOCTL_LINUX_ARM = $(BUILD_PATH)/monoctl-linux-arm64
 CMD_MONOCTL_OSX = $(BUILD_PATH)/monoctl-osx-amd64
 CMD_MONOCTL_OSX_ARM = $(BUILD_PATH)/monoctl-osx-arm64
 CMD_MONOCTL_WIN = $(BUILD_PATH)/monoctl-win-amd64
@@ -87,6 +88,9 @@ build-clean: ## clean up binaries
 $(CMD_MONOCTL_LINUX): ## build monoctl for linux
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_SRC)
 
+$(CMD_MONOCTL_LINUX_ARM): ## build monoctl for linux arm
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_LINUX_ARM) $(CMD_MONOCTL_SRC)
+
 $(CMD_MONOCTL_OSX): ## build monoctl for osx
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_SRC)
 
@@ -96,11 +100,14 @@ $(CMD_MONOCTL_OSX_ARM): ## build monoctl for osx arm
 $(CMD_MONOCTL_WIN): ## build monoctl for windows
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_WIN) $(CMD_MONOCTL_SRC)
 
-build-monoctl-linux: $(CMD_MONOCTL_LINUX) ## build monoctl for linux
+build-monoctl-linux: $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_LINUX_ARM) ## build monoctl for linux
 	@chmod a+x $(CMD_MONOCTL_LINUX)
+	@chmod a+x $(CMD_MONOCTL_OSX_ARM)
+
 build-monoctl-osx: $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_OSX_ARM) ## build monoctl for osx
 	@chmod a+x $(CMD_MONOCTL_OSX)
 	@chmod a+x $(CMD_MONOCTL_OSX_ARM)
+	
 build-monoctl-win: $(CMD_MONOCTL_WIN)  ## build monoctl for windows
 	@chmod a+x $(CMD_MONOCTL_WIN)
 
