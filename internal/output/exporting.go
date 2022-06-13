@@ -14,15 +14,13 @@
 
 package output
 
-import "time"
+type ExportFormat int
 
-type OutputOptions struct {
-	SortOptions SortOptions
-	ExportOptions ExportOptions
-	ShowDeleted bool
-}
+const (
+	CSV = iota
+)
 
-type AuditLogOptions struct {
-	MinTime time.Time
-	MaxTime time.Time
+type ExportOptions struct {
+	Format	ExportFormat
+	File	string
 }

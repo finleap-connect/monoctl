@@ -9,7 +9,7 @@ GINKGO         ?= $(TOOLS_DIR)/ginkgo
 GINKO_VERSION  ?= v1.16.4
 
 LINTER 	   	   ?= $(TOOLS_DIR)/golangci-lint
-LINTER_VERSION ?= v1.39.0
+LINTER_VERSION ?= v1.45.2
 
 MOCKGEN         ?= $(TOOLS_DIR)/mockgen
 GOMOCK_VERSION  ?= v1.5.0
@@ -21,6 +21,7 @@ PROTOC     	   ?= protoc
 
 CMD_MONOCTL_LINUX = $(BUILD_PATH)/monoctl-linux-amd64
 CMD_MONOCTL_OSX = $(BUILD_PATH)/monoctl-osx-amd64
+CMD_MONOCTL_OSX_ARM = $(BUILD_PATH)/monoctl-osx-arm64
 CMD_MONOCTL_WIN = $(BUILD_PATH)/monoctl-win-amd64
 CMD_MONOCTL_SRC = cmd/monoctl/*.go
 
@@ -70,7 +71,7 @@ gomock-get: ## download gomock
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/golang/mock/mockgen@$(GOMOCK_VERSION))
 
 lint: $(LINTER) ## go lint
-	$(LINTER) run -v --no-config --deadline=5m
+	$(LINTER) run -v -E goconst -E misspell
 
 tools: golangci-lint-get ginkgo-get gomock-get  ## Target to install all required tools into TOOLS_DIR
 
@@ -89,12 +90,21 @@ $(CMD_MONOCTL_LINUX): ## build monoctl for linux
 $(CMD_MONOCTL_OSX): ## build monoctl for osx
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_SRC)
 
+$(CMD_MONOCTL_OSX_ARM): ## build monoctl for osx arm
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_OSX_ARM) $(CMD_MONOCTL_SRC)
+
 $(CMD_MONOCTL_WIN): ## build monoctl for windows
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_WIN) $(CMD_MONOCTL_SRC)
 
 build-monoctl-linux: $(CMD_MONOCTL_LINUX) ## build monoctl for linux
+	@chmod a+x $(CMD_MONOCTL_LINUX)
+build-monoctl-osx: $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_OSX_ARM) ## build monoctl for osx
+	@chmod a+x $(CMD_MONOCTL_OSX)
+	@chmod a+x $(CMD_MONOCTL_OSX_ARM)
+build-monoctl-win: $(CMD_MONOCTL_WIN)  ## build monoctl for windows
+	@chmod a+x $(CMD_MONOCTL_WIN)
 
-build-monoctl-all: $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_WIN) ## build monoctl for linux, osx and windows
+build-monoctl-all: build-monoctl-linux build-monoctl-osx build-monoctl-win ## build monoctl for linux, osx and windows
 
 rebuild-mocks: ## rebuild go mocks
 	$(MOCKGEN) -package eventsourcing -destination test/mock/eventsourcing/command_handler_client.go github.com/finleap-connect/monoskope/pkg/api/eventsourcing CommandHandlerClient
@@ -103,3 +113,4 @@ rebuild-mocks: ## rebuild go mocks
 	$(MOCKGEN) -package domain -destination test/mock/domain/certificate_client.go github.com/finleap-connect/monoskope/pkg/api/domain CertificateClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go github.com/finleap-connect/monoskope/pkg/api/gateway ClusterAuthClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/api_token_client.go github.com/finleap-connect/monoskope/pkg/api/gateway APITokenClient
+	$(MOCKGEN) -package domain -destination test/mock/domain/audit_log_client.go github.com/finleap-connect/monoskope/pkg/api/domain AuditLogClient,AuditLog_GetByDateRangeClient,AuditLog_GetByUserClient,AuditLog_GetUserActionsClient,AuditLog_GetUsersOverviewClient

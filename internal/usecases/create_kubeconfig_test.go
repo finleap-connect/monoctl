@@ -55,6 +55,7 @@ var _ = Describe("CreateKubeconfig", func() {
 		expectedKubeContextName     = "test-cluster-default"
 		expectedAuthInfoName        = "test-cluster-jane-doe-default"
 		expectedNamespaceName       = "jane-doe"
+		expectedServer              = "m8.example.com"
 	)
 
 	It("should run", func() {
@@ -64,7 +65,7 @@ var _ = Describe("CreateKubeconfig", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token:    "this-is-a-token",
 			Username: "jane.doe",

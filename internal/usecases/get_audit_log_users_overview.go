@@ -16,41 +16,38 @@ package usecases
 
 import (
 	"context"
-	"io"
-	"time"
-
 	"github.com/finleap-connect/monoctl/internal/config"
-	"github.com/finleap-connect/monoctl/internal/grpc"
+	m8Grpc "github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"golang.org/x/oauth2"
-	ggrpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"io"
+	"time"
 )
 
-// getTenantsUseCase provides the internal use-case of getting the permission model.
-type getTenantsUseCase struct {
+// getAuditLogUsersOverviewUseCase provides the internal use-case of getting the audit overview of all users.
+type getAuditLogUsersOverviewUseCase struct {
 	useCaseBase
-	conn          *ggrpc.ClientConn
-	client        api.TenantClient
+	conn          *grpc.ClientConn
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
+	auditLogClient api.AuditLogClient
+	timestamp      time.Time
 }
 
-func NewGetTenantsUseCase(config *config.Config, outputOptions *output.OutputOptions) UseCase {
-	useCase := &getTenantsUseCase{
-		useCaseBase:   NewUseCaseBase("get-tenants", config),
+func NewGetAuditLogUsersOverviewUseCase(config *config.Config, outputOptions *output.OutputOptions, timestamp time.Time) UseCase {
+	useCase := &getAuditLogUsersOverviewUseCase{
+		useCaseBase: NewUseCaseBase("get-audit-log-users-overview", config),
 		outputOptions: outputOptions,
+		timestamp: timestamp,
 	}
 
-	header := []string{"NAME", "PREFIX", "AGE"}
-	if outputOptions.ShowDeleted {
-		header = append(header, "DELETED")
-	}
+	header := []string{"NAME", "EMAIL", "ROLES", "TENANTS", "CLUSTERS", "DETAILS"}
 
 	useCase.tableFactory = output.NewTableFactory().
 		SetHeader(header).
-		SetColumnFormatter("AGE", output.DefaultAgeColumnFormatter()).
-		SetColumnFormatter("DELETED", output.DefaultAgeColumnFormatter()).
 		SetSortColumn(outputOptions.SortOptions.SortByColumn).
 		SetSortOrder(outputOptions.SortOptions.Order).
 		SetExportFormat(outputOptions.ExportOptions.Format).
@@ -59,7 +56,7 @@ func NewGetTenantsUseCase(config *config.Config, outputOptions *output.OutputOpt
 	return useCase
 }
 
-func (u *getTenantsUseCase) Run(ctx context.Context) error {
+func (u *getAuditLogUsersOverviewUseCase) Run(ctx context.Context) error {
 	err := u.setUp(ctx)
 	if err != nil {
 		return err
@@ -80,30 +77,26 @@ func (u *getTenantsUseCase) Run(ctx context.Context) error {
 	return nil
 }
 
-func (u *getTenantsUseCase) setUp(ctx context.Context) error {
-	conn, err := grpc.CreateGrpcConnectionAuthenticated(ctx, u.config.Server, &oauth2.Token{AccessToken: u.config.AuthInformation.Token})
+func (u *getAuditLogUsersOverviewUseCase) setUp(ctx context.Context) error {
+	conn, err := m8Grpc.CreateGrpcConnectionAuthenticated(ctx, u.config.Server, &oauth2.Token{AccessToken: u.config.AuthInformation.Token})
 	if err != nil {
 		return err
 	}
 	u.conn = conn
-	u.client = api.NewTenantClient(conn)
+	u.auditLogClient = api.NewAuditLogClient(conn)
 
 	return nil
 }
 
-func (u *getTenantsUseCase) doRun(ctx context.Context) error {
-	tenantStream, err := u.client.GetAll(ctx, &api.GetAllRequest{
-		IncludeDeleted: u.outputOptions.ShowDeleted,
-	})
+func (u *getAuditLogUsersOverviewUseCase) doRun(ctx context.Context) error {
+	overviewStream, err := u.auditLogClient.GetUsersOverview(ctx, &api.GetUsersOverviewRequest{Timestamp: timestamppb.New(u.timestamp)})
 	if err != nil {
 		return err
 	}
 
 	var data [][]interface{}
 	for {
-		// Read next
-		tenant, err := tenantStream.Recv()
-		// End of stream
+		overview, err := overviewStream.Recv()
 		if err == io.EOF {
 			break
 		}
@@ -111,17 +104,17 @@ func (u *getTenantsUseCase) doRun(ctx context.Context) error {
 			return err
 		}
 
-		dataline := []interface{}{
-			tenant.Name,
-			tenant.Prefix,
-			time.Since(tenant.Metadata.Created.AsTime()),
+		dataLine := []interface{}{
+			overview.Name,
+			overview.Email,
+			overview.Roles,
+			overview.Tenants,
+			overview.Clusters,
+			overview.Details,
 		}
-		if u.outputOptions.ShowDeleted && tenant.Metadata.Deleted.AsTime().Unix() != 0 {
-			dataline = append(dataline, time.Since(tenant.Metadata.Deleted.AsTime()))
-		}
-		data = append(data, dataline)
+		data = append(data, dataLine)
 	}
-	u.tableFactory.SetData(data) // Add Bulk Data
+	u.tableFactory.SetData(data)
 
 	return nil
 }

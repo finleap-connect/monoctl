@@ -16,7 +16,8 @@ package get
 
 import (
 	"context"
-	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -25,28 +26,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGetClusterCredentials() *cobra.Command {
+func NewGetAuditLogUserActionsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "cluster-credentials [CLUSTER] [ROLE]",
-		Short: "Get cluster credentials.",
-		Long:  `Get credentials for a specific cluster known to the m8 control plane.`,
-		Args:  cobra.ExactArgs(2),
+		Use:     "user-actions [EMAIL]",
+		Short:   "Get audit log of user actions.",
+		Long:    `Get audit log of everything a user has done. Please note that the date range is for now limited to one year max.`,
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clusterName := args[0]
-			if clusterName == "" {
-				return errors.New("cluster must be specified")
+			if !strings.Contains(args[0], "@") {
+				return fmt.Errorf("'%s' is not a valid email", args[0])
 			}
-
-			clusterRole := args[1]
-			if clusterRole == "" {
-				return errors.New("role must be specified")
+			auditLogOptions, err := getAuditLogOptions()
+			if err != nil {
+				return err
 			}
-
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
-			return auth_util.RetryOnAuthFailSilently(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewGetClusterCredentialsUseCase(configManager, clusterName, clusterRole).Run(ctx)
+
+			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
+				return usecases.NewGetAuditLogUserActionsUseCase(configManager.GetConfig(), getOutputOptions(), auditLogOptions, args[0]).Run(ctx)
 			})
 		},
 	}
+
 	return cmd
 }

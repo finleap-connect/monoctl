@@ -16,6 +16,8 @@ package get
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -24,18 +26,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGetPoliciesCmd() *cobra.Command {
+func NewGetAuditLogByUserCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "policies",
-		Short: "Get policies.",
-		Long:  `Get policies.`,
+		Use:   "user [EMAIL]",
+		Short: "Get audit log by a user.",
+		Long:  `Get audit log by a user including information like who created the user, gave him/her roles and when`,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !strings.Contains(args[0], "@") {
+				return fmt.Errorf("'%s' is not a valid email", args[0])
+			}
+			auditLogOptions, err := getAuditLogOptions()
+			if err != nil {
+				return err
+			}
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewGetPoliciesUseCase(configManager.GetConfig(), getOutputOptions()).Run(ctx)
+				return usecases.NewGetAuditLogUserActionsUseCase(configManager.GetConfig(), getOutputOptions(), auditLogOptions, args[0]).Run(ctx)
 			})
 		},
 	}
+
 	return cmd
 }

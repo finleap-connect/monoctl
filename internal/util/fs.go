@@ -15,7 +15,9 @@
 package util
 
 import (
+	"errors"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 )
@@ -99,4 +101,27 @@ func HomeDir() string {
 		return ""
 	}
 	return os.Getenv("HOME")
+}
+
+// NewFileSafe creates a file only if it doesn't exist
+func NewFileSafe(filePath string) (*os.File, error) {
+	fileExists, err := FileExists(filePath)
+	if err != nil {
+		return nil, err
+	}
+	if fileExists {
+		return nil, errors.New("file already exists")
+	}
+
+	err = os.MkdirAll(path.Dir(filePath), os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
 }

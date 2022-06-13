@@ -17,10 +17,10 @@ package usecases
 import (
 	_ "embed"
 
+	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/finleap-connect/monoctl/internal/config"
 )
 
 // rendered output for certificate resource and issuer
@@ -42,19 +42,20 @@ var _ = Describe("render auth page", func() {
 
 	var (
 		expectedApiServerAddress = "m8.example.com:443"
+		expectedServer           = "m8.example.com"
 	)
 
 	It("should render the index page correctly", func() {
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token: "this-is-a-token",
 		}
 
 		confManager := config.NewLoaderFromConfig(conf)
 
-		aUc := NewAuthUsecase(confManager, false).(*authUseCase)
+		aUc := NewAuthUsecase(confManager, false, false).(*authUseCase)
 
 		version := "0.0.1-local"
 		commit := "1a2b3c"

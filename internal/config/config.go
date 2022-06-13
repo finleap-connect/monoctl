@@ -17,6 +17,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	keyring "github.com/zalando/go-keyring"
@@ -26,7 +27,7 @@ import (
 var (
 	ErrEmptyServer        = errors.New("has no server defined")
 	ErrNoConfigExists     = errors.New("no valid monoconfig found")
-	ErrAlreadyInitialized = errors.New("a configuartion already exists")
+	ErrAlreadyInitialized = errors.New("a configuration already exists")
 )
 
 const (
@@ -41,6 +42,8 @@ type Config struct {
 	AuthInformation *AuthInformation `yaml:"authInformation,omitempty"`
 	// ClusterAuthInformation contains information to authenticate against K8s clusters
 	ClusterAuthInformation map[string]*AuthInformation `yaml:"clusterAuthInformation,omitempty"`
+
+	mutex sync.RWMutex
 }
 
 // NewConfig is a convenience function that returns a new Config object with defaults
@@ -102,6 +105,9 @@ func (c *Config) GetClusterAuthInformation(clusterId, username, role string) *Au
 }
 
 func (c *Config) SetClusterAuthInformation(clusterId, username, role, token string, expiry time.Time) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	c.ClusterAuthInformation[fmt.Sprintf("%s/%s/%s", clusterId, username, role)] = &AuthInformation{
 		Username: username,
 		Token:    token,
@@ -128,7 +134,7 @@ func (a *AuthInformation) IsValid() bool {
 	return a.HasToken() && !a.IsTokenExpired()
 }
 
-// IsValid checks that Token is not empty and is not expired
+// IsValidExact checks that Token is not empty and is not expired
 func (a *AuthInformation) IsValidExact() bool {
 	return a.HasToken() && !a.IsTokenExpiredExact()
 }

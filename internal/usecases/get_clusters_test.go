@@ -19,16 +19,16 @@ import (
 	"io"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
 	mdom "github.com/finleap-connect/monoctl/test/mock/domain"
 	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -41,6 +41,7 @@ var _ = Describe("GetCluster", func() {
 		expectedClusterCACertBundle = []byte("This should be a certificate")
 		expectedUUID                = uuid.New()
 		expectedBootstrapToken      = "This should be a JWT"
+		expectedServer              = "m8.example.com"
 	)
 
 	BeforeEach(func() {
@@ -55,7 +56,7 @@ var _ = Describe("GetCluster", func() {
 		var err error
 
 		conf := config.NewConfig()
-		conf.Server = "m8.example.com"
+		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token: "this-is-a-token",
 		}
@@ -110,9 +111,9 @@ var _ = Describe("GetCluster", func() {
 		err = gcUc.doRun(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
-		tbl := gcUc.tableFactory.ToTable()
-		Expect(tbl.NumLines()).To(Equal(2))
+		tbl, err := gcUc.tableFactory.ToTable()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(tbl.NumLines()).To(Equal(2))
 
 		tbl.Render()
 

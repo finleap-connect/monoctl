@@ -22,13 +22,18 @@ import (
 var showDeleted bool
 var sortBy string
 var sortDescending bool
+var exportFile string
 
 func getOutputOptions() *output.OutputOptions {
 	sortOpt := output.SortOptions{SortByColumn: sortBy}
 	if sortDescending {
 		sortOpt.Order = output.Descending
 	}
-	return &output.OutputOptions{ShowDeleted: showDeleted, SortOptions: sortOpt}
+	exportOpt := output.ExportOptions{
+		Format: output.CSV,
+		File:   exportFile,
+	}
+	return &output.OutputOptions{ShowDeleted: showDeleted, SortOptions: sortOpt, ExportOptions: exportOpt}
 }
 
 func NewGetCmd() *cobra.Command {
@@ -42,7 +47,6 @@ func NewGetCmd() *cobra.Command {
 
 	cmd.AddCommand(NewGetRolesCmd())
 	cmd.AddCommand(NewGetScopesCmd())
-	cmd.AddCommand(NewGetPoliciesCmd())
 	cmd.AddCommand(NewGetUsersCmd())
 	cmd.AddCommand(NewGetClustersCmd())
 	cmd.AddCommand(NewGetTenantsCmd())
@@ -50,11 +54,14 @@ func NewGetCmd() *cobra.Command {
 	cmd.AddCommand(NewGetTenantUsersCmd())
 	cmd.AddCommand(NewGetClusterCredentials())
 	cmd.AddCommand(NewGetClusterAccess())
+	cmd.AddCommand(NewGetAuditLogCmd())
 
 	flags := cmd.PersistentFlags()
 	flags.BoolVarP(&showDeleted, "deleted", "d", false, "Show deleted resources.")
 	flags.StringVar(&sortBy, "sort-by", "", "Column to sort result by. Uses the first column by default.")
 	flags.BoolVar(&sortDescending, "descending", false, "Sort result in descending order.")
+	flags.StringVar(&exportFile, "export", "", "exports the output to a file in CSV format. If no file is specified m8-output.csv will be written in the current directory if it doesn't exists")
+	flags.Lookup("export").NoOptDefVal = "m8-output.csv"
 
 	return cmd
 }

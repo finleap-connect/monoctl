@@ -19,13 +19,18 @@ on:
     tags: [ 'v*' ]
 
 env:
-  GO_VERSION: 1.17.x
+  GO_VERSION: 1.18.x
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ env.VERSION }}
+
+    strategy:
+      matrix:
+        os: [ "linux", "osx", "win" ]
+  
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
@@ -36,8 +41,8 @@ jobs:
       - name: set VERSION
         run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       - name: build
-        run: VERSION=$VERSION make build-monoctl-all
-      - uses: actions/upload-artifact@v2
+        run: VERSION=$VERSION make build-monoctl-${{ matrix.os }}
+      - uses: actions/upload-artifact@v3
         with:
           name: monoctl-binaries
           path: ./monoctl-*
@@ -45,7 +50,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Publish draft
         uses: release-drafter/release-drafter@v5
@@ -59,10 +64,10 @@ jobs:
 
   upload-release-artifacts:
     needs: release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Download monoctl binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: monoctl-binaries
       - name: Upload Release Artifacts

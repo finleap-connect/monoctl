@@ -38,13 +38,15 @@ type authUseCase struct {
 	useCaseBase
 	configManager *config.ClientConfigManager
 	force         bool
+	silent 		  bool
 }
 
-func NewAuthUsecase(configManager *config.ClientConfigManager, force bool) UseCase {
+func NewAuthUsecase(configManager *config.ClientConfigManager, force, silent bool) UseCase {
 	useCase := &authUseCase{
 		useCaseBase:   NewUseCaseBase("authentication", configManager.GetConfig()),
 		configManager: configManager,
 		force:         force,
+		silent: 	   silent,
 	}
 	return useCase
 }
@@ -100,12 +102,12 @@ func (u *authUseCase) runAuthenticationFlow(ctx context.Context) error {
 				return err
 			}
 			s.Stop()
-			fmt.Println("+-----------------------------------------------------------+")
-			fmt.Println("|monoctl has opened the browser for you to authenticate.    |")
-			fmt.Println("|It should show the log in screen of your identity provider |")
-			fmt.Println("|or the consent window if you are already logged in with it.|")
-			fmt.Println("+-----------------------------------------------------------+")
-			fmt.Println("Waiting for you to log in and give consent for OIDC flow...")
+			u.print("+-----------------------------------------------------------+\n")
+			u.print("|monoctl has opened the browser for you to authenticate.    |\n")
+			u.print("|It should show the log in screen of your identity provider |\n")
+			u.print("|or the consent window if you are already logged in with it.|\n")
+			u.print("+-----------------------------------------------------------+\n")
+			u.print("Waiting for you to log in and give consent for OIDC flow...\n")
 			s.Start()
 			return nil
 		case <-ctx.Done():
@@ -137,9 +139,9 @@ func (u *authUseCase) runAuthenticationFlow(ctx context.Context) error {
 	}
 
 	s.Stop()
-	fmt.Printf("You're successfully authenticated as '%s'.\n", authResponse.GetUsername())
-	fmt.Println("---")
-	fmt.Println("")
+	u.print("You're successfully authenticated as '%s'.\n", authResponse.GetUsername())
+	u.print("---\n")
+	u.print("\n")
 
 	return u.configManager.SaveConfig()
 }
@@ -187,4 +189,10 @@ func (u *authUseCase) renderLocalServerSuccessHTML(apiAddress string, version st
 	}
 
 	return outBuf.String(), nil
+}
+
+func (u *authUseCase) print(format string, a ...interface{}) {
+	if !u.silent {
+		fmt.Printf(format, a...)
+	}
 }
