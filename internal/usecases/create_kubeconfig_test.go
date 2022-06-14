@@ -71,10 +71,10 @@ var _ = Describe("CreateKubeconfig", func() {
 			Username: "jane.doe",
 		}
 
-		mockClusterClient := mdomain.NewMockClusterClient(mockCtrl)
+		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
 
 		uc := NewCreateKubeConfigUseCase(conf).(*createKubeConfigUseCase)
-		uc.clusterServiceClient = mockClusterClient
+		uc.clusterAccessClient = mockClusterAccessClient
 		uc.kubeConfig = k8s.NewKubeConfig()
 		uc.kubeConfig.SetPath(tmpfile.Name())
 		uc.setInitialized()
@@ -89,7 +89,7 @@ var _ = Describe("CreateKubeconfig", func() {
 		}, nil)
 		getAllClient.EXPECT().Recv().Return(nil, io.EOF)
 
-		mockClusterClient.EXPECT().GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false}).Return(getAllClient, nil)
+		mockClusterAccessClient.EXPECT().GetClusterAccessByUserId(ctx, &api.GetAllRequest{IncludeDeleted: false}).Return(getAllClient, nil)
 		err = uc.Run(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
