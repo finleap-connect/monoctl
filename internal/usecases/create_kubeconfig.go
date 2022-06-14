@@ -67,7 +67,7 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 	return nil
 }
 
-func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole mk8s.K8sRole) (clusterName, contextName, nsName, authInfoName string, err error) {
+func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole string) (clusterName, contextName, nsName, authInfoName string, err error) {
 	nsName, err = mk8s.GetNamespaceName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
 	if err != nil {
 		return
@@ -118,7 +118,7 @@ func (u *createKubeConfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster 
 }
 
 // setAuthInfo sets the auth information on kubeconfig
-func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterName string, clusterRole mk8s.K8sRole) {
+func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterName string, clusterRole string) {
 	var ok bool
 	var kubeAuthInfo *kapi.AuthInfo
 	if kubeAuthInfo, ok = kubeConfig.AuthInfos[authInfoName]; !ok {
@@ -169,15 +169,15 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 			return err
 		}
 
-		for _, clusterRole := range mk8s.AvailableRoles {
+		for _, clusterRole := range clusterAccess.Roles {
 			// Get naming
-			clusterName, contextName, nsName, authInfoName, err := u.getNaming(clusterAccess.Name, clusterRole)
+			clusterName, contextName, nsName, authInfoName, err := u.getNaming(clusterAccess.Cluster.Name, clusterRole)
 			if err != nil {
 				return err
 			}
 
 			// Set cluster on kubeconfig
-			u.setCluster(kubeConfig, clusterAccess, clusterName)
+			u.setCluster(kubeConfig, clusterAccess.Cluster, clusterName)
 
 			// Set context on kubeconfig
 			u.setContext(kubeConfig, clusterName, contextName, nsName, authInfoName)
@@ -208,7 +208,7 @@ func (u *createKubeConfigUseCase) Run(ctx context.Context) error {
 	}
 	s.Stop()
 
-	fmt.Println("Your kubeconfig has been generated/updated.")
+	fmt.Println("Your kubeconfig has been updated.")
 	fmt.Println("Use `kubectl config get-contexts` to see available contexts.")
 	fmt.Println("Use `kubectl config use-context <CONTEXTNAME>` to switch between clusters.")
 

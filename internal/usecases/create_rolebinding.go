@@ -78,8 +78,8 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 	}
 
 	switch u.scope {
-	case scopes.System.String():
-	case scopes.Tenant.String():
+	case string(scopes.System):
+	case string(scopes.Tenant):
 		grpcClient := api.NewTenantClient(conn)
 		tenant, err := grpcClient.GetByName(ctx, wrapperspb.String(u.resource))
 		if err != nil {
