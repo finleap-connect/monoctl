@@ -102,7 +102,7 @@ $(CMD_MONOCTL_WIN): ## build monoctl for windows
 
 build-monoctl-linux: $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_LINUX_ARM) ## build monoctl for linux
 	@chmod a+x $(CMD_MONOCTL_LINUX)
-	@chmod a+x $(CMD_MONOCTL_OSX_ARM)
+	@chmod a+x $(CMD_MONOCTL_LINUX_ARM)
 
 build-monoctl-osx: $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_OSX_ARM) ## build monoctl for osx
 	@chmod a+x $(CMD_MONOCTL_OSX)
