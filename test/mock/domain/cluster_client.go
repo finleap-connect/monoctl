@@ -59,26 +59,6 @@ func (mr *MockClusterClientMockRecorder) GetAll(arg0, arg1 interface{}, arg2 ...
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockClusterClient)(nil).GetAll), varargs...)
 }
 
-// GetBootstrapToken mocks base method.
-func (m *MockClusterClient) GetBootstrapToken(arg0 context.Context, arg1 *wrapperspb.StringValue, arg2 ...grpc.CallOption) (*wrapperspb.StringValue, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetBootstrapToken", varargs...)
-	ret0, _ := ret[0].(*wrapperspb.StringValue)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetBootstrapToken indicates an expected call of GetBootstrapToken.
-func (mr *MockClusterClientMockRecorder) GetBootstrapToken(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBootstrapToken", reflect.TypeOf((*MockClusterClient)(nil).GetBootstrapToken), varargs...)
-}
-
 // GetById mocks base method.
 func (m *MockClusterClient) GetById(arg0 context.Context, arg1 *wrapperspb.StringValue, arg2 ...grpc.CallOption) (*projections.Cluster, error) {
 	m.ctrl.T.Helper()

@@ -40,7 +40,6 @@ var _ = Describe("GetCluster", func() {
 		expectedApiServerAddress    = "one.example.com"
 		expectedClusterCACertBundle = []byte("This should be a certificate")
 		expectedUUID                = uuid.New()
-		expectedBootstrapToken      = "This should be a JWT"
 		expectedServer              = "m8.example.com"
 	)
 
@@ -82,7 +81,6 @@ var _ = Describe("GetCluster", func() {
 			Name:             expectedName,
 			ApiServerAddress: expectedApiServerAddress,
 			CaCertBundle:     expectedClusterCACertBundle,
-			BootstrapToken:   expectedBootstrapToken,
 			Metadata: &projections.LifecycleMetadata{
 				Created: timestamppb.Now(),
 			},
@@ -93,7 +91,6 @@ var _ = Describe("GetCluster", func() {
 			Name:             "another",
 			ApiServerAddress: "two.exmaple.com",
 			CaCertBundle:     expectedClusterCACertBundle,
-			BootstrapToken:   "this-is-anoher-jwt",
 			Metadata: &projections.LifecycleMetadata{
 				Created: timestamppb.New(time.Date(1975, time.April, 10, 11, 12, 13, 14, time.UTC)),
 				Deleted: timestamppb.Now(),
@@ -116,9 +113,6 @@ var _ = Describe("GetCluster", func() {
 		Expect(tbl.NumLines()).To(Equal(2))
 
 		tbl.Render()
-
-	})
-	It("should render the cluster data correctly", func() {
 
 	})
 })

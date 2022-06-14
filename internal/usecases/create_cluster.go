@@ -15,18 +15,11 @@
 package usecases
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
-	"os"
-	"text/template"
-	"time"
 
 	_ "embed"
 
-	"github.com/cenkalti/backoff"
-	"github.com/google/uuid"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/spinner"
@@ -35,9 +28,9 @@ import (
 	esApi "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
 	cmd "github.com/finleap-connect/monoskope/pkg/domain/commands"
 	commandTypes "github.com/finleap-connect/monoskope/pkg/domain/constants/commands"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	ggrpc "google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 /*
@@ -51,7 +44,6 @@ type createClusterUseCase struct {
 	name             string
 	apiServerAddress string
 	caCertBundle     []byte
-	jwt              string
 
 	conn           *ggrpc.ClientConn
 	cHandlerClient esApi.CommandHandlerClient
@@ -108,70 +100,12 @@ func (u *createClusterUseCase) doCreate(ctx context.Context) (*esApi.CommandRepl
 	return reply, err
 }
 
-func (u *createClusterUseCase) queryJwt(ctx context.Context, id string) error {
-	s := spinner.NewSpinner()
-	defer s.Stop()
-
-	params := backoff.NewExponentialBackOff()
-	params.MaxElapsedTime = 10 * time.Second
-	err := backoff.Retry(func() error {
-		wrapper, err := u.clusterClient.GetBootstrapToken(ctx, &wrapperspb.StringValue{Value: id})
-		if err != nil {
-			return err
-		}
-		u.jwt = wrapper.GetValue()
-		if u.jwt == "" {
-			return fmt.Errorf("u.jwt not set yet")
-		}
-		return nil
-	}, params)
-	if err != nil {
-		fmt.Printf("Receiving Cluster bootstrap token for cluster '%s' failed: %s.\n", u.displayName, err)
-		return err
-	}
-
-	s.Stop()
-	fmt.Printf("Cluster '%s' created.\n", u.displayName)
-
-	return err
-}
-
 // Prepare some data to insert into the template.
 type ClusterRenderData struct {
 	ApiServerAddress string
 	M8Endpoint       string
 	Jwt              string
 	ClusterName      string
-}
-
-func (u *createClusterUseCase) renderOutput() (string, error) {
-
-	encodedJwt := base64.StdEncoding.EncodeToString([]byte(u.jwt))
-	var data = ClusterRenderData{
-		ApiServerAddress: u.apiServerAddress,
-		M8Endpoint:       u.config.Server,
-		Jwt:              encodedJwt,
-		ClusterName:      u.displayName,
-	}
-
-	return RenderClusterConfig(data)
-}
-
-// template.for certificate resource and issuer
-//go:embed m8_operator_bootstrap.yaml
-var resource string
-
-func RenderClusterConfig(data ClusterRenderData) (string, error) {
-	// Create a new template and parse the document into it.
-	t := template.Must(template.New("resource").Parse(resource))
-
-	outBuf := new(bytes.Buffer)
-	err := t.Execute(outBuf, data)
-	if err != nil {
-		return "", err
-	}
-
-	return outBuf.String(), nil
 }
 
 func (u *createClusterUseCase) Run(ctx context.Context) error {
@@ -181,21 +115,6 @@ func (u *createClusterUseCase) Run(ctx context.Context) error {
 	}
 	defer u.conn.Close()
 
-	reply, err := u.doCreate(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = u.queryJwt(ctx, reply.AggregateId)
-	if err != nil {
-		return err
-	}
-
-	out, err := u.renderOutput()
-	if err != nil {
-		return err
-	}
-	fmt.Fprint(os.Stdout, out)
-
-	return nil
+	_, err = u.doCreate(ctx)
+	return err
 }
