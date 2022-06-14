@@ -28,7 +28,7 @@ import (
 	projections "github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
 	ggrpc "google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/wrapperspb"
+	"google.golang.org/protobuf/types/known/emptypb"
 	kapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -146,14 +146,8 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 		return err
 	}
 
-	// Get user information of the current user
-	user, err := u.userClient.GetByEmail(ctx, wrapperspb.String(u.config.AuthInformation.Username))
-	if err != nil {
-		return err
-	}
-
 	// Get cluster information from control plane
-	clusterAccesses, err := u.clusterAccessClient.GetClusterAccessByUserId(ctx, wrapperspb.String(user.Id))
+	clusterAccesses, err := u.clusterAccessClient.GetClusterAccess(ctx, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}

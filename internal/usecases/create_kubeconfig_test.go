@@ -23,9 +23,9 @@ import (
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/k8s"
 	mdomain "github.com/finleap-connect/monoctl/test/mock/domain"
-	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -79,17 +79,20 @@ var _ = Describe("CreateKubeconfig", func() {
 		uc.kubeConfig.SetPath(tmpfile.Name())
 		uc.setInitialized()
 
-		getAllClient := mdomain.NewMockCluster_GetAllClient(mockCtrl)
-		getAllClient.EXPECT().Recv().Return(&projections.Cluster{
-			Id:               expectedId.String(),
-			DisplayName:      expectedDisplayName,
-			Name:             expectedName,
-			ApiServerAddress: expectedApiServerAddress,
-			CaCertBundle:     expectedClusterCACertBundle,
+		getClusterAccessClient := mdomain.NewMockClusterAccess_GetClusterAccessClient(mockCtrl)
+		getClusterAccessClient.EXPECT().Recv().Return(&projections.ClusterAccess{
+			Cluster: &projections.Cluster{
+				Id:               expectedId.String(),
+				DisplayName:      expectedDisplayName,
+				Name:             expectedName,
+				ApiServerAddress: expectedApiServerAddress,
+				CaCertBundle:     expectedClusterCACertBundle,
+			},
+			Roles: []string{"default"},
 		}, nil)
-		getAllClient.EXPECT().Recv().Return(nil, io.EOF)
+		getClusterAccessClient.EXPECT().Recv().Return(nil, io.EOF)
 
-		mockClusterAccessClient.EXPECT().GetClusterAccessByUserId(ctx, &api.GetAllRequest{IncludeDeleted: false}).Return(getAllClient, nil)
+		mockClusterAccessClient.EXPECT().GetClusterAccess(ctx, &empty.Empty{}).Return(getClusterAccessClient, nil)
 		err = uc.Run(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
