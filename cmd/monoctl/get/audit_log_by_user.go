@@ -43,7 +43,7 @@ func NewGetAuditLogByUserCmd() *cobra.Command {
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewGetAuditLogUserActionsUseCase(configManager.GetConfig(), getOutputOptions(), auditLogOptions, args[0]).Run(ctx)
+				return usecases.NewGetAuditLogByUserUseCase(configManager.GetConfig(), getOutputOptions(), auditLogOptions, args[0]).Run(ctx)
 			})
 		},
 	}
