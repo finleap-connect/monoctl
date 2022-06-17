@@ -18,6 +18,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"sync"
+
 	"github.com/finleap-connect/monoctl/internal/config"
 	mgrpc "github.com/finleap-connect/monoctl/internal/grpc"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
@@ -26,10 +29,8 @@ import (
 	"github.com/finleap-connect/monoskope/pkg/k8s"
 	ggrpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"io"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kclientauth "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
-	"sync"
 )
 
 type getClusterCredentialsUseCase struct {
@@ -141,8 +142,8 @@ func (u *getClusterCredentialsUseCase) getAllClustersAuthInformation(ctx context
 			continue
 		}
 
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
 			defer wg.Done()
 			_, _ = u.requestClusterAuthInformation(ctx, m8Cluster)
 		}()
