@@ -22,15 +22,17 @@ on:
     branches: [ main, develop ]
 
 env:
+  GO_MODULE: github.com/finleap-connect/monoctl
   GO_VERSION: 1.18.x
-  GINKGO_VERSION: v1.16.4
+  GINKGO_VERSION: v1.16.5
+  GO_CI_LINT_VERSION: v1.46.1
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
@@ -38,14 +40,15 @@ jobs:
       - name: Run linters
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.45.2
+          version: ${{ env.GO_CI_LINT_VERSION }}
           args: --timeout=5m
   test:
     needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        if: success()
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout Project
