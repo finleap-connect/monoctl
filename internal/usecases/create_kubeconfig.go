@@ -16,6 +16,7 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -68,6 +69,15 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 }
 
 func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole string) (clusterName, contextName, nsName, authInfoName string, err error) {
+	if len(m8ClusterName) < 3 {
+		err = errors.New("clustername is too short")
+		return
+	}
+	if len(clusterRole) < 3 {
+		err = errors.New("clusterRole is too short")
+		return
+	}
+
 	nsName, err = mk8s.GetNamespaceName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
 	if err != nil {
 		return
