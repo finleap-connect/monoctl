@@ -21,7 +21,6 @@ import (
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
-	mdom "github.com/finleap-connect/monoctl/test/mock/domain"
 	mes "github.com/finleap-connect/monoctl/test/mock/eventsourcing"
 	cmdData "github.com/finleap-connect/monoskope/pkg/api/domain/commanddata"
 	es "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
@@ -31,12 +30,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
-
-// rendered output for certificate resource and issuer
-//go:embed expected_m8_operator_bootstrap.yaml
-var expectedResource string
 
 var _ = Describe("CreateCluster", func() {
 	var (
@@ -56,8 +50,6 @@ var _ = Describe("CreateCluster", func() {
 		expectedName                = "one-cluster"
 		expectedApiServerAddress    = "one.example.com"
 		expectedClusterCACertBundle = []byte("This should be a certificate")
-		expectedUUID                = uuid.New()
-		expectedJwt                 = "this-is-a-jwt.it-contains-chars-illegal-for-base64"
 		expectedServer              = "m8.example.com"
 	)
 
@@ -108,51 +100,6 @@ var _ = Describe("CreateCluster", func() {
 		newId, err := ccUc.doCreate(ctx)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(newId).ToNot(Equal(uuid.Nil))
-
 	})
 
-	It("should retrieve the jwt", func() {
-
-		conf := config.NewConfig()
-		conf.Server = expectedServer
-		conf.AuthInformation = &config.AuthInformation{
-			Token: "this-is-a-token",
-		}
-
-		ccUc := NewCreateClusterUseCase(conf, expectedDisplayName, expectedName,
-			expectedApiServerAddress, expectedClusterCACertBundle).(*createClusterUseCase)
-
-		ctx := context.Background()
-
-		// use mocked commandHandlerClient
-		mockClient := mdom.NewMockClusterClient(mockCtrl)
-
-		mockClient.EXPECT().GetBootstrapToken(ctx, &wrapperspb.StringValue{Value: expectedUUID.String()}).Return(&wrapperspb.StringValue{Value: expectedJwt}, nil)
-		ccUc.clusterClient = mockClient
-
-		// SUT
-		err := ccUc.queryJwt(ctx, expectedUUID.String())
-		Expect(err).ToNot(HaveOccurred())
-
-		Expect(ccUc.jwt).To(Equal(expectedJwt))
-	})
-
-	It("should render the certificate template correctly", func() {
-
-		conf := config.NewConfig()
-		conf.Server = expectedServer
-		conf.AuthInformation = &config.AuthInformation{
-			Token: "this-is-a-token",
-		}
-
-		ccUc := NewCreateClusterUseCase(conf, expectedDisplayName, expectedName,
-			expectedApiServerAddress, expectedClusterCACertBundle).(*createClusterUseCase)
-
-		ccUc.jwt = expectedJwt
-
-		actualResource, err := ccUc.renderOutput()
-		Expect(err).ToNot(HaveOccurred())
-
-		Expect(actualResource).To(Equal(expectedResource))
-	})
 })

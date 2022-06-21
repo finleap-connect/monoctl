@@ -16,6 +16,7 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -28,14 +29,16 @@ import (
 	projections "github.com/finleap-connect/monoskope/pkg/api/domain/projections"
 	mk8s "github.com/finleap-connect/monoskope/pkg/k8s"
 	ggrpc "google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	kapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 type createKubeConfigUseCase struct {
 	useCaseBase
-	conn                 *ggrpc.ClientConn
-	clusterServiceClient api.ClusterClient
-	kubeConfig           *k8s.KubeConfig
+	conn                *ggrpc.ClientConn
+	userClient          api.UserClient
+	clusterAccessClient api.ClusterAccessClient
+	kubeConfig          *k8s.KubeConfig
 }
 
 func NewCreateKubeConfigUseCase(config *config.Config) UseCase {
@@ -56,7 +59,8 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 	}
 
 	u.conn = conn
-	u.clusterServiceClient = api.NewClusterClient(u.conn)
+	u.clusterAccessClient = api.NewClusterAccessClient(u.conn)
+	u.userClient = api.NewUserClient(u.conn)
 
 	u.kubeConfig = k8s.NewKubeConfig()
 	u.setInitialized()
@@ -64,7 +68,16 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 	return nil
 }
 
-func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole mk8s.K8sRole) (clusterName, contextName, nsName, authInfoName string, err error) {
+func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole string) (clusterName, contextName, nsName, authInfoName string, err error) {
+	if len(m8ClusterName) < 3 {
+		err = errors.New("clustername is too short")
+		return
+	}
+	if len(clusterRole) < 3 {
+		err = errors.New("clusterRole is too short")
+		return
+	}
+
 	nsName, err = mk8s.GetNamespaceName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
 	if err != nil {
 		return
@@ -115,7 +128,7 @@ func (u *createKubeConfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster 
 }
 
 // setAuthInfo sets the auth information on kubeconfig
-func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterName string, clusterRole mk8s.K8sRole) {
+func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterName string, clusterRole string) {
 	var ok bool
 	var kubeAuthInfo *kapi.AuthInfo
 	if kubeAuthInfo, ok = kubeConfig.AuthInfos[authInfoName]; !ok {
@@ -144,14 +157,14 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 	}
 
 	// Get cluster information from control plane
-	m8Clusters, err := u.clusterServiceClient.GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false})
+	clusterAccesses, err := u.clusterAccessClient.GetClusterAccess(ctx, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}
 
 	for {
 		// Read next
-		m8Cluster, err := m8Clusters.Recv()
+		clusterAccess, err := clusterAccesses.Recv()
 		// End of stream
 		if err == io.EOF {
 			break
@@ -160,15 +173,15 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 			return err
 		}
 
-		for _, clusterRole := range mk8s.AvailableRoles {
+		for _, clusterRole := range clusterAccess.Roles {
 			// Get naming
-			clusterName, contextName, nsName, authInfoName, err := u.getNaming(m8Cluster.Name, clusterRole)
+			clusterName, contextName, nsName, authInfoName, err := u.getNaming(clusterAccess.Cluster.Name, clusterRole)
 			if err != nil {
 				return err
 			}
 
 			// Set cluster on kubeconfig
-			u.setCluster(kubeConfig, m8Cluster, clusterName)
+			u.setCluster(kubeConfig, clusterAccess.Cluster, clusterName)
 
 			// Set context on kubeconfig
 			u.setContext(kubeConfig, clusterName, contextName, nsName, authInfoName)
@@ -199,7 +212,7 @@ func (u *createKubeConfigUseCase) Run(ctx context.Context) error {
 	}
 	s.Stop()
 
-	fmt.Println("Your kubeconfig has been generated/updated.")
+	fmt.Println("Your kubeconfig has been updated.")
 	fmt.Println("Use `kubectl config get-contexts` to see available contexts.")
 	fmt.Println("Use `kubectl config use-context <CONTEXTNAME>` to switch between clusters.")
 
