@@ -18,8 +18,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"sync"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	mgrpc "github.com/finleap-connect/monoctl/internal/grpc"
@@ -119,31 +117,31 @@ func (u *getClusterCredentialsUseCase) run(ctx context.Context) error {
 }
 
 // getAllClustersAuthInformation gets a token per cluster to mimik cross cluster login (for now)
-func (u *getClusterCredentialsUseCase) getAllClustersAuthInformation(ctx context.Context) {
-	wg := &sync.WaitGroup{}
-	m8Clusters, _ := u.clusterServiceClient.GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false})
-	for {
-		m8Cluster, err := m8Clusters.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			continue
-		}
+// func (u *getClusterCredentialsUseCase) getAllClustersAuthInformation(ctx context.Context) {
+// 	wg := &sync.WaitGroup{}
+// 	m8Clusters, _ := u.clusterServiceClient.GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false})
+// 	for {
+// 		m8Cluster, err := m8Clusters.Recv()
+// 		if err == io.EOF {
+// 			break
+// 		}
+// 		if err != nil {
+// 			continue
+// 		}
 
-		clusterAuthInfo := u.config.GetClusterAuthInformation(m8Cluster.Name, u.config.AuthInformation.Username, u.clusterRole)
-		if clusterAuthInfo != nil && clusterAuthInfo.IsValidExact() {
-			continue
-		}
+// 		clusterAuthInfo := u.config.GetClusterAuthInformation(m8Cluster.Name, u.config.AuthInformation.Username, u.clusterRole)
+// 		if clusterAuthInfo != nil && clusterAuthInfo.IsValidExact() {
+// 			continue
+// 		}
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			_, _ = u.requestClusterAuthInformation(ctx, m8Cluster.Id)
-		}()
-	}
-	wg.Wait()
-}
+// 		wg.Add(1)
+// 		go func() {
+// 			defer wg.Done()
+// 			_, _ = u.requestClusterAuthInformation(ctx, m8Cluster.Id)
+// 		}()
+// 	}
+// 	wg.Wait()
+// }
 
 func (u *getClusterCredentialsUseCase) requestClusterAuthInformation(ctx context.Context, clusterId string) (response *apiGateway.ClusterAuthTokenResponse, err error) {
 	// Get token from gateway
