@@ -121,14 +121,15 @@ var _ = Describe("GetClusterCredentials", func() {
 		uc.clusterAuthClient = mockClusterAuthClient
 		uc.setInitialized()
 		err = uc.Run(ctx)
+		Expect(err).ToNot(HaveOccurred())
 
 		uc = NewGetClusterCredentialsUseCase(confManager, expectedClusters[1].Id, expectedRole).(*getClusterCredentialsUseCase)
 		uc.clusterServiceClient = mockClusterClient
 		uc.clusterAuthClient = mockClusterAuthClient
 		uc.setInitialized()
 		err = uc.Run(ctx)
-
 		Expect(err).ToNot(HaveOccurred())
+
 		c := confManager.GetConfig()
 		Eventually(func(g Gomega) {
 			for _, expectedCluster := range expectedClusters {
