@@ -128,7 +128,7 @@ func (u *createKubeConfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster 
 }
 
 // setAuthInfo sets the auth information on kubeconfig
-func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterName string, clusterRole string) {
+func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterId string, clusterRole string) {
 	var ok bool
 	var kubeAuthInfo *kapi.AuthInfo
 	if kubeAuthInfo, ok = kubeConfig.AuthInfos[authInfoName]; !ok {
@@ -140,7 +140,7 @@ func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoN
 		InstallHint: "Monoskope's commandline tool `monoctl` is required to authenticate to the current cluster.",
 		Command:     "monoctl",
 		Args: []string{
-			"get", "cluster-credentials", clusterName, string(clusterRole),
+			"get", "cluster-credentials", clusterId, string(clusterRole),
 		},
 		Env: make([]kapi.ExecEnvVar, 0),
 	}
@@ -187,7 +187,7 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 			u.setContext(kubeConfig, clusterName, contextName, nsName, authInfoName)
 
 			// Set credentials on kubeconfig
-			u.setAuthInfo(kubeConfig, authInfoName, clusterName, clusterRole)
+			u.setAuthInfo(kubeConfig, authInfoName, clusterAccess.Cluster.Id, clusterRole)
 		}
 	}
 
