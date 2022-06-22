@@ -1,20 +1,28 @@
 # Makefile
 
-When developing, the `Makefile` comes in handy to help you with various tasks.
-There are specific `*.mk` files for things like go, etc. which provides targets for developing with those tools.
+```
+Usage:
+  make <target>
+  add-license      Adds the license to every file
+  check-license    Checks thath the license is set on every file
 
-The following targets are defined. Please not that there are variables (uppercase) which can be overriden:
-
-| target | Description |
-| --------- | ----------- |
-| *general* | |
-| `clean` | Cleans everything, tools, tmp dir used, whatever |
-| `tools` | Install necessary tools to `TOOLS_DIR`, like `ginkgo`, `golangci-lint`, ... |
-| `tools-clean` | Removes the tools |
-| *go* | |
-| `go-mod` | Downloads all require go modules |
-| `go-fmt` | Formats all `*.go` files |
-| `go-vet` | Vets all go code |
-| `go-lint` | Lints all go code |
-| `go-run-*` | Runs the app in `cmd/*`, e.g. `go-run-monoctl` to run `monoctl` from sources |
-| `go-test` | Runs all go tests |
+General
+  help             Display this help.
+  mod              Do go mod tidy, download, verify
+  vet              Do go ver
+  go               Do go mod / vet / lint /test
+  run              run monoctl, use `ARGS="get user"` to pass arguments
+  test             run all tests
+  test-ci          run all tests in CICD
+  coverage         print coverage from coverprofiles
+  gomock-get       download gomock
+  lint             go lint
+  tools            Target to install all required tools into TOOLS_DIR
+  clean            Target clean up tools in TOOLS_DIR
+  build-clean      clean up binaries
+  build-monoctl-linux  build monoctl for linux
+  build-monoctl-osx  build monoctl for osx
+  build-monoctl-win  build monoctl for windows
+  build-monoctl-all  build monoctl for linux, osx and windows
+  rebuild-mocks    rebuild go mocks
+```
