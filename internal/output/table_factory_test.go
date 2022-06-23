@@ -29,11 +29,12 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 	Expect(tf).ToNot(BeNil())
 
 	tf.SetHeader([]string{"NAME", "VALUE"})
-	tf.SetData([][]interface{}{
+	data := [][]interface{}{
 		{"z", 1},
 		{"a", 26},
 		{"h", 8},
-	})
+	}
+	tf.SetData(data)
 
 	It("can create table with default sorting ascending", func() {
 		tableData := tf.formatData()
@@ -99,11 +100,15 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 	})
 
 	It("can export table to file", func() {
+		data = append(data, data[0]) // to ensure duplicate data/lines are not merged/skipped
+		tf.SetData(data)
+
 		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
 		Expect(err).NotTo(HaveOccurred())
-		print(tmpFile.Name())
-		//defer os.Remove(tmpFile.Name())
+		defer os.Remove(tmpFile.Name())
 
+		// delete the file as it will be recreated when rendering
+		// and is not allowed to exist beforehand
 		err = os.Remove(tmpFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 
@@ -116,7 +121,7 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		tbl, err = tablewriter.NewCSV(os.Stdout, tmpFile.Name(), true)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(tbl.NumLines()).To(Equal(3))
+		Expect(tbl.NumLines()).To(Equal(len(data)))
 	})
 
 	It("can't export table if file exists", func() {
