@@ -117,8 +117,10 @@ func (tf *TableFactory) SetColumnFormatter(column string, columnFormatter func(i
 func (tf *TableFactory) ToTable() (*tablewriter.Table, error) {
 	if tf.exportFile != "" {
 		switch tf.exportFormat {
-		case CSV: return tf.newCsvTable()
-		default: return nil, errors.New("export format is not supported")
+		case CSV:
+			return tf.newCsvTable()
+		default:
+			return nil, errors.New("export format is not supported")
 		}
 	}
 	return tf.newStdoutTable()
@@ -154,7 +156,7 @@ func (tf *TableFactory) newCsvTable() (*tablewriter.Table, error) {
 	tbl.SetAlignment(tablewriter.ALIGN_LEFT)
 	tbl.SetHeaderLine(false)
 	tbl.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	tbl.SetAutoMergeCells(true)
+	tbl.SetAutoMergeCells(false)
 	tbl.SetColumnSeparator(",")
 	tbl.SetBorder(false)
 	tbl.SetHeader(tf.header)
