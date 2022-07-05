@@ -35,7 +35,7 @@ import (
 
 var _ = Describe("GetAuditLog", func() {
 	var (
-		mockCtrl *gomock.Controller
+		mockCtrl        *gomock.Controller
 		auditLogOptions = &output.AuditLogOptions{
 			MinTime: time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC),
 			MaxTime: time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC),
@@ -55,14 +55,14 @@ var _ = Describe("GetAuditLog", func() {
 		{
 			When:      auditLogOptions.MinTime.Format(time.RFC822),
 			Issuer:    "admin@monoskope.io",
-			IssuerId: uuid.New().String(),
+			IssuerId:  uuid.New().String(),
 			EventType: events.UserCreated.String(),
 			Details:   "UserCreated details",
 		},
 		{
 			When:      auditLogOptions.MinTime.Format(time.RFC822),
 			Issuer:    "user@monoskope.io",
-			IssuerId: uuid.New().String(),
+			IssuerId:  uuid.New().String(),
 			EventType: events.TenantCreated.String(),
 			Details:   "TenantCreated details",
 		},

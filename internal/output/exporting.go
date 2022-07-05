@@ -21,6 +21,6 @@ const (
 )
 
 type ExportOptions struct {
-	Format	ExportFormat
-	File	string
+	Format ExportFormat
+	File   string
 }

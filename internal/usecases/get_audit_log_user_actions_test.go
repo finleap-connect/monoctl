@@ -36,9 +36,9 @@ import (
 
 var _ = Describe("GetAuditLog_UserActions", func() {
 	var (
-		mockCtrl *gomock.Controller
-		expectedServer = "m8.example.com"
-		expectedIssuer = "admin@monoskope.io"
+		mockCtrl        *gomock.Controller
+		expectedServer  = "m8.example.com"
+		expectedIssuer  = "admin@monoskope.io"
 		auditLogOptions = &output.AuditLogOptions{
 			MinTime: time.Now(),
 			MaxTime: time.Now(),
@@ -55,18 +55,18 @@ var _ = Describe("GetAuditLog_UserActions", func() {
 
 	var testData = []*audit.HumanReadableEvent{
 		{
-			When: auditLogOptions.MinTime.Format(time.RFC822),
-			Issuer: expectedIssuer,
-			IssuerId: uuid.New().String(),
+			When:      auditLogOptions.MinTime.Format(time.RFC822),
+			Issuer:    expectedIssuer,
+			IssuerId:  uuid.New().String(),
 			EventType: events.UserCreated.String(),
-			Details: "UserCreated details",
+			Details:   "UserCreated details",
 		},
 		{
-			When: auditLogOptions.MaxTime.Format(time.RFC822),
-			Issuer: expectedIssuer,
-			IssuerId: uuid.New().String(),
+			When:      auditLogOptions.MaxTime.Format(time.RFC822),
+			Issuer:    expectedIssuer,
+			IssuerId:  uuid.New().String(),
 			EventType: events.TenantCreated.String(),
-			Details: "TenantCreated details",
+			Details:   "TenantCreated details",
 		},
 	}
 

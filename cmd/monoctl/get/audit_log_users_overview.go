@@ -17,20 +17,21 @@ package get
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 func NewGetAuditLogUsersOverviewCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "users-overview [TIMESTAMP]",
-		Short:   "Get audit log overview of all users at a timestamp.",
-		Long:    fmt.Sprintf(`Get audit log overview of all users at a timestamp, tenants/clusters they belong to, and their roles within the system or tenant/cluster. Accepted layout: %s`, now.Format(time.RFC3339)),
-		Args:    cobra.ExactArgs(1),
+		Use:   "users-overview [TIMESTAMP]",
+		Short: "Get audit log overview of all users at a given point in time.",
+		Long:  fmt.Sprintf(`Get audit log overview of all users at a given point in time, tenants/clusters they belong to, and their roles within the system or tenant/cluster. Accepted layout: %s`, now.Format(time.RFC3339)),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			timestamp, err := time.Parse(time.RFC3339, args[0])
 			if err != nil {

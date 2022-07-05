@@ -17,8 +17,9 @@ package get
 import (
 	"context"
 	"fmt"
-	"github.com/finleap-connect/monoctl/internal/output"
 	"time"
+
+	"github.com/finleap-connect/monoctl/internal/output"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -35,7 +36,9 @@ var (
 	now          = time.Now().UTC()
 	firstOfMonth = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
 	lastOfMonth  = firstOfMonth.AddDate(0, 1, -1)
-	dateInputErr = func(input string) error { return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(dateLayoutISO8601)) }
+	dateInputErr = func(input string) error {
+		return fmt.Errorf("%s is invalid.\nPlease make sure to use the correct date layout. Example: %s", input, now.Format(dateLayoutISO8601))
+	}
 )
 
 func getAuditLogOptions() (*output.AuditLogOptions, error) {
@@ -52,7 +55,7 @@ func NewGetAuditLogCmd() *cobra.Command {
 		Use:     "audit-log",
 		Aliases: []string{"audit"},
 		Short:   "Get audit log",
-		Long:    `Get audit log based on a date range. If no date range is specified the audit log of the current month will be returned. Please note that both input and output time is in UTC and should be considered when e.g. specifying the date range`,
+		Long:    `Get audit log within specified date range. If no date range is specified the audit log of the current month will be returned.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			auditLogOptions, err := getAuditLogOptions()
 			if err != nil {
@@ -72,9 +75,9 @@ func NewGetAuditLogCmd() *cobra.Command {
 
 	persistentFlags := cmd.PersistentFlags()
 	persistentFlags.StringVarP(&from, "from", "f", firstOfMonth.Format(dateLayoutISO8601),
-		fmt.Sprintf("Specifys the starting point of the date range. If not specified the first day of the current month is used. Accepted layout: %s", now.Format(dateLayoutISO8601)))
+		fmt.Sprintf("Specifies the starting point of the date range (UTC). If not specified the first day of the current month is used. Accepted layout: %s", now.Format(dateLayoutISO8601)))
 	persistentFlags.StringVarP(&to, "to", "t", lastOfMonth.Format(dateLayoutISO8601),
-		fmt.Sprintf("Specifys the ending point of the date range. If not specified the last day of the current month is used. Accepted layout: %s", now.Format(dateLayoutISO8601)))
+		fmt.Sprintf("Specifies the ending point of the date range (UTC). If not specified the last day of the current month is used. Accepted layout: %s", now.Format(dateLayoutISO8601)))
 
 	return cmd
 }

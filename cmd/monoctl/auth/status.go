@@ -17,9 +17,9 @@ package auth
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func NewAuthStatusCmd() *cobra.Command {

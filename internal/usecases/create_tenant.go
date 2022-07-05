@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/spinner"
@@ -26,6 +25,7 @@ import (
 	esApi "github.com/finleap-connect/monoskope/pkg/api/eventsourcing"
 	cmd "github.com/finleap-connect/monoskope/pkg/domain/commands"
 	commandTypes "github.com/finleap-connect/monoskope/pkg/domain/constants/commands"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 )
 
