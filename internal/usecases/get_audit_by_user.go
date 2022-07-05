@@ -17,6 +17,7 @@ package usecases
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	m8Grpc "github.com/finleap-connect/monoctl/internal/grpc"
@@ -114,7 +115,7 @@ func (u *getAuditLogByUserUseCase) doRun(ctx context.Context) error {
 		}
 
 		dataLine := []interface{}{
-			event.When,
+			event.Timestamp.AsTime().Format(time.RFC3339Nano),
 			event.Issuer,
 			event.IssuerId,
 			event.EventType,
