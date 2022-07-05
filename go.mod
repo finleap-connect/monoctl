@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/briandowns/spinner v1.18.1
-	github.com/finleap-connect/monoskope v0.4.0
+	github.com/finleap-connect/monoskope v0.4.4
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
@@ -51,7 +51,7 @@ require (
 	github.com/go-logr/zapr v1.2.3 // indirect
 	github.com/godbus/dbus/v5 v5.0.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect

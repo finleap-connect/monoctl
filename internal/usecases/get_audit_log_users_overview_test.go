@@ -32,9 +32,9 @@ import (
 
 var _ = Describe("GetAuditLog_UsersOverview", func() {
 	var (
-		mockCtrl *gomock.Controller
+		mockCtrl       *gomock.Controller
 		expectedServer = "m8.example.com"
-		timestamp = time.Now()
+		timestamp      = time.Now()
 	)
 
 	BeforeEach(func() {
@@ -47,20 +47,20 @@ var _ = Describe("GetAuditLog_UsersOverview", func() {
 
 	var testData = []*audit.UserOverview{
 		{
-			Name: "Test User",
-			Email: "test.user@monoskope.io",
-			Roles: "user roles",
-			Tenants: "the tenants to which the user has access",
+			Name:     "Test User",
+			Email:    "test.user@monoskope.io",
+			Roles:    "user roles",
+			Tenants:  "the tenants to which the user has access",
 			Clusters: "the clusters to which the user has access",
-			Details: "UserOverview details",
+			Details:  "UserOverview details",
 		},
 		{
-			Name: "Another User",
-			Email: "another.user@monoskope.io",
-			Roles: "user roles",
-			Tenants: "the tenants to which the user has access",
+			Name:     "Another User",
+			Email:    "another.user@monoskope.io",
+			Roles:    "user roles",
+			Tenants:  "the tenants to which the user has access",
 			Clusters: "the clusters to which the user has access",
-			Details: "UserOverview details",
+			Details:  "UserOverview details",
 		},
 	}
 

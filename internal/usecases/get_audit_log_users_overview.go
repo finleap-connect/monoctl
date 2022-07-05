@@ -30,18 +30,18 @@ import (
 // getAuditLogUsersOverviewUseCase provides the internal use-case of getting the audit overview of all users.
 type getAuditLogUsersOverviewUseCase struct {
 	useCaseBase
-	conn          *grpc.ClientConn
-	tableFactory  *output.TableFactory
-	outputOptions *output.OutputOptions
+	conn           *grpc.ClientConn
+	tableFactory   *output.TableFactory
+	outputOptions  *output.OutputOptions
 	auditLogClient api.AuditLogClient
 	timestamp      time.Time
 }
 
 func NewGetAuditLogUsersOverviewUseCase(config *config.Config, outputOptions *output.OutputOptions, timestamp time.Time) UseCase {
 	useCase := &getAuditLogUsersOverviewUseCase{
-		useCaseBase: NewUseCaseBase("get-audit-log-users-overview", config),
+		useCaseBase:   NewUseCaseBase("get-audit-log-users-overview", config),
 		outputOptions: outputOptions,
-		timestamp: timestamp,
+		timestamp:     timestamp,
 	}
 
 	header := []string{"NAME", "EMAIL", "ROLES", "TENANTS", "CLUSTERS", "DETAILS"}

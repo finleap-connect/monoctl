@@ -16,6 +16,9 @@ package usecases
 
 import (
 	"context"
+	"io"
+	"time"
+
 	"github.com/finleap-connect/monoctl/internal/config"
 	m8Grpc "github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
@@ -24,29 +27,28 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"io"
 )
 
 // getAuditLogUserActionsUseCase provides the internal use-case of getting the audit log of user actions.
 type getAuditLogUserActionsUseCase struct {
 	useCaseBase
-	conn          *grpc.ClientConn
-	tableFactory  *output.TableFactory
-	outputOptions *output.OutputOptions
-	auditLogClient api.AuditLogClient
+	conn            *grpc.ClientConn
+	tableFactory    *output.TableFactory
+	outputOptions   *output.OutputOptions
+	auditLogClient  api.AuditLogClient
 	auditLogOptions *output.AuditLogOptions
-	email string
+	email           string
 }
 
 func NewGetAuditLogUserActionsUseCase(config *config.Config, outputOptions *output.OutputOptions, auditLogOptions *output.AuditLogOptions, email string) UseCase {
 	useCase := &getAuditLogUserActionsUseCase{
-		useCaseBase: NewUseCaseBase("get-audit-log-user-actions", config),
-		outputOptions: outputOptions,
+		useCaseBase:     NewUseCaseBase("get-audit-log-user-actions", config),
+		outputOptions:   outputOptions,
 		auditLogOptions: auditLogOptions,
-		email: email,
+		email:           email,
 	}
 
-	header := []string{"WHEN", "ISSUER", "ISSUER ID", "EVENT", "DETAILS"}
+	header := []string{"TIMESTAMP", "ISSUER", "ISSUER ID", "EVENT", "DETAILS"}
 
 	useCase.tableFactory = output.NewTableFactory().
 		SetHeader(header).
@@ -113,7 +115,7 @@ func (u *getAuditLogUserActionsUseCase) doRun(ctx context.Context) error {
 		}
 
 		dataLine := []interface{}{
-			event.When,
+			event.Timestamp.AsTime().Format(time.RFC3339Nano),
 			event.Issuer,
 			event.IssuerId,
 			event.EventType,

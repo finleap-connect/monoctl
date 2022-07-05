@@ -17,12 +17,12 @@ package main
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
 	"github.com/finleap-connect/monoctl/internal/version"
+	"github.com/spf13/cobra"
 )
 
 func NewVersionCmd() *cobra.Command {

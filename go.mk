@@ -41,10 +41,13 @@ mod: ## Do go mod tidy, download, verify
 	$(GO) mod download
 	$(GO) mod verify
 
-vet: ## Do go ver
+fmt: ## Do go vet
+	$(GO) fmt ./...
+
+vet: ## Do go vet
 	$(GO) vet ./...
 
-go: mod vet lint test ## Do go mod / vet / lint /test
+go: mod fmt vet lint test ## Do go mod / fmt / vet / lint /test
 
 run: ## run monoctl, use `ARGS="get user"` to pass arguments
 	$(GO) run -ldflags "$(LDFLAGS)" cmd/monoctl/*.go $(ARGS)
@@ -72,7 +75,7 @@ gomock-get: ## download gomock
 	$(shell $(TOOLS_DIR)/goget-wrapper github.com/golang/mock/mockgen@$(GOMOCK_VERSION))
 
 lint: $(LINTER) ## go lint
-	$(LINTER) run -v -E goconst -E misspell
+	$(LINTER) run -v -E goconst -E misspell -E gofmt
 
 tools: golangci-lint-get ginkgo-get gomock-get  ## Target to install all required tools into TOOLS_DIR
 

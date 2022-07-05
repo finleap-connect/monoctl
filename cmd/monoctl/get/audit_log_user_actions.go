@@ -28,10 +28,10 @@ import (
 
 func NewGetAuditLogUserActionsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "user-actions [EMAIL]",
-		Short:   "Get audit log of user actions.",
-		Long:    `Get audit log of everything a user has done. Please note that the date range is for now limited to one year max.`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "user-actions [EMAIL]",
+		Short: "Get audit log of user actions.",
+		Long:  `Get audit log of everything a user has done. Please note that the date range is for now limited to one year max.`,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !strings.Contains(args[0], "@") {
 				return fmt.Errorf("'%s' is not a valid email", args[0])

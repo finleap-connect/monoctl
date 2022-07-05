@@ -29,8 +29,8 @@ import (
 func NewGetAuditLogByUserCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "user [EMAIL]",
-		Short: "Get audit log by a user.",
-		Long:  `Get audit log by a user including information like who created the user, gave him/her roles and when`,
+		Short: "Get audit log about a user.",
+		Long:  `Get audit log about a user returns every information tied to the lifecycle of the given user`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !strings.Contains(args[0], "@") {

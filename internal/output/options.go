@@ -17,9 +17,9 @@ package output
 import "time"
 
 type OutputOptions struct {
-	SortOptions SortOptions
+	SortOptions   SortOptions
 	ExportOptions ExportOptions
-	ShowDeleted bool
+	ShowDeleted   bool
 }
 
 type AuditLogOptions struct {

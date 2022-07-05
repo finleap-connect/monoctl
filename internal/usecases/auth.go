@@ -38,7 +38,7 @@ type authUseCase struct {
 	useCaseBase
 	configManager *config.ClientConfigManager
 	force         bool
-	silent 		  bool
+	silent        bool
 }
 
 func NewAuthUsecase(configManager *config.ClientConfigManager, force, silent bool) UseCase {
@@ -46,7 +46,7 @@ func NewAuthUsecase(configManager *config.ClientConfigManager, force, silent boo
 		useCaseBase:   NewUseCaseBase("authentication", configManager.GetConfig()),
 		configManager: configManager,
 		force:         force,
-		silent: 	   silent,
+		silent:        silent,
 	}
 	return useCase
 }

@@ -16,14 +16,15 @@ package usecases
 
 import (
 	"context"
+	"io"
+	"time"
+
 	mal "github.com/finleap-connect/monoctl/test/mock/domain"
 	api "github.com/finleap-connect/monoskope/pkg/api/domain"
 	"github.com/finleap-connect/monoskope/pkg/api/domain/audit"
 	"github.com/finleap-connect/monoskope/pkg/domain/constants/events"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"io"
-	"time"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
@@ -35,7 +36,7 @@ import (
 
 var _ = Describe("GetAuditLog", func() {
 	var (
-		mockCtrl *gomock.Controller
+		mockCtrl        *gomock.Controller
 		auditLogOptions = &output.AuditLogOptions{
 			MinTime: time.Date(2021, time.December, 10, 23, 14, 13, 14, time.UTC),
 			MaxTime: time.Date(2022, time.February, 10, 23, 18, 13, 14, time.UTC),
@@ -53,16 +54,16 @@ var _ = Describe("GetAuditLog", func() {
 
 	var testData = []*audit.HumanReadableEvent{
 		{
-			When:      auditLogOptions.MinTime.Format(time.RFC822),
+			Timestamp: timestamppb.New(auditLogOptions.MinTime),
 			Issuer:    "admin@monoskope.io",
-			IssuerId: uuid.New().String(),
+			IssuerId:  uuid.New().String(),
 			EventType: events.UserCreated.String(),
 			Details:   "UserCreated details",
 		},
 		{
-			When:      auditLogOptions.MinTime.Format(time.RFC822),
+			Timestamp: timestamppb.New(auditLogOptions.MaxTime),
 			Issuer:    "user@monoskope.io",
-			IssuerId: uuid.New().String(),
+			IssuerId:  uuid.New().String(),
 			EventType: events.TenantCreated.String(),
 			Details:   "TenantCreated details",
 		},
