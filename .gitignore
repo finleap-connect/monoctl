@@ -21,12 +21,5 @@ project.dict
 /.scannerwork
 /tmp/
 
-/tools/*
-!/tools/goget-wrapper
+/bin/
 *.coverprofile
-
-/monoctl
-/gateway
-
-build/package/helm/monoskope/Chart.lock
-build/package/helm/monoskope/charts/**
