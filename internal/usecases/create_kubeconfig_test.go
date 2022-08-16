@@ -18,7 +18,7 @@ import (
 	"context"
 	_ "embed"
 	"io"
-	"io/ioutil"
+	"os"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/k8s"
@@ -61,7 +61,7 @@ var _ = Describe("CreateKubeconfig", func() {
 	It("should run", func() {
 		var err error
 
-		tmpfile, err := ioutil.TempFile("", "kubeconfig")
+		tmpfile, err := os.CreateTemp("", "kubeconfig")
 		Expect(err).ToNot(HaveOccurred())
 
 		conf := config.NewConfig()

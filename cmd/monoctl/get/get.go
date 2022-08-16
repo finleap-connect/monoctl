@@ -23,6 +23,7 @@ var showDeleted bool
 var sortBy string
 var sortDescending bool
 var exportFile string
+var wide bool
 
 func getOutputOptions() *output.OutputOptions {
 	sortOpt := output.SortOptions{SortByColumn: sortBy}
@@ -33,7 +34,7 @@ func getOutputOptions() *output.OutputOptions {
 		Format: output.CSV,
 		File:   exportFile,
 	}
-	return &output.OutputOptions{ShowDeleted: showDeleted, SortOptions: sortOpt, ExportOptions: exportOpt}
+	return &output.OutputOptions{ShowDeleted: showDeleted, SortOptions: sortOpt, ExportOptions: exportOpt, Wide: wide}
 }
 
 func NewGetCmd() *cobra.Command {
@@ -62,6 +63,7 @@ func NewGetCmd() *cobra.Command {
 	flags.BoolVar(&sortDescending, "descending", false, "Sort result in descending order.")
 	flags.StringVar(&exportFile, "export", "", "exports the output to a file in CSV format. If no file is specified m8-output.csv will be written in the current directory if it doesn't exists")
 	flags.Lookup("export").NoOptDefVal = "m8-output.csv"
+	flags.BoolVar(&wide, "wide", false, "Show more information on the resources.")
 
 	return cmd
 }
