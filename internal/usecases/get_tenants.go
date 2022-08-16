@@ -42,7 +42,11 @@ func NewGetTenantsUseCase(config *config.Config, outputOptions *output.OutputOpt
 		outputOptions: outputOptions,
 	}
 
-	header := []string{"NAME", "PREFIX", "AGE"}
+	var header []string
+	if outputOptions.Wide {
+		header = append(header, "ID")
+	}
+	header = append(header, []string{"NAME", "PREFIX", "AGE"}...)
 	if outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}
@@ -111,15 +115,19 @@ func (u *getTenantsUseCase) doRun(ctx context.Context) error {
 			return err
 		}
 
-		dataline := []interface{}{
+		var row []interface{}
+		if u.outputOptions.Wide {
+			row = append(row, tenant.Id)
+		}
+		row = append(row, []interface{}{
 			tenant.Name,
 			tenant.Prefix,
 			time.Since(tenant.Metadata.Created.AsTime()),
-		}
+		}...)
 		if u.outputOptions.ShowDeleted && tenant.Metadata.Deleted.AsTime().Unix() != 0 {
-			dataline = append(dataline, time.Since(tenant.Metadata.Deleted.AsTime()))
+			row = append(row, time.Since(tenant.Metadata.Deleted.AsTime()))
 		}
-		data = append(data, dataline)
+		data = append(data, row)
 	}
 	u.tableFactory.SetData(data) // Add Bulk Data
 

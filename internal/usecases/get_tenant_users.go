@@ -55,14 +55,14 @@ func (u *getTenantUsersUseCase) Run(ctx context.Context) error {
 		return err
 	}
 	defer conn.Close()
-	grpcClient := api.NewTenantClient(conn)
+	tenants := api.NewTenantClient(conn)
 
-	tenant, err := grpcClient.GetByName(ctx, wrapperspb.String(u.tenantName))
+	tenant, err := tenants.GetByName(ctx, wrapperspb.String(u.tenantName))
 	if err != nil {
 		return err
 	}
 
-	tenantUserStream, err := grpcClient.GetUsers(ctx, wrapperspb.String(tenant.Id))
+	tenantUserStream, err := tenants.GetUsers(ctx, wrapperspb.String(tenant.Id))
 	if err != nil {
 		return err
 	}
@@ -71,6 +71,7 @@ func (u *getTenantUsersUseCase) Run(ctx context.Context) error {
 	for {
 		// Read next
 		tenantUser, err := tenantUserStream.Recv()
+
 		// End of stream
 		if err == io.EOF {
 			break
