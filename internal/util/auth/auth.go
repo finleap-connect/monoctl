@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	"google.golang.org/grpc/codes"
@@ -37,7 +38,7 @@ func retryOnAuthFail(ctx context.Context, configManager *config.ClientConfigMana
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*2) // special timeout for login flow with consent can take longer
 	defer cancel()
 
-	if err := LoadConfigAndAuth(ctx, configManager, false, silent); err != nil {
+	if err := LoadConfigAndAuth(ctx, configManager, flags.ForceAuth, silent); err != nil {
 		return fmt.Errorf("init failed: %w", err)
 	}
 

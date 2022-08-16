@@ -44,6 +44,7 @@ users and their roles in a Kubernetes multi-cluster environment.`,
 	fl.AddGoFlagSet(flag.CommandLine)
 	fl.StringVar(&flags.ExplicitFile, "monoconfig", "", "Path to explicit monoskope config file to use for CLI requests")
 	fl.DurationVar(&flags.Timeout, "command-timeout", 10*time.Second, "Timeout for long running commands")
+	fl.BoolVar(&flags.ForceAuth, "force-auth", false, "Force authentication even if authenticated")
 
 	rootCmd.AddCommand(NewVersionCmd())
 	rootCmd.AddCommand(NewCompletionCommand())
