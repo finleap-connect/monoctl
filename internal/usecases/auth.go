@@ -166,6 +166,7 @@ type IndexPageRenderData struct {
 }
 
 // DefaultLocalServerSuccessHTML is a default response body on authorization success.
+//
 //go:embed CallbackServerSuccessPage.html
 var DefaultLocalServerSuccessHTML string
 

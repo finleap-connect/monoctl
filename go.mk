@@ -119,7 +119,7 @@ GOLANGCILINT ?= $(LOCALBIN)/golangci-lint
 ## Tool Versions
 GOMOCK_VERSION  ?= v1.5.0
 GINKGO_VERSION ?= v1.16.5
-GOLANGCILINT_VERSION ?= v1.46.1
+GOLANGCILINT_VERSION ?= v1.48.0
 
 .PHONY: ginkgo
 ginkgo: $(GINKGO) ## Download ginkgo locally if necessary.
