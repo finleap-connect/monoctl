@@ -31,7 +31,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("CreateKubeconfig", func() {
+var _ = Describe("UpdateKubeconfig", func() {
 	var (
 		mockCtrl *gomock.Controller
 	)
@@ -73,7 +73,7 @@ var _ = Describe("CreateKubeconfig", func() {
 
 		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
 
-		uc := NewCreateKubeConfigUseCase(conf).(*createKubeConfigUseCase)
+		uc := NewUpdateKubeconfigUseCase(conf, true).(*UpdateKubeconfigUseCase)
 		uc.clusterAccessClient = mockClusterAccessClient
 		uc.kubeConfig = k8s.NewKubeConfig()
 		uc.kubeConfig.SetPath(tmpfile.Name())

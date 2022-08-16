@@ -33,22 +33,26 @@ import (
 	kapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-type createKubeConfigUseCase struct {
+const monoctlCmd = "monoctl"
+
+type UpdateKubeconfigUseCase struct {
 	useCaseBase
 	conn                *ggrpc.ClientConn
 	userClient          api.UserClient
 	clusterAccessClient api.ClusterAccessClient
 	kubeConfig          *k8s.KubeConfig
+	overwrite           bool
 }
 
-func NewCreateKubeConfigUseCase(config *config.Config) UseCase {
-	useCase := &createKubeConfigUseCase{
+func NewUpdateKubeconfigUseCase(config *config.Config, overwrite bool) UseCase {
+	useCase := &UpdateKubeconfigUseCase{
 		useCaseBase: NewUseCaseBase("create-kubeconfig", config),
+		overwrite:   overwrite,
 	}
 	return useCase
 }
 
-func (u *createKubeConfigUseCase) init(ctx context.Context) error {
+func (u *UpdateKubeconfigUseCase) init(ctx context.Context) error {
 	if u.initialized {
 		return nil
 	}
@@ -68,7 +72,7 @@ func (u *createKubeConfigUseCase) init(ctx context.Context) error {
 	return nil
 }
 
-func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole string) (clusterName, contextName, nsName, authInfoName string, err error) {
+func (u *UpdateKubeconfigUseCase) getNaming(m8ClusterName string, clusterRole string) (clusterName, contextName, nsName, authInfoName string, err error) {
 	if len(m8ClusterName) < 3 {
 		err = errors.New("clustername is too short")
 		return
@@ -97,7 +101,7 @@ func (u *createKubeConfigUseCase) getNaming(m8ClusterName string, clusterRole st
 }
 
 // setContext sets the context the given on kubeconfig
-func (u *createKubeConfigUseCase) setContext(kubeConfig *kapi.Config, clusterName, contextName, nsName, authInfoName string) {
+func (u *UpdateKubeconfigUseCase) setContext(kubeConfig *kapi.Config, clusterName, contextName, nsName, authInfoName string) {
 	var ok bool
 	var kubeContext *kapi.Context
 	if kubeContext, ok = kubeConfig.Contexts[contextName]; !ok {
@@ -112,7 +116,7 @@ func (u *createKubeConfigUseCase) setContext(kubeConfig *kapi.Config, clusterNam
 }
 
 // setCluster sets the cluster configuration the given on kubeconfig
-func (u *createKubeConfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster *projections.Cluster, clusterName string) {
+func (u *UpdateKubeconfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster *projections.Cluster, clusterName string) {
 	var ok bool
 	var cluster *kapi.Cluster
 	if cluster, ok = kubeConfig.Clusters[clusterName]; !ok {
@@ -128,7 +132,7 @@ func (u *createKubeConfigUseCase) setCluster(kubeConfig *kapi.Config, m8Cluster 
 }
 
 // setAuthInfo sets the auth information on kubeconfig
-func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterId string, clusterRole string) {
+func (u *UpdateKubeconfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoName, clusterId string, clusterRole string) {
 	var ok bool
 	var kubeAuthInfo *kapi.AuthInfo
 	if kubeAuthInfo, ok = kubeConfig.AuthInfos[authInfoName]; !ok {
@@ -138,7 +142,7 @@ func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoN
 	kubeAuthInfo.Exec = &kapi.ExecConfig{
 		APIVersion:  "client.authentication.k8s.io/v1beta1",
 		InstallHint: "Monoskope's commandline tool `monoctl` is required to authenticate to the current cluster.",
-		Command:     "monoctl",
+		Command:     monoctlCmd,
 		Args: []string{
 			"get", "cluster-credentials", clusterId, string(clusterRole),
 		},
@@ -147,13 +151,54 @@ func (u *createKubeConfigUseCase) setAuthInfo(kubeConfig *kapi.Config, authInfoN
 	u.log.Info("AuthInfo created/updated.", "authinfo", authInfoName)
 }
 
-func (u *createKubeConfigUseCase) run(ctx context.Context) error {
+func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 	var err error
 
 	// Load kubeconfig of current user
 	var kubeConfig *kapi.Config
 	if kubeConfig, err = u.kubeConfig.LoadConfig(); err != nil {
 		return err
+	}
+
+	// Optionally clear config
+	if u.overwrite {
+		kubeConfig = kapi.NewConfig()
+	}
+
+	// Find m8 auth infos
+	var m8AuthInfos []string
+	var m8Contexts []string
+	var m8Clusters []string
+	for authInfoName, authInfo := range kubeConfig.AuthInfos {
+		if authInfo.Exec == nil || authInfo.Exec.Command != monoctlCmd {
+			continue
+		}
+		m8AuthInfos = append(m8AuthInfos, authInfoName)
+
+		for contextName, kctx := range kubeConfig.Contexts {
+			if kctx.AuthInfo != authInfoName {
+				continue
+			}
+			m8Contexts = append(m8Contexts, contextName)
+
+			for clusterName := range kubeConfig.Clusters {
+				if clusterName != kctx.Cluster {
+					continue
+				}
+				m8Clusters = append(m8Clusters, clusterName)
+			}
+		}
+	}
+
+	// Delete all old stuff
+	for _, name := range m8AuthInfos {
+		delete(kubeConfig.AuthInfos, name)
+	}
+	for _, name := range m8Contexts {
+		delete(kubeConfig.Contexts, name)
+	}
+	for _, name := range m8Clusters {
+		delete(kubeConfig.Clusters, name)
 	}
 
 	// Get cluster information from control plane
@@ -194,7 +239,7 @@ func (u *createKubeConfigUseCase) run(ctx context.Context) error {
 	return u.kubeConfig.StoreConfig(kubeConfig)
 }
 
-func (u *createKubeConfigUseCase) Run(ctx context.Context) error {
+func (u *UpdateKubeconfigUseCase) Run(ctx context.Context) error {
 	s := spinner.NewSpinner()
 	defer s.Stop()
 
