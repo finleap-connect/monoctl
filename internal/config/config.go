@@ -17,7 +17,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	keyring "github.com/zalando/go-keyring"
@@ -42,8 +41,6 @@ type Config struct {
 	AuthInformation *AuthInformation `yaml:"authInformation,omitempty"`
 	// ClusterAuthInformation contains information to authenticate against K8s clusters
 	ClusterAuthInformation map[string]*AuthInformation `yaml:"clusterAuthInformation,omitempty"`
-
-	mutex sync.RWMutex
 }
 
 // NewConfig is a convenience function that returns a new Config object with defaults
@@ -63,17 +60,36 @@ func (c *Config) Validate() error {
 
 func (c *Config) StoreToken() error {
 	if c.HasAuthInformation() {
-		err := keyring.Set(monoctlService, c.AuthInformation.Username, c.AuthInformation.Token)
-		if err != nil {
-			return err
+		if c.AuthInformation.IsValid() {
+			if err := keyring.Set(monoctlService, c.AuthInformation.Username, c.AuthInformation.Token); err != nil {
+				return err
+			}
+		} else {
+			if err := keyring.Delete(monoctlService, c.AuthInformation.Username); err != nil {
+				if !errors.Is(err, keyring.ErrNotFound) {
+					return err
+				}
+			}
 		}
 	}
+
+	cleanedAuthInfos := make(map[string]*AuthInformation)
 	for key, authInfo := range c.ClusterAuthInformation {
-		err := keyring.Set(monoctlService, key, authInfo.Token)
-		if err != nil {
-			return err
+		if authInfo.IsValid() {
+			if err := keyring.Set(monoctlService, key, authInfo.Token); err != nil {
+				return err
+			}
+			cleanedAuthInfos[key] = authInfo
+		} else {
+			if err := keyring.Delete(monoctlService, key); err != nil {
+				if !errors.Is(err, keyring.ErrNotFound) {
+					return err
+				}
+			}
 		}
 	}
+	c.ClusterAuthInformation = cleanedAuthInfos
+
 	return nil
 }
 
@@ -105,9 +121,6 @@ func (c *Config) GetClusterAuthInformation(clusterId, username, role string) *Au
 }
 
 func (c *Config) SetClusterAuthInformation(clusterId, username, role, token string, expiry time.Time) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
 	c.ClusterAuthInformation[fmt.Sprintf("%s/%s/%s", clusterId, username, role)] = &AuthInformation{
 		Username: username,
 		Token:    token,
