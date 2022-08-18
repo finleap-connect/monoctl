@@ -116,6 +116,7 @@ var _ = Describe("client config loader", func() {
 		conf.AuthInformation = &AuthInformation{}
 		conf.AuthInformation.Username = "user"
 		conf.AuthInformation.Token = "token"
+		conf.AuthInformation.Expiry = time.Now().UTC().Add(1 * time.Hour)
 
 		expectedClusterId := uuid.New()
 		expectedClusterRole := "default"

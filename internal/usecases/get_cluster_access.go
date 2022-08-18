@@ -100,21 +100,28 @@ func (u *getClusterAccess) byTenant(ctx context.Context) error {
 			return err
 		}
 
-		dataRow := []interface{}{
+		var dataRow []interface{}
+		if u.outputOptions.Wide {
+			dataRow = append(dataRow, access.Id)
+		}
+		dataRow = append(dataRow, []interface{}{
 			cluster.Name,
 			time.Since(access.Metadata.Created.AsTime()),
-		}
+		}...)
 		if u.outputOptions.ShowDeleted && cluster.Metadata.Deleted.AsTime().Unix() != 0 {
 			dataRow = append(dataRow, time.Since(access.Metadata.Deleted.AsTime()))
 		}
 		data = append(data, dataRow)
 	}
 
-	header := []string{"CLUSTER", "AGE"}
+	var header []string
+	if u.outputOptions.Wide {
+		header = append(header, "ID")
+	}
+	header = append(header, []string{"CLUSTER", "AGE"}...)
 	if u.outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}
-
 	tbl, err := output.NewTableFactory().
 		SetHeader(header).
 		SetColumnFormatter("AGE", output.DefaultAgeColumnFormatter()).
@@ -164,17 +171,25 @@ func (u *getClusterAccess) byCluster(ctx context.Context) error {
 			return err
 		}
 
-		dataRow := []interface{}{
+		var dataRow []interface{}
+		if u.outputOptions.Wide {
+			dataRow = append(dataRow, access.Id)
+		}
+		dataRow = append(dataRow, []interface{}{
 			tenant.Name,
 			time.Since(access.Metadata.Created.AsTime()),
-		}
+		}...)
 		if u.outputOptions.ShowDeleted && tenant.Metadata.Deleted.AsTime().Unix() != 0 {
 			dataRow = append(dataRow, time.Since(access.Metadata.Deleted.AsTime()))
 		}
 		data = append(data, dataRow)
 	}
 
-	header := []string{"TENANT", "AGE"}
+	var header []string
+	if u.outputOptions.Wide {
+		header = append(header, "ID")
+	}
+	header = append(header, []string{"TENANT", "AGE"}...)
 	if u.outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}

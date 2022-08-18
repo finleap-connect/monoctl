@@ -19,4 +19,5 @@ import "time"
 var (
 	Timeout      time.Duration
 	ExplicitFile string
+	ForceAuth    bool
 )

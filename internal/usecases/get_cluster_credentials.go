@@ -70,24 +70,13 @@ func (u *getClusterCredentialsUseCase) init(ctx context.Context) error {
 func (u *getClusterCredentialsUseCase) run(ctx context.Context) error {
 	clusterAuthInfo := u.config.GetClusterAuthInformation(u.clusterId, u.config.AuthInformation.Username, u.clusterRole)
 	if clusterAuthInfo == nil || !clusterAuthInfo.IsValidExact() {
-		// Cache cluster credentials
+		// Get cluster credentials
 		_, err := u.requestClusterAuthInformation(ctx, u.clusterId)
 		if err != nil {
 			return err
 		}
 		clusterAuthInfo = u.config.GetClusterAuthInformation(u.clusterId, u.config.AuthInformation.Username, u.clusterRole)
 
-		// Cache all/other clusters credentials
-		// TODO FIX
-		// if u.clusterRole == string(k8s.DefaultRole) {
-		// 	u.getAllClustersAuthInformation(ctx)
-		// }
-
-		// Save credentials
-		err = u.configManager.SaveConfig()
-		if err != nil {
-			return err
-		}
 	}
 
 	// Convert to kubectl readable format
@@ -116,33 +105,6 @@ func (u *getClusterCredentialsUseCase) run(ctx context.Context) error {
 	return nil
 }
 
-// getAllClustersAuthInformation gets a token per cluster to mimik cross cluster login (for now)
-// func (u *getClusterCredentialsUseCase) getAllClustersAuthInformation(ctx context.Context) {
-// 	wg := &sync.WaitGroup{}
-// 	m8Clusters, _ := u.clusterServiceClient.GetAll(ctx, &api.GetAllRequest{IncludeDeleted: false})
-// 	for {
-// 		m8Cluster, err := m8Clusters.Recv()
-// 		if err == io.EOF {
-// 			break
-// 		}
-// 		if err != nil {
-// 			continue
-// 		}
-
-// 		clusterAuthInfo := u.config.GetClusterAuthInformation(m8Cluster.Name, u.config.AuthInformation.Username, u.clusterRole)
-// 		if clusterAuthInfo != nil && clusterAuthInfo.IsValidExact() {
-// 			continue
-// 		}
-
-// 		wg.Add(1)
-// 		go func() {
-// 			defer wg.Done()
-// 			_, _ = u.requestClusterAuthInformation(ctx, m8Cluster.Id)
-// 		}()
-// 	}
-// 	wg.Wait()
-// }
-
 func (u *getClusterCredentialsUseCase) requestClusterAuthInformation(ctx context.Context, clusterId string) (response *apiGateway.ClusterAuthTokenResponse, err error) {
 	// Get token from gateway
 	response, err = u.clusterAuthClient.GetAuthToken(ctx, &apiGateway.ClusterAuthTokenRequest{
@@ -153,8 +115,14 @@ func (u *getClusterCredentialsUseCase) requestClusterAuthInformation(ctx context
 		return
 	}
 
-	// Cache credentials
+	// Get credentials
 	u.config.SetClusterAuthInformation(clusterId, u.config.AuthInformation.Username, u.clusterRole, response.AccessToken, response.Expiry.AsTime())
+
+	// Save credentials
+	err = u.configManager.SaveConfig()
+	if err != nil {
+		return
+	}
 
 	return
 }

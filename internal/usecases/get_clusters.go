@@ -22,7 +22,7 @@ import (
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
-	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
+	api_domain "github.com/finleap-connect/monoskope/pkg/api/domain"
 	ggrpc "google.golang.org/grpc"
 )
 
@@ -30,7 +30,7 @@ import (
 type getClustersUseCase struct {
 	useCaseBase
 	conn          *ggrpc.ClientConn
-	client        api_commandhandler.ClusterClient
+	client        api_domain.ClusterClient
 	tableFactory  *output.TableFactory
 	outputOptions *output.OutputOptions
 }
@@ -41,7 +41,11 @@ func NewGetClustersUseCase(config *config.Config, outputOptions *output.OutputOp
 		outputOptions: outputOptions,
 	}
 
-	header := []string{"NAME", "DISPLAY NAME", "DNS ADDRESS", "AGE"}
+	var header []string
+	if outputOptions.Wide {
+		header = append(header, "ID")
+	}
+	header = append(header, []string{"NAME", "DISPLAY NAME", "API SERVER ADDRESS", "AGE"}...)
 	if outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}
@@ -65,13 +69,13 @@ func (u *getClustersUseCase) setUp(ctx context.Context) error {
 	}
 
 	u.conn = conn
-	u.client = api_commandhandler.NewClusterClient(u.conn)
+	u.client = api_domain.NewClusterClient(u.conn)
 
 	return nil
 }
 
 func (u *getClustersUseCase) doRun(ctx context.Context) error {
-	clusterStream, err := u.client.GetAll(ctx, &api_commandhandler.GetAllRequest{
+	clusterStream, err := u.client.GetAll(ctx, &api_domain.GetAllRequest{
 		IncludeDeleted: u.outputOptions.ShowDeleted,
 	})
 	if err != nil {
@@ -90,16 +94,20 @@ func (u *getClustersUseCase) doRun(ctx context.Context) error {
 			return err
 		}
 
-		dataRow := []interface{}{
+		var row []interface{}
+		if u.outputOptions.Wide {
+			row = append(row, cluster.Id)
+		}
+		row = append(row, []interface{}{
 			cluster.Name,
 			cluster.DisplayName,
 			cluster.ApiServerAddress,
 			time.Since(cluster.Metadata.Created.AsTime()),
-		}
+		}...)
 		if u.outputOptions.ShowDeleted && cluster.Metadata.Deleted.AsTime().Unix() != 0 {
-			dataRow = append(dataRow, time.Since(cluster.Metadata.Deleted.AsTime()))
+			row = append(row, time.Since(cluster.Metadata.Deleted.AsTime()))
 		}
-		data = append(data, dataRow)
+		data = append(data, row)
 	}
 	u.tableFactory.SetData(data)
 

@@ -16,8 +16,9 @@ package output
 
 import (
 	"fmt"
+
 	"github.com/olekukonko/tablewriter"
-	"io/ioutil"
+
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -103,7 +104,7 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 		data = append(data, data[0]) // to ensure duplicate data/lines are not merged/skipped
 		tf.SetData(data)
 
-		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
+		tmpFile, err := os.CreateTemp(os.TempDir(), "m8-")
 		Expect(err).NotTo(HaveOccurred())
 		defer os.Remove(tmpFile.Name())
 
@@ -125,7 +126,7 @@ var _ = Describe("Internal/Util/TableFactory", func() {
 	})
 
 	It("can't export table if file exists", func() {
-		tmpFile, err := ioutil.TempFile(os.TempDir(), "m8-")
+		tmpFile, err := os.CreateTemp(os.TempDir(), "m8-")
 		Expect(err).NotTo(HaveOccurred())
 		defer os.Remove(tmpFile.Name())
 

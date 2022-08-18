@@ -16,10 +16,10 @@ name: Publish CI
 
 on:
   push:
-    tags: [ 'v*' ]
+    tags: ["v*"]
 
 env:
-  GO_VERSION: 1.18.x
+  GO_VERSION: 1.19.x
 
 jobs:
   build:
@@ -29,8 +29,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ "linux", "osx", "win" ]
-  
+        os: ["linux", "osx", "win"]
+
     steps:
       - name: Install Go
         uses: actions/setup-go@v2

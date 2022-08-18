@@ -15,7 +15,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -174,7 +173,7 @@ func (l *ClientConfigManager) LoadConfig() error {
 
 // LoadFromFile takes a filename and deserializes the contents into Config object
 func (l *ClientConfigManager) LoadFromFile(filename string) (*Config, error) {
-	monoconfigBytes, err := ioutil.ReadFile(filename)
+	monoconfigBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +221,7 @@ func (l *ClientConfigManager) SaveToFile(config *Config, filename string, permis
 	}
 
 	// Write config to file
-	err = ioutil.WriteFile(filename, bytes, permission)
+	err = os.WriteFile(filename, bytes, permission)
 	if err != nil {
 		return err
 	}

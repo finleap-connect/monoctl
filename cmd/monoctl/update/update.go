@@ -23,12 +23,13 @@ func NewUpdateCmd() *cobra.Command {
 		Use:                   "update",
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
-		Short:                 "Update anything within Monoskope",
-		Long:                  `Update anything within Monoskope`,
+		Short:                 "Update resources within Monoskope",
+		Long:                  `Update resources within Monoskope`,
 	}
 
 	cmd.AddCommand(NewUpdateTenantCmd())
 	cmd.AddCommand(NewUpdateClusterCmd())
+	cmd.AddCommand(NewUpdateKubeconfigCmd())
 
 	return cmd
 }

@@ -31,14 +31,14 @@ func NewCreateRoleBindingCmd() *cobra.Command {
 	var resource string
 
 	cmd := &cobra.Command{
-		Use:   "rolebinding <EMAIL>",
+		Use:   "rolebinding <EMAIL> [<EMAIL>,...]",
 		Short: "Create rolebinding.",
 		Long:  `Creates a rolebinding for the given user.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewCreateRoleBindingUseCase(configManager.GetConfig(), args[0], role, scope, resource).Run(ctx)
+				return usecases.NewCreateRoleBindingUseCase(configManager.GetConfig(), args, role, scope, resource).Run(ctx)
 			})
 		},
 	}

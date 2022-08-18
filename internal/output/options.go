@@ -20,6 +20,7 @@ type OutputOptions struct {
 	SortOptions   SortOptions
 	ExportOptions ExportOptions
 	ShowDeleted   bool
+	Wide          bool
 }
 
 type AuditLogOptions struct {

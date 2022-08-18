@@ -22,7 +22,8 @@ import (
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/grpc"
 	"github.com/finleap-connect/monoctl/internal/output"
-	api_commandhandler "github.com/finleap-connect/monoskope/pkg/api/domain"
+	api_domain "github.com/finleap-connect/monoskope/pkg/api/domain"
+	"github.com/finleap-connect/monoskope/pkg/domain/constants/scopes"
 	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -43,7 +44,11 @@ func NewGetRoleBindingsUseCase(config *config.Config, email string, outputOption
 		outputOptions: outputOptions,
 	}
 
-	header := []string{"ID", "ROLE", "SCOPE", "RESOURCE", "AGE"}
+	var header []string
+	if outputOptions.Wide {
+		header = append(header, "ID")
+	}
+	header = append(header, []string{"ROLE", "SCOPE", "RESOURCE", "AGE"}...)
 	if outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}
@@ -66,14 +71,15 @@ func (u *getRoleBindingsUseCase) Run(ctx context.Context) error {
 		return err
 	}
 	defer conn.Close()
-	grpcClient := api_commandhandler.NewUserClient(conn)
+	users := api_domain.NewUserClient(conn)
+	tenants := api_domain.NewTenantClient(conn)
 
-	user, err := grpcClient.GetByEmail(ctx, wrapperspb.String(u.email))
+	user, err := users.GetByEmail(ctx, wrapperspb.String(u.email))
 	if err != nil {
 		return err
 	}
 
-	roleBindingstream, err := grpcClient.GetRoleBindingsById(ctx, wrapperspb.String(user.Id))
+	roleBindingsStream, err := users.GetRoleBindingsById(ctx, wrapperspb.String(user.Id))
 	if err != nil {
 		return err
 	}
@@ -81,7 +87,8 @@ func (u *getRoleBindingsUseCase) Run(ctx context.Context) error {
 	var data [][]interface{}
 	for {
 		// Read next
-		rolebinding, err := roleBindingstream.Recv()
+		rb, err := roleBindingsStream.Recv()
+
 		// End of stream
 		if err == io.EOF {
 			break
@@ -90,15 +97,29 @@ func (u *getRoleBindingsUseCase) Run(ctx context.Context) error {
 			return err
 		}
 
-		row := []interface{}{
-			rolebinding.Id,
-			rolebinding.Role,
-			rolebinding.Scope,
-			rolebinding.Resource,
-			time.Since(rolebinding.GetMetadata().GetCreated().AsTime()),
+		resource := rb.Resource
+		switch rb.Scope {
+		case string(scopes.System):
+		case string(scopes.Tenant):
+			tenant, err := tenants.GetById(ctx, wrapperspb.String(rb.Resource))
+			if err != nil {
+				return err
+			}
+			resource = tenant.Name
 		}
-		if u.showDeleted && rolebinding.GetMetadata().GetDeleted().AsTime().Unix() != 0 {
-			row = append(row, time.Since(rolebinding.GetMetadata().GetDeleted().AsTime()))
+
+		var row []interface{}
+		if u.outputOptions.Wide {
+			row = append(row, rb.Id)
+		}
+		row = append(row, []interface{}{
+			rb.Role,
+			rb.Scope,
+			resource,
+			time.Since(rb.GetMetadata().GetCreated().AsTime()),
+		}...)
+		if u.showDeleted && rb.GetMetadata().GetDeleted().AsTime().Unix() != 0 {
+			row = append(row, time.Since(rb.GetMetadata().GetDeleted().AsTime()))
 		}
 		data = append(data, row)
 	}

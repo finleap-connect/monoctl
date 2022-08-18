@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package create
+package update
 
 import (
 	"context"
@@ -24,7 +24,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCreateKubeConfigCmd() *cobra.Command {
+var overwrite bool
+
+func NewUpdateKubeconfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
 		Short: "Updates the users kubeconfig file with endpoint information.",
@@ -32,10 +34,13 @@ func NewCreateKubeConfigCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewCreateKubeConfigUseCase(configManager.GetConfig()).Run(ctx)
+				return usecases.NewUpdateKubeconfigUseCase(configManager.GetConfig(), overwrite).Run(ctx)
 			})
 		},
 	}
+
+	flags := cmd.PersistentFlags()
+	flags.BoolVarP(&overwrite, "overwrite", "o", false, "Overwrites the existing kubeconfig.")
 
 	return cmd
 }

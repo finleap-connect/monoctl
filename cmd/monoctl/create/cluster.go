@@ -18,8 +18,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/url"
+	"os"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -68,7 +68,7 @@ func NewCreateClusterCmd() *cobra.Command {
 				displayName = name
 			}
 
-			caCertBundle, err := ioutil.ReadFile(caCertBundleFile)
+			caCertBundle, err := os.ReadFile(caCertBundleFile)
 			if err != nil {
 				return fmt.Errorf("failed to read CA certificates from '%s': %s", caCertBundleFile, err)
 			}

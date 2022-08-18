@@ -39,7 +39,11 @@ func NewGetUsersUseCase(config *config.Config, outputOptions *output.OutputOptio
 		outputOptions: outputOptions,
 	}
 
-	header := []string{"NAME", "EMAIL", "AGE"}
+	var header []string
+	if outputOptions.Wide {
+		header = append(header, "ID")
+	}
+	header = append(header, []string{"NAME", "EMAIL", "AGE"}...)
 	if outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}
@@ -83,17 +87,20 @@ func (u *getUsersUseCase) Run(ctx context.Context) error {
 			return err
 		}
 
-		dataline := []interface{}{
+		var row []interface{}
+		if u.outputOptions.Wide {
+			row = append(row, user.Id)
+		}
+		row = append(row, []interface{}{
 			user.Name,
 			user.Email,
 			time.Since(user.GetMetadata().GetCreated().AsTime()),
-		}
-
+		}...)
 		if u.outputOptions.ShowDeleted && user.Metadata.Deleted.AsTime().Unix() != 0 {
-			dataline = append(dataline, time.Since(user.Metadata.Deleted.AsTime()))
+			row = append(row, time.Since(user.Metadata.Deleted.AsTime()))
 		}
 
-		data = append(data, dataline)
+		data = append(data, row)
 	}
 
 	u.tableFactory.SetData(data) // Add Bulk Data

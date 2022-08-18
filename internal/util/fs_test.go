@@ -15,11 +15,11 @@
 package util
 
 import (
+	"os"
+
 	testutil_fs "github.com/kubism/testutil/pkg/fs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"io/ioutil"
-	"os"
 )
 
 var _ = Describe("util.fs", func() {
@@ -41,7 +41,7 @@ var _ = Describe("util.fs", func() {
 		Expect(HomeDir()).NotTo(BeEmpty())
 	})
 	It("can create a file only if doesn't exist", func() {
-		tempFile, err := ioutil.TempFile(os.TempDir(), "m8-")
+		tempFile, err := os.CreateTemp(os.TempDir(), "m8-")
 		Expect(err).NotTo(HaveOccurred())
 		defer os.Remove(tempFile.Name())
 

@@ -35,19 +35,19 @@ import (
 
 type createRoleBindingUseCase struct {
 	useCaseBase
-	mailaddress string
-	role        string
-	scope       string
-	resource    string
+	mailAddresses []string
+	role          string
+	scope         string
+	resource      string
 }
 
-func NewCreateRoleBindingUseCase(config *config.Config, mailaddress, role, scope, resource string) UseCase {
+func NewCreateRoleBindingUseCase(config *config.Config, mailAddresses []string, role, scope, resource string) UseCase {
 	useCase := &createRoleBindingUseCase{
-		useCaseBase: NewUseCaseBase("create-rolebinding", config),
-		mailaddress: mailaddress,
-		role:        role,
-		scope:       scope,
-		resource:    resource,
+		useCaseBase:   NewUseCaseBase("create-rolebinding", config),
+		mailAddresses: mailAddresses,
+		role:          role,
+		scope:         scope,
+		resource:      resource,
 	}
 	return useCase
 }
@@ -96,30 +96,32 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 	}
 
 	userServiceClient := api.NewUserClient(conn)
-	user, err := userServiceClient.GetByEmail(ctx, wrapperspb.String(u.mailaddress))
-	if err != nil {
-		return err
-	}
 
-	command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateUserRoleBinding)
-	if _, err = cmd.AddCommandData(command,
-		&cmdData.CreateUserRoleBindingCommandData{
-			UserId:   user.Id,
-			Role:     u.role,
-			Scope:    u.scope,
-			Resource: wrapperspb.String(resourceId.String()),
-		},
-	); err != nil {
-		return err
-	}
+	for _, mailAddress := range u.mailAddresses {
+		user, err := userServiceClient.GetByEmail(ctx, wrapperspb.String(mailAddress))
+		if err != nil {
+			return err
+		}
+		command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateUserRoleBinding)
+		if _, err = cmd.AddCommandData(command,
+			&cmdData.CreateUserRoleBindingCommandData{
+				UserId:   user.Id,
+				Role:     u.role,
+				Scope:    u.scope,
+				Resource: wrapperspb.String(resourceId.String()),
+			},
+		); err != nil {
+			return err
+		}
 
-	client := esApi.NewCommandHandlerClient(conn)
-	_, err = client.Execute(ctx, command)
+		client := esApi.NewCommandHandlerClient(conn)
+		_, err = client.Execute(ctx, command)
+		if err == nil {
+			fmt.Printf("Role binding created for user '%s' with role '%s' in scope '%s'.", mailAddress, u.role, u.scope)
+		}
+	}
 
 	s.Stop()
-	if err == nil {
-		fmt.Println("Rolebinding created.")
-	}
 
 	return err
 }

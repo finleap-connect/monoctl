@@ -24,6 +24,7 @@ import (
 )
 
 // rendered output for certificate resource and issuer
+//
 //go:embed expected_CallbackServerSuccessPage.html
 var expectedStatusPage string
 

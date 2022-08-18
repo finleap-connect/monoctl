@@ -18,7 +18,7 @@ import (
 	"context"
 	_ "embed"
 	"io"
-	"io/ioutil"
+	"os"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/k8s"
@@ -31,7 +31,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("CreateKubeconfig", func() {
+var _ = Describe("UpdateKubeconfig", func() {
 	var (
 		mockCtrl *gomock.Controller
 	)
@@ -61,7 +61,7 @@ var _ = Describe("CreateKubeconfig", func() {
 	It("should run", func() {
 		var err error
 
-		tmpfile, err := ioutil.TempFile("", "kubeconfig")
+		tmpfile, err := os.CreateTemp("", "kubeconfig")
 		Expect(err).ToNot(HaveOccurred())
 
 		conf := config.NewConfig()
@@ -73,7 +73,7 @@ var _ = Describe("CreateKubeconfig", func() {
 
 		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
 
-		uc := NewCreateKubeConfigUseCase(conf).(*createKubeConfigUseCase)
+		uc := NewUpdateKubeconfigUseCase(conf, true).(*UpdateKubeconfigUseCase)
 		uc.clusterAccessClient = mockClusterAccessClient
 		uc.kubeConfig = k8s.NewKubeConfig()
 		uc.kubeConfig.SetPath(tmpfile.Name())

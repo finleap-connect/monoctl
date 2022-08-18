@@ -11,8 +11,6 @@ LATEST_TAG=$(shell git describe --tags $(LATEST_REV))
 
 export 
 
-clean: go-clean tools-clean
-
 # go
 include *go.mk
 
