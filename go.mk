@@ -1,5 +1,6 @@
 BUILD_PATH ?= $(shell pwd)
 GO_MODULE ?= github.com/finleap-connect/monoctl
+GO_MODULE_MONOSKOPE ?= github.com/finleap-connect/monoskope
 
 GO             ?= go
 
@@ -64,19 +65,19 @@ lint: golangcilint ## go lint
 	$(GOLANGCILINT) run -v -E goconst -E misspell -E gofmt
 
 $(CMD_MONOCTL_LINUX): ## build monoctl for linux
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS)" -o $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_SRC)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_SRC)
 
 $(CMD_MONOCTL_LINUX_ARM): ## build monoctl for linux arm
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS)" -o $(CMD_MONOCTL_LINUX_ARM) $(CMD_MONOCTL_SRC)
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_LINUX_ARM) $(CMD_MONOCTL_SRC)
 
 $(CMD_MONOCTL_OSX): ## build monoctl for osx
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS)" -o $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_SRC)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_OSX) $(CMD_MONOCTL_SRC)
 
 $(CMD_MONOCTL_OSX_ARM): ## build monoctl for osx arm
-	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS)" -o $(CMD_MONOCTL_OSX_ARM) $(CMD_MONOCTL_SRC)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_OSX_ARM) $(CMD_MONOCTL_SRC)
 
 $(CMD_MONOCTL_WIN): ## build monoctl for windows
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS)" -o $(CMD_MONOCTL_WIN) $(CMD_MONOCTL_SRC)
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build -a $(BUILDFLAGS) -ldflags "$(LDFLAGS) -X=$(GO_MODULE_MONOSKOPE)/pkg/logger.logMode=noop" -o $(CMD_MONOCTL_WIN) $(CMD_MONOCTL_SRC)
 
 build-monoctl-linux: $(CMD_MONOCTL_LINUX) $(CMD_MONOCTL_LINUX_ARM) ## build monoctl for linux
 	@chmod a+x $(CMD_MONOCTL_LINUX)
