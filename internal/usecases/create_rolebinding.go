@@ -90,9 +90,10 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 		return fmt.Errorf("scope '%s' is not implemented", u.scope)
 	}
 
-	var resourceId uuid.UUID
-	if resourceId, err = uuid.Parse(u.resource); len(u.resource) > 0 && err != nil {
-		return err
+	if len(u.resource) > 0 {
+		if _, err = uuid.Parse(u.resource); err != nil {
+			return err
+		}
 	}
 
 	userServiceClient := api.NewUserClient(conn)
@@ -108,7 +109,7 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 				UserId:   user.Id,
 				Role:     u.role,
 				Scope:    u.scope,
-				Resource: wrapperspb.String(resourceId.String()),
+				Resource: wrapperspb.String(u.resource),
 			},
 		); err != nil {
 			return err
@@ -116,9 +117,11 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 
 		client := esApi.NewCommandHandlerClient(conn)
 		_, err = client.Execute(ctx, command)
-		if err == nil {
-			fmt.Printf("Role binding created for user '%s' with role '%s' in scope '%s'.", mailAddress, u.role, u.scope)
+		if err != nil {
+			return err
 		}
+
+		fmt.Printf("Role binding created for user '%s' with role '%s' in scope '%s'.", mailAddress, u.role, u.scope)
 	}
 
 	s.Stop()
