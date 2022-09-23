@@ -17,6 +17,7 @@ package usecases
 import (
 	"context"
 	_ "embed"
+	"github.com/finleap-connect/monoskope/pkg/domain/constants/roles"
 	"io"
 	"os"
 
@@ -52,8 +53,8 @@ var _ = Describe("UpdateKubeconfig", func() {
 		expectedApiServerAddress    = "test.cluster.monokope.io"
 		expectedClusterCACertBundle = []byte("This should be a certificate")
 		expectedKubeClusterName     = expectedName
-		expectedKubeContextName     = "test-cluster-default"
-		expectedAuthInfoName        = "test-cluster-jane-doe-default"
+		expectedKubeContextName     = "test-cluster-user"
+		expectedAuthInfoName        = "test-cluster-jane-doe-user"
 		expectedNamespaceName       = "jane-doe"
 		expectedServer              = "m8.example.com"
 	)
@@ -79,8 +80,8 @@ var _ = Describe("UpdateKubeconfig", func() {
 		uc.kubeConfig.SetPath(tmpfile.Name())
 		uc.setInitialized()
 
-		getClusterAccessClient := mdomain.NewMockClusterAccess_GetClusterAccessClient(mockCtrl)
-		getClusterAccessClient.EXPECT().Recv().Return(&projections.ClusterAccess{
+		getClusterAccessClient := mdomain.NewMockClusterAccess_GetClusterAccessV2Client(mockCtrl)
+		getClusterAccessClient.EXPECT().Recv().Return(&projections.ClusterAccessV2{
 			Cluster: &projections.Cluster{
 				Id:               expectedId.String(),
 				DisplayName:      expectedDisplayName,
@@ -88,11 +89,11 @@ var _ = Describe("UpdateKubeconfig", func() {
 				ApiServerAddress: expectedApiServerAddress,
 				CaCertBundle:     expectedClusterCACertBundle,
 			},
-			Roles: []string{"default"},
+			ClusterRoles: []*projections.ClusterRole{{Scope: projections.ClusterRole_CLUSTER, Role: string(roles.User)}},
 		}, nil)
 		getClusterAccessClient.EXPECT().Recv().Return(nil, io.EOF)
 
-		mockClusterAccessClient.EXPECT().GetClusterAccess(ctx, &empty.Empty{}).Return(getClusterAccessClient, nil)
+		mockClusterAccessClient.EXPECT().GetClusterAccessV2(ctx, &empty.Empty{}).Return(getClusterAccessClient, nil)
 		err = uc.Run(ctx)
 		Expect(err).ToNot(HaveOccurred())
 
