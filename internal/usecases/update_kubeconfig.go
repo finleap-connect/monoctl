@@ -82,12 +82,12 @@ func (u *UpdateKubeconfigUseCase) getNaming(m8ClusterName string, clusterRole st
 		return
 	}
 
-	nsName, err = mk8s.GetNamespaceName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
+	nsName, err = mk8s.GetK8sName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
 	if err != nil {
 		return
 	}
 
-	clusterName, err = mk8s.GetNamespaceName(m8ClusterName)
+	clusterName, err = mk8s.GetK8sName(m8ClusterName)
 	if err != nil {
 		return
 	}

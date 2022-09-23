@@ -266,6 +266,26 @@ func (mr *MockClusterAccessClientMockRecorder) GetClusterAccess(arg0, arg1 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClusterAccess", reflect.TypeOf((*MockClusterAccessClient)(nil).GetClusterAccess), varargs...)
 }
 
+// GetClusterAccessV2 mocks base method.
+func (m *MockClusterAccessClient) GetClusterAccessV2(arg0 context.Context, arg1 *emptypb.Empty, arg2 ...grpc.CallOption) (domain.ClusterAccess_GetClusterAccessV2Client, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetClusterAccessV2", varargs...)
+	ret0, _ := ret[0].(domain.ClusterAccess_GetClusterAccessV2Client)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetClusterAccessV2 indicates an expected call of GetClusterAccessV2.
+func (mr *MockClusterAccessClientMockRecorder) GetClusterAccessV2(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClusterAccessV2", reflect.TypeOf((*MockClusterAccessClient)(nil).GetClusterAccessV2), varargs...)
+}
+
 // GetTenantClusterMappingByTenantAndClusterId mocks base method.
 func (m *MockClusterAccessClient) GetTenantClusterMappingByTenantAndClusterId(arg0 context.Context, arg1 *domain.GetClusterMappingRequest, arg2 ...grpc.CallOption) (*projections.TenantClusterBinding, error) {
 	m.ctrl.T.Helper()
