@@ -58,7 +58,7 @@ func NewCreateClusterCmd() *cobra.Command {
 				name = u.Hostname()
 			}
 
-			sanitizedName, err := k8s.GetNamespaceName(name)
+			sanitizedName, err := k8s.GetK8sName(name)
 			if err != nil {
 				return err
 			}

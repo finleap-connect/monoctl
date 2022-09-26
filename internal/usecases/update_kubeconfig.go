@@ -82,12 +82,12 @@ func (u *UpdateKubeconfigUseCase) getNaming(m8ClusterName string, clusterRole st
 		return
 	}
 
-	nsName, err = mk8s.GetNamespaceName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
+	nsName, err = mk8s.GetK8sName(strings.Replace(u.config.AuthInformation.Username, " ", "-", -1))
 	if err != nil {
 		return
 	}
 
-	clusterName, err = mk8s.GetNamespaceName(m8ClusterName)
+	clusterName, err = mk8s.GetK8sName(m8ClusterName)
 	if err != nil {
 		return
 	}
@@ -202,7 +202,7 @@ func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 	}
 
 	// Get cluster information from control plane
-	clusterAccesses, err := u.clusterAccessClient.GetClusterAccess(ctx, &emptypb.Empty{})
+	clusterAccesses, err := u.clusterAccessClient.GetClusterAccessV2(ctx, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}
@@ -218,9 +218,9 @@ func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 			return err
 		}
 
-		for _, clusterRole := range clusterAccess.Roles {
+		for _, clusterRole := range clusterAccess.ClusterRoles {
 			// Get naming
-			clusterName, contextName, nsName, authInfoName, err := u.getNaming(clusterAccess.Cluster.Name, clusterRole)
+			clusterName, contextName, nsName, authInfoName, err := u.getNaming(clusterAccess.Cluster.Name, clusterRole.Role)
 			if err != nil {
 				return err
 			}
@@ -232,7 +232,7 @@ func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 			u.setContext(kubeConfig, clusterName, contextName, nsName, authInfoName)
 
 			// Set credentials on kubeconfig
-			u.setAuthInfo(kubeConfig, authInfoName, clusterAccess.Cluster.Id, clusterRole)
+			u.setAuthInfo(kubeConfig, authInfoName, clusterAccess.Cluster.Id, clusterRole.Role)
 		}
 	}
 

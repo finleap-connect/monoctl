@@ -95,7 +95,7 @@ build-monoctl-all: build-monoctl-linux build-monoctl-osx build-monoctl-win ## bu
 .PHONY: rebuild-mocks
 rebuild-mocks: gomock ## rebuild go mocks
 	$(MOCKGEN) -package eventsourcing -destination test/mock/eventsourcing/command_handler_client.go github.com/finleap-connect/monoskope/pkg/api/eventsourcing CommandHandlerClient
-	$(MOCKGEN) -package domain -destination test/mock/domain/cluster_client.go github.com/finleap-connect/monoskope/pkg/api/domain ClusterClient,Cluster_GetAllClient,ClusterAccessClient,ClusterAccess_GetClusterAccessClient
+	$(MOCKGEN) -package domain -destination test/mock/domain/cluster_client.go github.com/finleap-connect/monoskope/pkg/api/domain ClusterClient,Cluster_GetAllClient,ClusterAccessClient,ClusterAccess_GetClusterAccessV2Client
 	$(MOCKGEN) -package domain -destination test/mock/domain/tenant_client.go github.com/finleap-connect/monoskope/pkg/api/domain TenantClient,Tenant_GetAllClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/cluster_auth_client.go github.com/finleap-connect/monoskope/pkg/api/gateway ClusterAuthClient
 	$(MOCKGEN) -package domain -destination test/mock/gateway/api_token_client.go github.com/finleap-connect/monoskope/pkg/api/gateway APITokenClient
