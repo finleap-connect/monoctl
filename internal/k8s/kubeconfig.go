@@ -18,38 +18,65 @@ import (
 	"errors"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
+	"github.com/finleap-connect/monoctl/internal/prompt"
 	"github.com/finleap-connect/monoskope/pkg/logger"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/homedir"
 )
 
+const kubeConfigEnvVar = "KUBECONFIG"
+
 type KubeConfig struct {
 	log        logger.Logger
-	configPath string
+	prompt     *prompt.Prompt
+	ConfigPath string
 }
 
 func NewKubeConfig() *KubeConfig {
 	return &KubeConfig{
-		log: logger.WithName("KubeConfig"),
+		log:    logger.WithName("KubeConfig"),
+		prompt: prompt.NewPrompt(),
 	}
 }
 
 func (k *KubeConfig) LoadConfig() (*api.Config, error) {
-	if k.configPath == "" {
-		k.configPath = os.Getenv("KUBECONFIG")
+	if k.ConfigPath == "" {
+		k.ConfigPath = os.Getenv(kubeConfigEnvVar)
 	}
 
-	if k.configPath == "" {
+	if k.ConfigPath != "" {
+		fileList := filepath.SplitList(k.ConfigPath)
+		if len(fileList) > 1 {
+			var err error
+			_, k.ConfigPath, err = k.prompt.SelectWithAdd(
+				"please specify a config file",
+				"Create new",
+				fileList,
+			)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if k.ConfigPath == "" {
+		k.ConfigPath = path.Join("~", ".kube", "config")
+	}
+
+	k.ConfigPath = os.ExpandEnv(k.ConfigPath)
+	if strings.HasPrefix(k.ConfigPath, "~/") {
 		homeDir := homedir.HomeDir()
 		if homeDir == "" {
 			return nil, errors.New("couldn't determine home directory")
 		}
-		k.configPath = path.Join(homeDir, ".kube", "config")
+		k.ConfigPath = filepath.Join(homeDir, k.ConfigPath[2:])
 	}
 
-	if _, err := os.Stat(k.configPath); err != nil {
+	if _, err := os.Stat(k.ConfigPath); err != nil {
 		if os.IsNotExist(err) {
 			return api.NewConfig(), nil
 		} else {
@@ -57,7 +84,7 @@ func (k *KubeConfig) LoadConfig() (*api.Config, error) {
 		}
 	}
 
-	config, err := clientcmd.LoadFromFile(k.configPath)
+	config, err := clientcmd.LoadFromFile(k.ConfigPath)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +92,9 @@ func (k *KubeConfig) LoadConfig() (*api.Config, error) {
 }
 
 func (k *KubeConfig) StoreConfig(conf *api.Config) error {
-	return clientcmd.WriteToFile(*conf, k.configPath)
+	return clientcmd.WriteToFile(*conf, k.ConfigPath)
 }
 
 func (k *KubeConfig) SetPath(path string) {
-	k.configPath = path
+	k.ConfigPath = path
 }

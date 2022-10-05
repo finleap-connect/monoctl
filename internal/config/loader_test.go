@@ -113,6 +113,8 @@ var _ = Describe("client config loader", func() {
 		conf := loader.GetConfig()
 		conf.Server = "monoskope.io"
 
+		conf.KubeConfigPath = tempFile.Path
+
 		conf.AuthInformation = &AuthInformation{}
 		conf.AuthInformation.Username = "user"
 		conf.AuthInformation.Token = "token"
@@ -136,6 +138,7 @@ var _ = Describe("client config loader", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(loader.config).ToNot(BeNil())
 		Expect(loader.config.Server).To(Equal(conf.Server))
+		Expect(loader.config.KubeConfigPath).To(Equal(conf.KubeConfigPath))
 		Expect(loader.config.AuthInformation.Username).To(Equal(conf.AuthInformation.Username))
 		Expect(loader.config.AuthInformation.Token).To(Equal(conf.AuthInformation.Token))
 

@@ -38,16 +38,20 @@ const monoctlCmd = "monoctl"
 type UpdateKubeconfigUseCase struct {
 	useCaseBase
 	conn                *ggrpc.ClientConn
+	configManager       *config.ClientConfigManager
 	userClient          api.UserClient
 	clusterAccessClient api.ClusterAccessClient
 	kubeConfig          *k8s.KubeConfig
+	kubeConfigPath      string
 	overwrite           bool
 }
 
-func NewUpdateKubeconfigUseCase(config *config.Config, overwrite bool) UseCase {
+func NewUpdateKubeconfigUseCase(configManager *config.ClientConfigManager, kubeConfigPath string, overwrite bool) UseCase {
 	useCase := &UpdateKubeconfigUseCase{
-		useCaseBase: NewUseCaseBase("create-kubeconfig", config),
-		overwrite:   overwrite,
+		useCaseBase:    NewUseCaseBase("create-kubeconfig", configManager.GetConfig()),
+		configManager:  configManager,
+		kubeConfigPath: kubeConfigPath,
+		overwrite:      overwrite,
 	}
 	return useCase
 }
@@ -156,6 +160,8 @@ func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 
 	// Load kubeconfig of current user
 	var kubeConfig *kapi.Config
+	u.kubeConfig.SetPath(u.config.KubeConfigPath)
+	u.kubeConfig.SetPath(u.kubeConfigPath) // overwrite path from m8Config if new one is specified by user
 	if kubeConfig, err = u.kubeConfig.LoadConfig(); err != nil {
 		return err
 	}
@@ -236,7 +242,11 @@ func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 		}
 	}
 
-	return u.kubeConfig.StoreConfig(kubeConfig)
+	if err := u.kubeConfig.StoreConfig(kubeConfig); err != nil {
+		return err
+	}
+	u.config.KubeConfigPath = u.kubeConfig.ConfigPath
+	return u.configManager.SaveConfig()
 }
 
 func (u *UpdateKubeconfigUseCase) Run(ctx context.Context) error {

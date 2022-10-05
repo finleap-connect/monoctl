@@ -37,6 +37,8 @@ const (
 type Config struct {
 	// Server is the address of the Monoskope Gateway (https://hostname:port).
 	Server string `yaml:"server"`
+	// KubeConfigPath is the filepath, where m8 will write its kubeConfig
+	KubeConfigPath string `yaml:"KubeConfigPath"`
 	// AuthInformation contains information to authenticate against Monoskope
 	AuthInformation *AuthInformation `yaml:"authInformation,omitempty"`
 	// ClusterAuthInformation contains information to authenticate against K8s clusters
