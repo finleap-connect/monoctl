@@ -15,11 +15,12 @@
 package k8s
 
 import (
+	"os"
+	"path"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/util/homedir"
-	"os"
-	"path"
 )
 
 var _ = Describe("Internal/K8s/KubeConfig", func() {
@@ -48,7 +49,7 @@ var _ = Describe("Internal/K8s/KubeConfig", func() {
 	}
 
 	Context("loading config", func() {
-		It("can the default file", func() {
+		It("can use the default file", func() {
 			CheckConfig()
 		})
 
