@@ -59,7 +59,7 @@ func (u *deleteTenantUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(uuid.MustParse(tenant.Id), commandTypes.DeleteTenant)
+	command := cmd.NewCommand(uuid.MustParse(tenant.Id), commandTypes.DeleteTenant)
 	cmdHandlerClient := esApi.NewCommandHandlerClient(conn)
 	_, err = cmdHandlerClient.Execute(ctx, command)
 

@@ -54,14 +54,10 @@ func (u *createUserUseCase) Run(ctx context.Context) error {
 	}
 	defer conn.Close()
 
-	command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateUser)
-
-	if _, err := cmd.AddCommandData(command, &cmdData.CreateUserCommandData{
+	command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateUser, &cmdData.CreateUserCommandData{
 		Name:  u.username,
 		Email: u.mailaddress,
-	}); err != nil {
-		return err
-	}
+	})
 
 	client := eventsourcing.NewCommandHandlerClient(conn)
 	_, err = client.Execute(ctx, command)

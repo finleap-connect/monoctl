@@ -84,8 +84,7 @@ var _ = Describe("CreateCluster", func() {
 			CaCertBundle:     expectedClusterCACertBundle,
 		}
 
-		command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateCluster)
-		_, err = cmd.AddCommandData(command, commanddata)
+		command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateCluster, commanddata)
 		Expect(err).ToNot(HaveOccurred())
 
 		generatedId := uuid.New().String()

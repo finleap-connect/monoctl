@@ -54,13 +54,10 @@ func (u *createTenantUseCase) Run(ctx context.Context) error {
 	}
 	defer conn.Close()
 
-	command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateTenant)
-	if _, err := cmd.AddCommandData(command, &cmdData.CreateTenantCommandData{
+	command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateTenant, &cmdData.CreateTenantCommandData{
 		Name:   u.name,
 		Prefix: u.prefix,
-	}); err != nil {
-		return err
-	}
+	})
 
 	client := esApi.NewCommandHandlerClient(conn)
 	_, err = client.Execute(ctx, command)

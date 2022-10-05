@@ -62,12 +62,9 @@ func (u *updateTenantUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(uuid.MustParse(tenant.Id), commandTypes.UpdateTenant)
-	if _, err := cmd.AddCommandData(command, &cmdData.UpdateTenantCommandData{
+	command := cmd.NewCommandWithData(uuid.MustParse(tenant.Id), commandTypes.UpdateTenant, &cmdData.UpdateTenantCommandData{
 		Name: wrapperspb.String(u.newName),
-	}); err != nil {
-		return err
-	}
+	})
 
 	cmdHandlerClient := esApi.NewCommandHandlerClient(conn)
 	_, err = cmdHandlerClient.Execute(ctx, command)

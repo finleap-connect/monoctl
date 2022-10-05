@@ -80,15 +80,12 @@ func (u *createClusterUseCase) doCreate(ctx context.Context) (*esApi.CommandRepl
 	defer s.Stop()
 
 	// this is a create command; use nil as input, the correct ID will be contained in the reply
-	command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateCluster)
-	if _, err := cmd.AddCommandData(command, &cmdData.CreateCluster{
+	command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateCluster, &cmdData.CreateCluster{
 		DisplayName:      u.displayName,
 		Name:             u.name,
 		ApiServerAddress: u.apiServerAddress,
 		CaCertBundle:     u.caCertBundle,
-	}); err != nil {
-		return nil, err
-	}
+	})
 
 	reply, err := u.cHandlerClient.Execute(ctx, command)
 
