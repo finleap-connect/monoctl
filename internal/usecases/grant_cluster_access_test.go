@@ -97,8 +97,7 @@ var _ = Describe("grant cluster-access", func() {
 			Name: expectedTenantName,
 		}, nil)
 
-		command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateTenantClusterBinding)
-		_, err = cmd.AddCommandData(command, &cmdData.CreateTenantClusterBindingCommandData{
+		command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateTenantClusterBinding, &cmdData.CreateTenantClusterBindingCommandData{
 			TenantId:  expectedTenantId.String(),
 			ClusterId: expectedClusterId.String(),
 		})

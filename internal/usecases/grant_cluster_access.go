@@ -90,13 +90,10 @@ func (u *grantClusterAccessUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateTenantClusterBinding)
-	if _, err := cmd.AddCommandData(command, &cmdData.CreateTenantClusterBindingCommandData{
+	command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateTenantClusterBinding, &cmdData.CreateTenantClusterBindingCommandData{
 		TenantId:  tenant.Id,
 		ClusterId: cluster.Id,
-	}); err != nil {
-		return err
-	}
+	})
 
 	_, err = u.cmdHandlerClient.Execute(ctx, command)
 

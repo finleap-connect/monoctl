@@ -103,17 +103,12 @@ func (u *createRoleBindingUseCase) Run(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		command := cmd.CreateCommand(uuid.Nil, commandTypes.CreateUserRoleBinding)
-		if _, err = cmd.AddCommandData(command,
-			&cmdData.CreateUserRoleBindingCommandData{
-				UserId:   user.Id,
-				Role:     u.role,
-				Scope:    u.scope,
-				Resource: wrapperspb.String(u.resource),
-			},
-		); err != nil {
-			return err
-		}
+		command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateUserRoleBinding, &cmdData.CreateUserRoleBindingCommandData{
+			UserId:   user.Id,
+			Role:     u.role,
+			Scope:    u.scope,
+			Resource: wrapperspb.String(u.resource),
+		})
 
 		client := esApi.NewCommandHandlerClient(conn)
 		_, err = client.Execute(ctx, command)

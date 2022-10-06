@@ -101,7 +101,7 @@ func (u *revokeClusterAccessUseCase) Run(ctx context.Context) error {
 	}
 
 	// Delete binding
-	command := cmd.CreateCommand(uuid.MustParse(binding.Id), commandTypes.DeleteTenantClusterBinding)
+	command := cmd.NewCommand(uuid.MustParse(binding.Id), commandTypes.DeleteTenantClusterBinding)
 	_, err = u.cmdHandlerClient.Execute(ctx, command)
 
 	s.Stop()

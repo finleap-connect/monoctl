@@ -34,15 +34,29 @@ import (
 
 var _ = Describe("UpdateKubeconfig", func() {
 	var (
-		mockCtrl *gomock.Controller
+		mockCtrl    *gomock.Controller
+		m8TmpFile   *os.File
+		kubeTmpFile *os.File
 	)
+
+	err := os.Setenv("KUBECONFIG", "")
+	Expect(err).ToNot(HaveOccurred())
 
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
+
+		var err error
+		m8TmpFile, err = os.CreateTemp("", "monoskope")
+		Expect(err).ToNot(HaveOccurred())
+		kubeTmpFile, err = os.CreateTemp("", "kubeconfig")
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	AfterEach(func() {
 		mockCtrl.Finish()
+
+		os.Remove(m8TmpFile.Name())
+		os.Remove(kubeTmpFile.Name())
 	})
 
 	var (
@@ -59,25 +73,30 @@ var _ = Describe("UpdateKubeconfig", func() {
 		expectedServer              = "m8.example.com"
 	)
 
-	It("should run", func() {
-		var err error
-
-		tmpfile, err := os.CreateTemp("", "kubeconfig")
-		Expect(err).ToNot(HaveOccurred())
-
+	newConfig := func() *config.Config {
 		conf := config.NewConfig()
 		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
 			Token:    "this-is-a-token",
 			Username: "jane.doe",
 		}
+		return conf
+	}
+
+	It("should run", func() {
+		conf := newConfig()
+		configManager := config.NewLoaderFromExplicitFile(m8TmpFile.Name())
+		err = configManager.SaveToFile(conf, m8TmpFile.Name(), 0644)
+		Expect(err).ToNot(HaveOccurred())
+		err = configManager.LoadConfig()
+		Expect(err).ToNot(HaveOccurred())
 
 		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
 
-		uc := NewUpdateKubeconfigUseCase(conf, true).(*UpdateKubeconfigUseCase)
+		uc := NewUpdateKubeconfigUseCase(configManager, "", true).(*UpdateKubeconfigUseCase)
 		uc.clusterAccessClient = mockClusterAccessClient
 		uc.kubeConfig = k8s.NewKubeConfig()
-		uc.kubeConfig.SetPath(tmpfile.Name())
+		uc.kubeConfig.SetPath(kubeTmpFile.Name())
 		uc.setInitialized()
 
 		getClusterAccessClient := mdomain.NewMockClusterAccess_GetClusterAccessV2Client(mockCtrl)
@@ -119,5 +138,57 @@ var _ = Describe("UpdateKubeconfig", func() {
 		Expect(authInfo.Exec).NotTo(BeNil())
 		Expect(authInfo.Exec.Command).To(Equal("monoctl"))
 	})
+	It("should use kubeconfig file defined in m8 config", func() {
+		conf := newConfig()
+		conf.KubeConfigPath = kubeTmpFile.Name()
+		configManager := config.NewLoaderFromExplicitFile(m8TmpFile.Name())
+		err = configManager.SaveToFile(conf, m8TmpFile.Name(), 0644)
+		Expect(err).ToNot(HaveOccurred())
+		err = configManager.LoadConfig()
+		Expect(err).ToNot(HaveOccurred())
 
+		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
+
+		uc := NewUpdateKubeconfigUseCase(configManager, kubeTmpFile.Name(), true).(*UpdateKubeconfigUseCase)
+		uc.clusterAccessClient = mockClusterAccessClient
+		uc.kubeConfig = k8s.NewKubeConfig()
+		uc.setInitialized()
+
+		getClusterAccessClient := mdomain.NewMockClusterAccess_GetClusterAccessV2Client(mockCtrl)
+		getClusterAccessClient.EXPECT().Recv().Return(nil, io.EOF)
+		mockClusterAccessClient.EXPECT().GetClusterAccessV2(ctx, &empty.Empty{}).Return(getClusterAccessClient, nil)
+
+		err = uc.Run(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(uc.kubeConfig.ConfigPath).To(Equal(kubeTmpFile.Name()))
+	})
+	It("should use kubeconfig file specified by the user", func() {
+		conf := newConfig()
+		conf.KubeConfigPath = "old/file/to/ignore"
+
+		configManager := config.NewLoaderFromExplicitFile(m8TmpFile.Name())
+		err = configManager.SaveToFile(conf, m8TmpFile.Name(), 0644)
+		Expect(err).ToNot(HaveOccurred())
+		err = configManager.LoadConfig()
+		Expect(err).ToNot(HaveOccurred())
+
+		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
+
+		uc := NewUpdateKubeconfigUseCase(configManager, kubeTmpFile.Name(), true).(*UpdateKubeconfigUseCase)
+		uc.clusterAccessClient = mockClusterAccessClient
+		uc.kubeConfig = k8s.NewKubeConfig()
+		uc.setInitialized()
+
+		getClusterAccessClient := mdomain.NewMockClusterAccess_GetClusterAccessV2Client(mockCtrl)
+		getClusterAccessClient.EXPECT().Recv().Return(nil, io.EOF)
+		mockClusterAccessClient.EXPECT().GetClusterAccessV2(ctx, &empty.Empty{}).Return(getClusterAccessClient, nil)
+
+		err = uc.Run(ctx)
+		Expect(err).ToNot(HaveOccurred())
+
+		err = configManager.LoadConfig()
+		Expect(err).ToNot(HaveOccurred())
+		config := configManager.GetConfig()
+		Expect(config.KubeConfigPath).To(Equal(kubeTmpFile.Name()))
+	})
 })

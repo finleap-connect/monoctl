@@ -57,7 +57,7 @@ func (u *deleteUserRoleBindingUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(id, commandTypes.DeleteUserRoleBinding)
+	command := cmd.NewCommand(id, commandTypes.DeleteUserRoleBinding)
 	cmdHandlerClient := esApi.NewCommandHandlerClient(conn)
 	_, err = cmdHandlerClient.Execute(ctx, command)
 

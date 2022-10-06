@@ -66,18 +66,15 @@ func (u *updateClusterUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(uuid.MustParse(cluster.Id), commandTypes.UpdateCluster)
-	cmdData := new(cmdData.UpdateCluster)
-	cmdData.CaCertBundle = u.newCaCertBundle
+	commandData := new(cmdData.UpdateCluster)
+	commandData.CaCertBundle = u.newCaCertBundle
 	if u.newDisplayName != "" {
-		cmdData.DisplayName = wrapperspb.String(u.newDisplayName)
+		commandData.DisplayName = wrapperspb.String(u.newDisplayName)
 	}
 	if u.newApiServerAddress != "" {
-		cmdData.ApiServerAddress = wrapperspb.String(u.newApiServerAddress)
+		commandData.ApiServerAddress = wrapperspb.String(u.newApiServerAddress)
 	}
-	if _, err := cmd.AddCommandData(command, cmdData); err != nil {
-		return err
-	}
+	command := cmd.NewCommandWithData(uuid.MustParse(cluster.Id), commandTypes.UpdateCluster, commandData)
 
 	cmdHandlerClient := esApi.NewCommandHandlerClient(conn)
 	_, err = cmdHandlerClient.Execute(ctx, command)

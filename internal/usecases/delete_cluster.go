@@ -59,7 +59,7 @@ func (u *deleteClusterUseCase) Run(ctx context.Context) error {
 		return err
 	}
 
-	command := cmd.CreateCommand(uuid.MustParse(cluster.Id), commandTypes.DeleteCluster)
+	command := cmd.NewCommand(uuid.MustParse(cluster.Id), commandTypes.DeleteCluster)
 	cmdHandlerClient := esApi.NewCommandHandlerClient(conn)
 	_, err = cmdHandlerClient.Execute(ctx, command)
 
