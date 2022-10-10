@@ -47,7 +47,6 @@ var _ = Describe("render auth page", func() {
 	)
 
 	It("should render the index page correctly", func() {
-
 		conf := config.NewConfig()
 		conf.Server = expectedServer
 		conf.AuthInformation = &config.AuthInformation{
