@@ -149,7 +149,7 @@ var _ = Describe("UpdateKubeconfig", func() {
 
 		mockClusterAccessClient := mdomain.NewMockClusterAccessClient(mockCtrl)
 
-		uc := NewUpdateKubeconfigUseCase(configManager, kubeTmpFile.Name(), true).(*UpdateKubeconfigUseCase)
+		uc := NewUpdateKubeconfigUseCase(configManager, "", true).(*UpdateKubeconfigUseCase)
 		uc.clusterAccessClient = mockClusterAccessClient
 		uc.kubeConfig = k8s.NewKubeConfig()
 		uc.setInitialized()
