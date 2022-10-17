@@ -34,20 +34,17 @@ const (
 	namedMutexDetectionTimeOut = 500 * time.Millisecond
 )
 
-var silent bool
-
 func RetryOnAuthFailSilently(ctx context.Context, configManager *config.ClientConfigManager, f func(ctx context.Context) error) error {
-	silent = true
-	return retryOnAuthFail(ctx, configManager, f)
+	return retryOnAuthFail(ctx, configManager, true, f)
 }
 
 func RetryOnAuthFail(ctx context.Context, configManager *config.ClientConfigManager, f func(ctx context.Context) error) error {
-	return retryOnAuthFail(ctx, configManager, f)
+	return retryOnAuthFail(ctx, configManager, false, f)
 }
 
-func retryOnAuthFail(ctx context.Context, configManager *config.ClientConfigManager, f func(ctx context.Context) error) error {
+func retryOnAuthFail(ctx context.Context, configManager *config.ClientConfigManager, silent bool, f func(ctx context.Context) error) error {
 	// Make sure no other process run the authentication flow.
-	lock, err := acquireLock(ctx)
+	lock, err := acquireLock(ctx, silent)
 	if err != nil {
 		return err
 	}
@@ -80,9 +77,12 @@ func LoadConfigAndAuth(ctx context.Context, configManager *config.ClientConfigMa
 	return usecases.NewAuthUsecase(configManager, force, silent).Run(ctx)
 }
 
-func acquireLock(_ context.Context) (mutex.Releaser, error) {
-	s := spinner.NewSpinner()
-	defer s.Stop()
+func acquireLock(_ context.Context, silent bool) (mutex.Releaser, error) {
+	var s *spinner.Spinner
+	if !silent {
+		s = spinner.NewSpinner()
+		defer s.Stop()
+	}
 
 	acquired := make(chan struct{})
 	defer close(acquired)
@@ -91,9 +91,11 @@ func acquireLock(_ context.Context) (mutex.Releaser, error) {
 		case <-acquired:
 			return
 		case <-time.After(namedMutexDetectionTimeOut):
-			s.Stop()
-			print("Another monoctl instance is already running the authentication flow...\n")
-			s.Start()
+			if !silent {
+				s.Stop()
+				fmt.Printf("Another monoctl instance is already running the authentication flow...\n")
+				s.Start()
+			}
 		}
 	}()
 
@@ -102,10 +104,4 @@ func acquireLock(_ context.Context) (mutex.Releaser, error) {
 		Clock: clock.WallClock,
 		Delay: time.Second,
 	})
-}
-
-func print(format string, a ...interface{}) {
-	if !silent {
-		fmt.Printf(format, a...)
-	}
 }

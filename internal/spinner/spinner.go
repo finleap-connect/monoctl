@@ -25,9 +25,13 @@ var (
 	Duration = 100 * time.Millisecond
 )
 
+type Spinner struct {
+	*spinner.Spinner
+}
+
 // NewSpinner creates and starts the new default cli spinner. Usage:
-func NewSpinner() *spinner.Spinner {
+func NewSpinner() *Spinner {
 	s := spinner.New(Charset, Duration) // Build our new spinner
 	s.Start()                           // Start the spinner
-	return s
+	return &Spinner{s}
 }

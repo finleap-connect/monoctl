@@ -32,7 +32,7 @@ import (
 var _ = Describe("Auth", func() {
 	Context("should not run multiple authentication flows simultaneously", func() {
 		Specify("FirstProcess", func() {
-			lock, err := acquireLock(context.Background())
+			lock, err := acquireLock(context.Background(), false)
 			Expect(err).ToNot(HaveOccurred())
 
 			ex, err := os.Executable()
@@ -60,7 +60,7 @@ var _ = Describe("Auth", func() {
 				Skip("This is to be run in a separate process")
 			}
 
-			_, err := acquireLock(context.Background())
+			_, err := acquireLock(context.Background(), false)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
