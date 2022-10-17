@@ -16,6 +16,7 @@ package update
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -43,6 +44,9 @@ You can also specify a custom file by utilising the file option (--file). In thi
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
+			if err := configManager.LoadConfig(); err != nil {
+				return fmt.Errorf("failed loading monoconfig: %w", err)
+			}
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
 				return usecases.NewUpdateKubeconfigUseCase(configManager, kubeConfigPath, overwrite).Run(ctx)
 			})
