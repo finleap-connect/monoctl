@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
@@ -72,6 +73,7 @@ func NewCreateClusterCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to read CA certificates from '%s': %s", caCertBundleFile, err)
 			}
+			caCertBundle = []byte(strings.TrimSpace(string(caCertBundle)))
 
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {

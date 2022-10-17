@@ -160,8 +160,10 @@ func (u *UpdateKubeconfigUseCase) run(ctx context.Context) error {
 
 	// Load kubeconfig of current user
 	var kubeConfig *kapi.Config
-	u.kubeConfig.SetPath(u.config.KubeConfigPath)
 	u.kubeConfig.SetPath(u.kubeConfigPath) // overwrite path from m8Config if new one is specified by user
+	if len(u.kubeConfig.ConfigPath) == 0 {
+		u.kubeConfig.SetPath(u.config.KubeConfigPath)
+	}
 	if kubeConfig, err = u.kubeConfig.LoadConfig(); err != nil {
 		return err
 	}
