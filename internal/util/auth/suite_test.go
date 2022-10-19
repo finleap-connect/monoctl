@@ -12,26 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package spinner
+package auth_test
 
 import (
-	"time"
+	"testing"
 
-	"github.com/briandowns/spinner"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-var (
-	Charset  = spinner.CharSets[14]
-	Duration = 100 * time.Millisecond
-)
-
-type Spinner struct {
-	*spinner.Spinner
-}
-
-// NewSpinner creates and starts the new default cli spinner. Usage:
-func NewSpinner() *Spinner {
-	s := spinner.New(Charset, Duration) // Build our new spinner
-	s.Start()                           // Start the spinner
-	return &Spinner{s}
+func TestAuth(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Auth Util Suite")
 }

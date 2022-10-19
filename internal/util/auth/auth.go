@@ -17,6 +17,9 @@ package auth
 import (
 	"context"
 	"fmt"
+	"github.com/finleap-connect/monoctl/internal/spinner"
+	"github.com/juju/clock"
+	"github.com/juju/mutex/v2"
 	"time"
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
@@ -24,6 +27,11 @@ import (
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+const (
+	authFlowNamedMutex         = "monoctl-auth-flow"
+	namedMutexDetectionTimeOut = 500 * time.Millisecond
 )
 
 func RetryOnAuthFailSilently(ctx context.Context, configManager *config.ClientConfigManager, f func(ctx context.Context) error) error {
@@ -35,6 +43,13 @@ func RetryOnAuthFail(ctx context.Context, configManager *config.ClientConfigMana
 }
 
 func retryOnAuthFail(ctx context.Context, configManager *config.ClientConfigManager, silent bool, f func(ctx context.Context) error) error {
+	// Make sure no other process run the authentication flow.
+	lock, err := acquireLock(ctx, silent)
+	if err != nil {
+		return err
+	}
+	defer lock.Release()
+
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*2) // special timeout for login flow with consent can take longer
 	defer cancel()
 
@@ -60,4 +75,33 @@ func LoadConfigAndAuth(ctx context.Context, configManager *config.ClientConfigMa
 		return fmt.Errorf("failed loading monoconfig: %w", err)
 	}
 	return usecases.NewAuthUsecase(configManager, force, silent).Run(ctx)
+}
+
+func acquireLock(_ context.Context, silent bool) (mutex.Releaser, error) {
+	var s *spinner.Spinner
+	if !silent {
+		s = spinner.NewSpinner()
+		defer s.Stop()
+	}
+
+	acquired := make(chan struct{})
+	defer close(acquired)
+	go func() {
+		select {
+		case <-acquired:
+			return
+		case <-time.After(namedMutexDetectionTimeOut):
+			if !silent {
+				s.Stop()
+				fmt.Printf("Another monoctl instance is already running the authentication flow...\n")
+				s.Start()
+			}
+		}
+	}()
+
+	return mutex.Acquire(mutex.Spec{
+		Name:  authFlowNamedMutex,
+		Clock: clock.WallClock,
+		Delay: time.Second,
+	})
 }
