@@ -22,11 +22,10 @@ builds:
       - -X=github.com/finleap-connect/monoctl/internal/version.Commit={{.Version}}
 archives:
   - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+      darwin: osx
+      windows: win
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
 checksum:
   name_template: "checksums.txt"
 snapshot:
