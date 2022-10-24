@@ -16,7 +16,7 @@ builds:
     goarch:
       - amd64
       - arm64
-    main: ./cmd
+    main: ./cmd/monoctl
     ldflags:
       - -X=github.com/finleap-connect/monoctl/internal/version.Version={{.Version}}
       - -X=github.com/finleap-connect/monoctl/internal/version.Commit={{.Version}}
