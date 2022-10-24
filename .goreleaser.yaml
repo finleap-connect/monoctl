@@ -16,6 +16,10 @@ builds:
     goarch:
       - amd64
       - arm64
+    main: ./cmd
+    ldflags:
+      - -X=github.com/finleap-connect/monoctl/internal/version.Version={{.Version}}
+      - -X=github.com/finleap-connect/monoctl/internal/version.Commit={{.Version}}
 archives:
   - replacements:
       darwin: Darwin
