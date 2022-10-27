@@ -34,7 +34,7 @@ func NewUpdateKubeconfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
 		Short: "Updates the users kubeconfig file with endpoint information.",
-		Long: `Updates the users kubeconfig file with endpoint information to point kubectl at any cluster available to the monskope user.
+		Long: `Updates the users kubeconfig file with endpoint information to point kubectl at any cluster available to the monoskope user.
 
 By default the default config file of kubectl will be used ($HOME/.kube/config).
 

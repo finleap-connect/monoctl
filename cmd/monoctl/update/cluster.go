@@ -25,12 +25,13 @@ import (
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
 func NewUpdateClusterCmd() *cobra.Command {
 	var (
-		displayName      string
+		newName          string
 		apiServerAddress string
 		caCertBundleFile string
 	)
@@ -43,8 +44,9 @@ func NewUpdateClusterCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 			var caCertBundle []byte
+			name := args[0]
 
-			if caCertBundleFile == "" && displayName == "" && apiServerAddress == "" && caCertBundle == nil {
+			if caCertBundleFile == "" && newName == "" && apiServerAddress == "" && caCertBundle == nil {
 				return errors.New("nothing to update")
 			}
 
@@ -65,16 +67,28 @@ func NewUpdateClusterCmd() *cobra.Command {
 				}
 			}
 
+			if newName != "" && newName != name {
+				prompt := promptui.Prompt{
+					Label:     fmt.Sprintf("Attention: Renaming a cluster has side effects for cluster authentication! Are you really sure you want to rename the cluster from `%s` to `%s`?", name, newName),
+					IsConfirm: true,
+				}
+				result, err := prompt.Run()
+				if err != nil || result != "y" {
+					fmt.Println("Cancelled cluster update!")
+					return nil
+				}
+			}
+
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewUpdateClusterUseCase(configManager.GetConfig(), args[0], displayName, apiServerAddress, caCertBundle).Run(ctx)
+				return usecases.NewUpdateClusterUseCase(configManager.GetConfig(), name, newName, apiServerAddress, caCertBundle).Run(ctx)
 			})
 		},
 	}
 
 	flags := cmd.Flags()
 
-	flags.StringVarP(&displayName, "display-name", "d", "", "New display name of the cluster")
+	flags.StringVarP(&newName, "new-name", "n", "", "New name of the cluster")
 	flags.StringVarP(&apiServerAddress, "api-server-address", "a", "", "New KubeAPIServer address")
 	flags.StringVarP(&caCertBundleFile, "ca-cert-path", "c", "", "New CA certificate bundle file")
 
