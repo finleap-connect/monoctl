@@ -40,7 +40,6 @@ import (
 
 type createClusterUseCase struct {
 	useCaseBase
-	displayName      string
 	name             string
 	apiServerAddress string
 	caCertBundle     []byte
@@ -50,11 +49,10 @@ type createClusterUseCase struct {
 	clusterClient  domApi.ClusterClient
 }
 
-func NewCreateClusterUseCase(config *config.Config, name, label, apiServerAddress string, caCertBundle []byte) UseCase {
+func NewCreateClusterUseCase(config *config.Config, name, apiServerAddress string, caCertBundle []byte) UseCase {
 	useCase := &createClusterUseCase{
 		useCaseBase:      NewUseCaseBase("create-cluster", config),
-		displayName:      name,
-		name:             label,
+		name:             name,
 		apiServerAddress: apiServerAddress,
 		caCertBundle:     caCertBundle,
 	}
@@ -81,7 +79,6 @@ func (u *createClusterUseCase) doCreate(ctx context.Context) (*esApi.CommandRepl
 
 	// this is a create command; use nil as input, the correct ID will be contained in the reply
 	command := cmd.NewCommandWithData(uuid.Nil, commandTypes.CreateCluster, &cmdData.CreateCluster{
-		DisplayName:      u.displayName,
 		Name:             u.name,
 		ApiServerAddress: u.apiServerAddress,
 		CaCertBundle:     u.caCertBundle,
@@ -91,7 +88,7 @@ func (u *createClusterUseCase) doCreate(ctx context.Context) (*esApi.CommandRepl
 
 	s.Stop()
 	if err == nil {
-		fmt.Printf("Cluster '%s' created.\n", u.displayName)
+		fmt.Printf("Cluster '%s' created.\n", u.name)
 	}
 
 	return reply, err

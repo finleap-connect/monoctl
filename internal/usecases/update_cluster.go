@@ -34,16 +34,16 @@ import (
 type updateClusterUseCase struct {
 	useCaseBase
 	name                string
-	newDisplayName      string
+	newName             string
 	newApiServerAddress string
 	newCaCertBundle     []byte
 }
 
-func NewUpdateClusterUseCase(config *config.Config, name, newDisplayName, newApiServerAddress string, newCaCertBundle []byte) UseCase {
+func NewUpdateClusterUseCase(config *config.Config, name, newName, newApiServerAddress string, newCaCertBundle []byte) UseCase {
 	useCase := &updateClusterUseCase{
 		useCaseBase:         NewUseCaseBase("update-cluster", config),
 		name:                name,
-		newDisplayName:      newDisplayName,
+		newName:             newName,
 		newApiServerAddress: newApiServerAddress,
 		newCaCertBundle:     newCaCertBundle,
 	}
@@ -68,8 +68,8 @@ func (u *updateClusterUseCase) Run(ctx context.Context) error {
 
 	commandData := new(cmdData.UpdateCluster)
 	commandData.CaCertBundle = u.newCaCertBundle
-	if u.newDisplayName != "" {
-		commandData.DisplayName = wrapperspb.String(u.newDisplayName)
+	if u.newName != "" {
+		commandData.Name = wrapperspb.String(u.newName)
 	}
 	if u.newApiServerAddress != "" {
 		commandData.ApiServerAddress = wrapperspb.String(u.newApiServerAddress)

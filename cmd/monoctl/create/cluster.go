@@ -25,6 +25,7 @@ import (
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/usecases"
+	"github.com/finleap-connect/monoctl/internal/util"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
 	"github.com/finleap-connect/monoskope/pkg/k8s"
 	"github.com/spf13/cobra"
@@ -32,20 +33,19 @@ import (
 
 func NewCreateClusterCmd() *cobra.Command {
 	var (
-		name        string
-		displayName string
+		apiServerAddress string
+		caCertBundleFile string
 	)
 
 	cmd := &cobra.Command{
-		Use:   "cluster <KUBE_API_SERVER_ADDRESS> <CA_CERT_FILE>",
+		Use:   "cluster <NAME>",
 		Short: "Create cluster.",
-		Long:  `Creates a cluster. The name and display name are derived from the KubeAPIServer address given. They can be overridden by flags.`,
-		Args:  cobra.ExactArgs(2),
+		Long:  `Creates a Kubernetes cluster.`,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
-			apiServerAddress := args[0]
-			caCertBundleFile := args[1]
+			name := args[0]
 
 			u, err := url.Parse(apiServerAddress)
 			if err != nil {
@@ -55,19 +55,11 @@ func NewCreateClusterCmd() *cobra.Command {
 				return errors.New("invalid url format")
 			}
 
-			if name == "" {
-				name = u.Hostname()
-			}
-
 			sanitizedName, err := k8s.GetK8sName(name)
 			if err != nil {
 				return err
 			}
 			name = sanitizedName
-
-			if displayName == "" {
-				displayName = name
-			}
 
 			caCertBundle, err := os.ReadFile(caCertBundleFile)
 			if err != nil {
@@ -77,15 +69,17 @@ func NewCreateClusterCmd() *cobra.Command {
 
 			configManager := config.NewLoaderFromExplicitFile(flags.ExplicitFile)
 			return auth_util.RetryOnAuthFail(cmd.Context(), configManager, func(ctx context.Context) error {
-				return usecases.NewCreateClusterUseCase(configManager.GetConfig(), name, displayName, apiServerAddress, caCertBundle).Run(ctx)
+				return usecases.NewCreateClusterUseCase(configManager.GetConfig(), name, apiServerAddress, caCertBundle).Run(ctx)
 			})
 		},
 	}
 
 	flags := cmd.Flags()
 
-	flags.StringVarP(&name, "name", "n", "", "Name of the cluster")
-	flags.StringVarP(&displayName, "display-name", "d", "", "Display name of the cluster")
+	flags.StringVarP(&caCertBundleFile, "ca-filepath", "c", "", "Path to the file containing the CA certificate bundle of the cluster in PEM format.")
+	flags.StringVarP(&caCertBundleFile, "api-server-address", "a", "", "Address of the KubeAPIServer of the cluster.")
+	util.PanicOnError(cmd.MarkFlagRequired("ca-filepath"))
+	util.PanicOnError(cmd.MarkFlagRequired("api-server-address"))
 
 	return cmd
 }
