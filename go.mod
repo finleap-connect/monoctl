@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/briandowns/spinner v1.19.0
-	github.com/finleap-connect/monoskope v0.5.2-0.20221027092234-75013c8d318b
+	github.com/finleap-connect/monoskope v0.5.2-0.20221027115350-9fd1a29a5af2
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0

@@ -17,9 +17,10 @@ package usecases
 import (
 	"context"
 	_ "embed"
-	"github.com/finleap-connect/monoskope/pkg/domain/constants/roles"
 	"io"
 	"os"
+
+	"github.com/finleap-connect/monoskope/pkg/domain/constants/roles"
 
 	"github.com/finleap-connect/monoctl/internal/config"
 	"github.com/finleap-connect/monoctl/internal/k8s"
@@ -62,7 +63,6 @@ var _ = Describe("UpdateKubeconfig", func() {
 	var (
 		ctx                         = context.Background()
 		expectedId                  = uuid.New()
-		expectedDisplayName         = "testcluster"
 		expectedName                = "test-cluster"
 		expectedApiServerAddress    = "test.cluster.monokope.io"
 		expectedClusterCACertBundle = []byte("This should be a certificate")
@@ -103,7 +103,6 @@ var _ = Describe("UpdateKubeconfig", func() {
 		getClusterAccessClient.EXPECT().Recv().Return(&projections.ClusterAccessV2{
 			Cluster: &projections.Cluster{
 				Id:               expectedId.String(),
-				DisplayName:      expectedDisplayName,
 				Name:             expectedName,
 				ApiServerAddress: expectedApiServerAddress,
 				CaCertBundle:     expectedClusterCACertBundle,

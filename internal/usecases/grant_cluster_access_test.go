@@ -87,9 +87,8 @@ var _ = Describe("grant cluster-access", func() {
 		uc.setInitialized()
 
 		mockClusterClient.EXPECT().GetByName(ctx, wrapperspb.String(expectedClusterName)).Return(&projections.Cluster{
-			Id:          expectedClusterId.String(),
-			DisplayName: expectedClusterName,
-			Name:        expectedClusterName,
+			Id:   expectedClusterId.String(),
+			Name: expectedClusterName,
 		}, nil)
 
 		mockTenantClient.EXPECT().GetByName(ctx, wrapperspb.String(expectedTenantName)).Return(&projections.Tenant{

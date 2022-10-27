@@ -60,14 +60,12 @@ var _ = Describe("GetClusterCredentials", func() {
 		return []*projections.Cluster{
 			{
 				Id:               uuid.New().String(),
-				DisplayName:      "First Cluster",
 				Name:             "first-cluster",
 				ApiServerAddress: "first.cluster.monokope.io",
 				CaCertBundle:     []byte("This should be a certificate"),
 			},
 			{
 				Id:               uuid.New().String(),
-				DisplayName:      "Second Cluster",
 				Name:             "second-cluster",
 				ApiServerAddress: "second.cluster.monokope.io",
 				CaCertBundle:     []byte("This should be a certificate"),
