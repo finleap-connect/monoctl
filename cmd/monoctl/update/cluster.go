@@ -23,9 +23,9 @@ import (
 
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/internal/config"
+	"github.com/finleap-connect/monoctl/internal/prompt"
 	"github.com/finleap-connect/monoctl/internal/usecases"
 	auth_util "github.com/finleap-connect/monoctl/internal/util/auth"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
@@ -68,12 +68,8 @@ func NewUpdateClusterCmd() *cobra.Command {
 			}
 
 			if newName != "" && newName != name {
-				prompt := promptui.Prompt{
-					Label:     fmt.Sprintf("Attention: Renaming a cluster has side effects for cluster authentication! Are you really sure you want to rename the cluster from `%s` to `%s`?", name, newName),
-					IsConfirm: true,
-				}
-				result, err := prompt.Run()
-				if err != nil || result != "y" {
+				confirmed := prompt.Confirm(fmt.Sprintf("Attention: Renaming a cluster has side effects for cluster authentication! Are you really sure you want to rename the cluster from `%s` to `%s`?", name, newName))
+				if !confirmed {
 					fmt.Println("Cancelled cluster update!")
 					return nil
 				}
