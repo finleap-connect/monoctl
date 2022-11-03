@@ -38,11 +38,7 @@ brews:
     description: CLI for Monoskope. AuthN & AuthZ for Kubernetes multi-cluster, multi-cloud environments.
     homepage: https://github.com/finleap-connect/monoctl
     license: "Apache"
-    folder: homebrew
     tap:
       owner: finleap-connect
-      name: monoctl
+      name: homebrew-monoctl
     skip_upload: auto
-# modelines, feel free to remove those if you don't want/use them:
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
