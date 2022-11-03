@@ -77,7 +77,7 @@ func NewCreateClusterCmd() *cobra.Command {
 	flags := cmd.Flags()
 
 	flags.StringVarP(&caCertBundleFile, "ca-filepath", "c", "", "Path to the file containing the CA certificate bundle of the cluster in PEM format.")
-	flags.StringVarP(&caCertBundleFile, "api-server-address", "a", "", "Address of the KubeAPIServer of the cluster.")
+	flags.StringVarP(&apiServerAddress, "api-server-address", "a", "", "Address of the KubeAPIServer of the cluster.")
 	util.PanicOnError(cmd.MarkFlagRequired("ca-filepath"))
 	util.PanicOnError(cmd.MarkFlagRequired("api-server-address"))
 
