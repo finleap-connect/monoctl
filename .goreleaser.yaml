@@ -17,7 +17,7 @@ builds:
     ldflags:
       - -X=github.com/finleap-connect/monoctl/internal/version.Version={{.Version}}
       - -X=github.com/finleap-connect/monoctl/internal/version.Commit={{.Version}}
-      - -X=github.com/finleap-connect/monoctl/pkg/logger.logMode=noop
+      - -X=github.com/finleap-connect/monoskope/pkg/logger.logMode=noop
 archives:
   - replacements:
       darwin: osx
