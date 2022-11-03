@@ -25,6 +25,7 @@ import (
 	"github.com/finleap-connect/monoctl/cmd/monoctl/flags"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/get"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/grant"
+	"github.com/finleap-connect/monoctl/cmd/monoctl/revoke"
 	"github.com/finleap-connect/monoctl/cmd/monoctl/update"
 	"github.com/spf13/cobra"
 )
@@ -56,6 +57,7 @@ users and their roles in a Kubernetes multi-cluster environment.`,
 	rootCmd.AddCommand(update.NewUpdateCmd())
 	rootCmd.AddCommand(delete.NewDeleteCmd())
 	rootCmd.AddCommand(grant.NewGrantCmd())
+	rootCmd.AddCommand(revoke.NewRevokeCmd())
 
 	return rootCmd
 }
