@@ -42,4 +42,3 @@ brews:
     tap:
       owner: finleap-connect
       name: homebrew-monoctl
-    skip_upload: auto
