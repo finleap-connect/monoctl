@@ -45,7 +45,7 @@ func NewGetClustersUseCase(config *config.Config, outputOptions *output.OutputOp
 	if outputOptions.Wide {
 		header = append(header, "ID")
 	}
-	header = append(header, []string{"NAME", "DISPLAY NAME", "API SERVER ADDRESS", "AGE"}...)
+	header = append(header, []string{"NAME", "API SERVER ADDRESS", "AGE"}...)
 	if outputOptions.ShowDeleted {
 		header = append(header, "DELETED")
 	}
@@ -100,7 +100,6 @@ func (u *getClustersUseCase) doRun(ctx context.Context) error {
 		}
 		row = append(row, []interface{}{
 			cluster.Name,
-			cluster.DisplayName,
 			cluster.ApiServerAddress,
 			time.Since(cluster.Metadata.Created.AsTime()),
 		}...)

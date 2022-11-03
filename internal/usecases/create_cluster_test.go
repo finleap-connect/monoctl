@@ -46,7 +46,6 @@ var _ = Describe("CreateCluster", func() {
 	})
 
 	var (
-		expectedDisplayName         = "the one cluster"
 		expectedName                = "one-cluster"
 		expectedApiServerAddress    = "one.example.com"
 		expectedClusterCACertBundle = []byte("This should be a certificate")
@@ -62,10 +61,9 @@ var _ = Describe("CreateCluster", func() {
 			Token: "this-is-a-token",
 		}
 
-		ccUc := NewCreateClusterUseCase(conf, expectedDisplayName, expectedName,
+		ccUc := NewCreateClusterUseCase(conf, expectedName,
 			expectedApiServerAddress, expectedClusterCACertBundle).(*createClusterUseCase)
 
-		Expect(ccUc.displayName).To(Equal(expectedDisplayName))
 		Expect(ccUc.name).To(Equal(expectedName))
 		Expect(ccUc.apiServerAddress).To(Equal(expectedApiServerAddress))
 		Expect(ccUc.caCertBundle).To(Equal(expectedClusterCACertBundle))
@@ -78,7 +76,6 @@ var _ = Describe("CreateCluster", func() {
 		// use mocked commandHandlerClient
 		mockClient := mes.NewMockCommandHandlerClient(mockCtrl)
 		commanddata := &cmdData.CreateCluster{
-			DisplayName:      expectedDisplayName,
 			Name:             expectedName,
 			ApiServerAddress: expectedApiServerAddress,
 			CaCertBundle:     expectedClusterCACertBundle,

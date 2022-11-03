@@ -4,15 +4,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-type Prompt struct {
-}
-
-func NewPrompt() *Prompt {
-	return &Prompt{}
-}
-
-// SelectWithAdd prompt the user to select one of the specified options or write its own
-func (p *Prompt) SelectWithAdd(label string, AddLabel string, items []string) (int, string, error) {
+// SelectWithAdd prompts the user to select one of the specified options or write its own
+func SelectWithAdd(label string, AddLabel string, items []string) (int, string, error) {
 	prompt := promptui.SelectWithAdd{
 		Label:    label,
 		Items:    items,
@@ -25,4 +18,17 @@ func (p *Prompt) SelectWithAdd(label string, AddLabel string, items []string) (i
 	}
 
 	return idx, result, nil
+}
+
+// Confirm prompts the user to confirm that they want to proceed
+func Confirm(msg string) bool {
+	prompt := promptui.Prompt{
+		Label:     msg,
+		IsConfirm: true,
+	}
+	result, err := prompt.Run()
+	if err != nil || result != "y" {
+		return false
+	}
+	return true
 }

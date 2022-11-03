@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGrantCmd() *cobra.Command {
+func NewRevokeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "revoke",
 		SilenceUsage:          true,

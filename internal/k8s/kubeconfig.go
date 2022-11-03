@@ -32,14 +32,12 @@ const kubeConfigEnvVar = "KUBECONFIG"
 
 type KubeConfig struct {
 	log        logger.Logger
-	prompt     *prompt.Prompt
 	ConfigPath string
 }
 
 func NewKubeConfig() *KubeConfig {
 	return &KubeConfig{
-		log:    logger.WithName("KubeConfig"),
-		prompt: prompt.NewPrompt(),
+		log: logger.WithName("KubeConfig"),
 	}
 }
 
@@ -52,7 +50,7 @@ func (k *KubeConfig) LoadConfig() (*api.Config, error) {
 		fileList := filepath.SplitList(k.ConfigPath)
 		if len(fileList) > 1 {
 			var err error
-			_, k.ConfigPath, err = k.prompt.SelectWithAdd(
+			_, k.ConfigPath, err = prompt.SelectWithAdd(
 				"please specify a config file",
 				"Create new",
 				fileList,

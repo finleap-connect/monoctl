@@ -35,7 +35,6 @@ import (
 var _ = Describe("GetCluster", func() {
 	var (
 		mockCtrl                    *gomock.Controller
-		expectedDisplayName         = "the one cluster"
 		expectedName                = "one-cluster"
 		expectedApiServerAddress    = "one.example.com"
 		expectedClusterCACertBundle = []byte("This should be a certificate")
@@ -77,7 +76,6 @@ var _ = Describe("GetCluster", func() {
 		getAllClient := mdom.NewMockCluster_GetAllClient(mockCtrl)
 		getAllClient.EXPECT().Recv().Return(&projections.Cluster{
 			Id:               expectedUUID.String(),
-			DisplayName:      expectedDisplayName,
 			Name:             expectedName,
 			ApiServerAddress: expectedApiServerAddress,
 			CaCertBundle:     expectedClusterCACertBundle,
@@ -87,7 +85,6 @@ var _ = Describe("GetCluster", func() {
 		}, nil)
 		getAllClient.EXPECT().Recv().Return(&projections.Cluster{
 			Id:               expectedUUID.String(),
-			DisplayName:      "another cluster",
 			Name:             "another",
 			ApiServerAddress: "two.exmaple.com",
 			CaCertBundle:     expectedClusterCACertBundle,
