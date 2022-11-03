@@ -17,16 +17,17 @@ package output
 import (
 	"errors"
 	"fmt"
-	"github.com/finleap-connect/monoctl/internal/util"
 	"os"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/finleap-connect/monoctl/internal/util"
+
+	"github.com/fvbommel/sortorder"
 	"github.com/olekukonko/tablewriter"
 	"k8s.io/apimachinery/pkg/util/duration"
-	"vbom.ml/util/sortorder"
 )
 
 // TableFactory to print a table with sorting
