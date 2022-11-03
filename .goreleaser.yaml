@@ -41,5 +41,4 @@ brews:
     tap:
       owner: finleap-connect
       name: homebrew-monoctl
-      token: "{{ secrets.GORELEASER_REPO_WRITE }}"
     skip_upload: auto
