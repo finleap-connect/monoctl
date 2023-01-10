@@ -34,7 +34,7 @@ jobs:
           version: ${{ env.VERSION }}
           publish: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         uses: goreleaser/goreleaser-action@v3
         with:
