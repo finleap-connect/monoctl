@@ -23,7 +23,6 @@ archives:
       darwin: osx
       windows: win
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
-
 checksum:
   name_template: "checksums.txt"
 snapshot:
