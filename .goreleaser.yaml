@@ -23,7 +23,6 @@ archives:
       darwin: osx
       windows: win
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
-
 checksum:
   name_template: "checksums.txt"
 snapshot:
@@ -40,5 +39,5 @@ brews:
     homepage: https://github.com/finleap-connect/monoctl
     license: "Apache"
     tap:
-      owner: finleap-connect
+      owner: HaniAlshikh
       name: homebrew-monoctl
