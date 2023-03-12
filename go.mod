@@ -7,7 +7,7 @@ require (
 	github.com/finleap-connect/monoskope v0.5.2
 	github.com/fvbommel/sortorder v1.0.2
 	github.com/golang/mock v1.6.0
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/juju/clock v1.0.3
 	github.com/juju/mutex/v2 v2.0.0
