@@ -7,7 +7,7 @@ require (
 	github.com/finleap-connect/monoskope v0.5.2
 	github.com/fvbommel/sortorder v1.0.2
 	github.com/golang/mock v1.6.0
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/juju/clock v1.0.3
 	github.com/juju/mutex/v2 v2.0.0
@@ -15,7 +15,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.25.0
+	github.com/onsi/gomega v1.27.3
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/spf13/cobra v1.6.1
 	github.com/zalando/go-keyring v0.2.2
